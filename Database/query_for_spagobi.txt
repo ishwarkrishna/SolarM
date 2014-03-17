@@ -19,6 +19,6 @@ where rd.imei_no = '00000001' and
  year(rd.date) = '2013' and month(rd.date)=11 group by rd.date;
 
 
-
+this is to get githup
 
 
