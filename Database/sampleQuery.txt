@@ -1,0 +1,7 @@
+SELECT c.cus_id FROM customer c
+inner join  `user` u on c.cus_id=u.cus_id where u.id=null union SELECT c.cus_id FROM customer c inner join  `user` u on c.cus_id=u.cus_id where null<=>null;
+
+
+select sum(case when date=current_date then report_data1 end) as today,
+sum(case when date between date_sub(current_date,interval 1 month) and current_date then report_data1 end) as lastweek,
+sum(case when date between date_sub(current_date,interval 7 day) and current_date then report_data1 end) as lastmonth from report_data;

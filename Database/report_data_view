@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS `report_data_view`;
+DROP VIEW IF EXISTS `report_data_view`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `report_data_view` AS 
+select rd.imei_no,md.name,rd.hour,rd.date,
+week(rd.date) as week,quarter(rd.date) quarter,Month(rd.date) month,year(rd.date) year,
+report_data1,report_data2,report_data3,SOLAR_V,LOAD_V,UTILIT_V,BATTERY_V,SOLAR_C,LOAD_C,UTILIT_C,SOLAR_P,LOAD_P,UTILIT_P from report_data rd,machine_details md
+where rd.imei_no=md.imei_no;

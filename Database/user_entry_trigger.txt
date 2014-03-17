@@ -1,0 +1,38 @@
+Delimiter $$
+drop trigger if exists tr_login_details $$ create definer =`root`@`localhost` trigger tr_login_details after insert on login_details for each row begin
+
+
+declare t_log_id int(45);
+declare t_user_id varchar(15);
+declare t_password varchar(100);
+declare t_login_created timestamp;
+declare t_user_name varchar(45);
+declare t_address varchar(100);
+declare t_mobile varchar(45);
+declare t_status int(45);
+declare t_email varchar(45);
+declare t_cus_id int(45);
+declare t_location_id int(45);
+declare t_user_lock int(45);
+declare t_lunsuccessful_login_attempt int(45);
+declare t_last_login_attempt timestamp;
+declare t_password_age timestamp;
+declare t_user_active bit(1);
+
+
+select 
+tm.log_id,tm.user_id,tm.password,tm.login_created,tm.user_name,tm.address,tm.mobile,tm.status,tm.email,
+tm.cus_id,tm.location_id,tm.user_lock,tm.unsuccessful_login_attempt,tm.password_age,tm.user_active
+into 
+t_log_id,t_user_id,t_password,t_login_created,t_user_name,t_address,t_mobile,t_status,t_email,
+t_cus_id,t_location_id,t_user_lock,t_lunsuccessful_login_attempt,t_password_age,t_user_active from login_details tm
+where tm.log_id=new.log_id;
+
+insert into 
+ttms_ibm.login_details(LOG_ID,USER_ID,PASSWORD,LOGIN_CREATED,USER_NAME,ADDRESS,MOBILE,STATUS,EMAIL,CUS_ID,LOC_ID,USER_LOCK,UNSUCCESSFUL_LOGIN_ATTEMPT,LAST_LOGIN_ATTEMPT,PASSWORD_AGE,USER_ACTIVE)
+                            
+values(t_log_id,t_user_id,t_password,t_login_created,t_user_name,t_address,t_mobile,t_status,t_email,t_cus_id,t_location_id,t_user_lock,t_lunsuccessful_login_attempt,t_last_login_attempt,t_password_age,t_user_active);
+
+
+end
+$$ delimiter ;

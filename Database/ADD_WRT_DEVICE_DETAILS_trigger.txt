@@ -1,0 +1,18 @@
+--
+-- Definition of trigger `ADD_WRT_DEVICE_DETAILS`
+--
+
+DELIMITER $$
+
+DROP TRIGGER  IF EXISTS  `ADD_WRT_MACHINE_DETAILS`$$
+
+CREATE TRIGGER `ADD_WRT_MACHINE_DETAILS` AFTER INSERT ON `machine_details`
+    FOR EACH ROW BEGIN
+    INSERT INTO latest_data(data_id,imei_no)
+    SELECT pdm.DATA_ID,NEW.imei_no FROM machine_details md
+    inner join protocol_data_mapping pdm on md.pro_type_id = pdm.pro_type_id
+    where pdm.pro_type_id=md.pro_type_id and md.imei_no=NEW.imei_no;
+END;
+$$
+
+DELIMITER ;

@@ -1,0 +1,17 @@
+--
+-- Definition of trigger `ADD_WRT_DEVICE_DETAILS`
+--
+
+DELIMITER $$
+
+DROP TRIGGER  IF EXISTS  `ADD_WRT_MACHINE_DETAILS`$$
+
+CREATE TRIGGER `ADD_WRT_MACHINE_DETAILS` AFTER INSERT ON `machine_details`
+    FOR EACH ROW BEGIN
+	INSERT INTO latest_data(data_id,data_code,imei_no)
+  SELECT data_details.DATA_ID,data_code,NEW.imei_no FROM data_details,machine_details
+  WHERE machine_details.imei_no=NEW.imei_no;
+END;
+$$
+
+DELIMITER ;

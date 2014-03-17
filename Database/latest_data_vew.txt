@@ -1,0 +1,18 @@
+DROP TABLE IF EXISTS `latest_data_view`;
+DROP VIEW IF EXISTS `latest_data_view`;
+create view latest_data_view AS select md.imei_no,md.name,md.area,md.city,md.state,md.customer_id,md.sim_no,md.var_data1,md.var_data2,md.var_data3,
+(select `ld1`.`data_timestamp` from `latest_data` `ld1` where `ld1`.`imei_no` = `md`.`imei_no` order by data_timestamp desc limit 1) AS `data_timestamp`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data1') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data1`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data2') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data2`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data3') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data3`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data4') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data4`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data5') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data5`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data6') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data6`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data7') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data7`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data8') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data8`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data9') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data9`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data10') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data10`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data11') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data11`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data12') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data12`,
+(select `ld1`.`value` AS `data1` from `latest_data` `ld1` where ((`ld1`.`data_id` = 'data13') and (`ld1`.`imei_no` = `md`.`imei_no`))) AS `data13`
+from machine_details md;

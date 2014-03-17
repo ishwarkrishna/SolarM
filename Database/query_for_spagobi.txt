@@ -1,0 +1,24 @@
+SELECT md.imei_no,md.name,month(rd.date),sum(rd.report_data1) FROM report_data rd
+inner join machine_details md on rd.imei_no = md.imei_no
+where md.customer_id = 1 and  month(rd.date)=10 group by md.imei_no,month(rd.date);
+
+
+SELECT md.imei_no,md.name,month(rd.date),sum(rd.report_data2) FROM report_data rd
+inner join machine_details md on rd.imei_no = md.imei_no
+where md.customer_id = 1 and month(rd.date)=10 group by md.imei_no,month(rd.date);
+
+
+
+SELECT md.imei_no,md.name,month(rd.date),sum(rd.report_data3) FROM report_data rd
+inner join machine_details md on rd.imei_no = md.imei_no
+where md.customer_id = 1 and month(rd.date)=10 group by md.imei_no,month(rd.date);
+
+
+SELECT rd.date,sum(rd.report_data1),sum(rd.report_data2),sum(rd.report_data3) FROM report_data rd
+where rd.imei_no = '00000001' and
+ year(rd.date) = '2013' and month(rd.date)=11 group by rd.date;
+
+
+
+
+
