@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+      
+	<context:component-scan base-package="com.macine.service.web" />
+ 
+ 	<mvc:annotation-driven/>
+ 
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order" value="1" />
+	  	<property name="mediaTypes">
+			<map>
+		   		<entry key="json" value="application/json" />
+		   		<entry key="xml" value="application/xml" />
+			</map>
+	  	</property>
+
+        <property name="defaultViews">
+            <list>
+                <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" />
+
+                <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+                    <constructor-arg>
+                        <bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+                            <property name="classesToBeBound">
+                                <list>
+                                    <value>com.macine.service.bean.Machines</value>
+                                    <value>com.macine.service.bean.MachineDetails</value>
+                                    <value>com.macine.service.bean.Customers</value>
+                                    <value>com.macine.service.bean.CustomersMachineDetails</value>
+                                    <value>com.macine.service.bean.CustomersMachines</value>
+                                    <value>com.macine.service.bean.LiveMachineData</value>
+									<value>com.macine.service.bean.LiveParamData</value>
+
+                                    <value>com.macine.service.bean.CustomerNavList</value>
+                                    <value>com.macine.service.bean.CustomersNavMachines</value>
+									<value>com.macine.service.bean.MachineNavDetails</value>
+									
+									<value>com.macine.service.bean.SolarProtocol1LatHisList</value>
+									<value>com.macine.service.bean.SolarProtocol1LatestHistory</value>
+									
+									<value>com.macine.service.bean.SolarProtocol1LatestView</value>
+                                </list>
+                            </property>
+                        </bean>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </property>
+         <property name="ignoreAcceptHeader" value="true" />
+    </bean>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="2" />
+		<property name="prefix">
+			<value>/WEB-INF/jsp</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+    </bean>
+	
+</beans>

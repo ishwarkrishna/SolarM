@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<project name="Machine" basedir="." default="deploy">
+	<echo>### Build Process ###</echo>
+	<property file="build_jar.properties" />
+
+	<path id="master-classpath">
+		<fileset dir="${lib.dir}" erroronmissingdir="false">
+			<include name="*.jar" />
+		</fileset>
+
+		<pathelement path="${build.dir}" />
+
+	</path>
+
+	<target name="build" description="Compile main source tree java files">
+		<echo>...Compiling Java files from src folder... </echo>
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${deploy.dir}" />
+		<mkdir dir="${deploy.dir}/lib" />
+		<javac destdir="${build.dir}" debug="true" deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}" />
+			<classpath refid="master-classpath" />
+		</javac>
+
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}">
+				<exclude name="**/*.java" />
+				<exclude name="**/*.class" />
+				<exclude name="**/.*/**" />
+			</fileset>
+		</copy>
+
+		<echo>...Copying libraries  from ${lib.dir} folder to ${deploy.dir}/lib ... </echo>
+		<copy todir="${deploy.dir}/lib">
+			<fileset dir="${lib.dir}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+
+	</target>
+
+	<target name="createJar" depends="clean,build" description="Deploy application as a jar file">
+		<echo>...Creating JAR file ... </echo>
+		<mkdir dir="${jar.dir}" />
+		<jar destfile="${jar.dir}/${project.name}.jar" basedir="${build.dir}">
+			<include name="**/*.class" />
+			<include name="**/*.xml" />
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}" />
+				<attribute name="Class-Path" value="${classpath}" />
+			</manifest>
+		</jar>
+		<echo>....Creating Batch and sh file....</echo>
+		<touch file="${project.name}.bat" />
+		<touch file="${project.name}.sh" />
+		<echo>..... Writing to batch and sh file ${deploy.dir}/${project.name}.bat  .....</echo>
+		<concat destfile="${project.name}.bat" append="true">java -jar "${project.name}.jar"</concat>
+		<concat destfile="${project.name}.sh" append="true">/usr/bin/java -jar "${project.name}.jar"</concat>
+	</target>
+
+	<target name="deploy" depends="createJar" description="Deploy jar files to deployment folder">
+		<echo>...Deploying JAR files into ${deploy.dir}... </echo>
+		<copy todir="${deploy.dir}" preservelastmodified="true">
+					<fileset dir="${jar.dir}">
+						<include name="*.jar" />
+					</fileset>
+				</copy>
+				<echo>...JAR files deployed into ${deploy.dir}... </echo>
+		<echo>...Copying libraries  from ${lib.dir} folder to ${deploy.dir}/lib ... </echo>
+		<copy todir="${deploy.dir}/lib">
+			<fileset dir="${lib.dir}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<echo>...Copying ${ext.dir} directory  from root directory to ${deploy.dir} ... </echo>
+		<copy todir="${deploy.dir}/ext">
+			<fileset dir="${ext.dir}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<echo>...Copying batch and sh file from root directory to ${deploy.dir} ... </echo>
+		<move todir="${deploy.dir}">
+			<fileset dir=".">
+				<include name="**/*.bat" />
+				<include name="**/*.sh" />
+			</fileset>
+		</move>
+	</target>
+
+	<target name="clean" description="Destroys all generated files and dirs.">
+		<echo>...Cleaning build and deploy folder... </echo>
+		<delete dir="${deploy.dir}" />
+		<delete dir="${build.dir}" />
+		<delete dir="${jar.dir}" />
+		<delete dir="${log.dir}" />
+	</target>
+
+</project>
