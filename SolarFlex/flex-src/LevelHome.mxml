@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" 
+	layout="absolute" creationComplete="initLoadPannel()" width="100%" height="100%">
+	 
+	<mx:Script>   
+		<![CDATA[
+			import mx.managers.PopUpManager; 
+			import mx.controls.Alert;
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.*; 
+
+			[Bindable] public  var serverIpAndPort:String = "180.179.36.118:8080";		
+			[Bindable] public  var userId:String = "leveluser";		
+			[Bindable] public  var isAdmin:Boolean = false;		
+
+			
+			[Bindable] public static var machineId:String = null;		
+			[Bindable] public static var machineName:String = null;
+				
+			private var snWidth:Number = (Capabilities.screenResolutionX / 3)-150;//3			
+			private var snHeight:Number = (Capabilities.screenResolutionY/ 2)+40; 
+			private var snX:int = 3;
+			private var snY:int = 5;
+			
+			private var spsWidth:Number = (Capabilities.screenResolutionX -snWidth)-5;//+50; 
+			private var spsHeight:Number = (Capabilities.screenResolutionY / 2)+43;//snHeight/2;
+			private var spsX:Number = snWidth+5; 
+			private var spsY:Number = 5;
+			
+			
+			private var ptWidth:Number = snWidth + spsWidth + 3;//(Capabilities.screenResolutionX)-150; //1005 +18 43
+			private var ptHeight:Number = (Capabilities.screenResolutionY / 3.27); //150
+			private var ptX:Number = 3;
+			private var ptY:Number = snHeight+13;
+			//--------------------------------------------------------------------------------
+			
+			
+			
+		  	public function initLoadPannel():void{
+		  		
+				siteNavigation();
+				//lastNMachineData();
+				levelSummary();
+				
+				 
+				serverIpAndPort=Application.application.parameters.serverIpAndPort.toString();
+				userId=Application.application.parameters.userId.toString();
+				if (userId.lastIndexOf("admin") != -1)
+				{
+					isAdmin = true;
+				}
+ 
+	      	    LevelSummary.serverIpAndPort = serverIpAndPort;
+	      	    LevelSiteNavigation.serverIpAndPort = serverIpAndPort;	
+	      	    LevelSiteNavigation.loginUser =  userId;
+		  	}    
+   
+		  	[Bindable] private var line:LineAreaSeriesExample = null;
+			public function openLineChart():void{
+				line  = new LineAreaSeriesExample();
+			} 
+			[Bindable] private var sn:LevelSiteNavigation = new LevelSiteNavigation;
+			public function siteNavigation():void{
+				sn = mdiFrame.openPanel(LevelSiteNavigation) as LevelSiteNavigation;
+				sn.title = "Site Navigation";
+				sn.x = snX;
+				sn.y = snY;
+				sn.width = snWidth;
+				sn.height = snHeight+3;
+			}
+		
+			[Bindable] private var sph:LevelSummary = new LevelSummary;
+			public function levelSummary():void{
+				sph = mdiFrame.openPanel(LevelSummary) as LevelSummary;
+				sph.title = "Level Summary";
+				sph.x = spsX;
+				sph.y = spsY;
+				sph.width = spsWidth;
+				sph.height = spsHeight;
+			}
+			
+			[Bindable] private var lmd:LevelMachineData = new LevelMachineData;
+			public function lastNMachineData():void{
+				 lmd = mdiFrame.openPanel(LevelMachineData) as LevelMachineData;
+				lmd.title = "Data Trend";
+				lmd.x = ptX;
+				lmd.y = ptY;
+				lmd.width = ptWidth;
+				lmd.height = ptHeight;
+			}
+
+			
+			public function restore():void{
+				sn.x = snX;
+				sn.y = snY;
+				sn.width = snWidth;
+				sn.height = snHeight+3;
+				
+				sph.x = spsX;
+				sph.y = spsY;
+				sph.width = spsWidth;
+				sph.height = spsHeight;
+				
+				
+				lmd.x = ptX;
+				lmd.y = ptY;
+				lmd.width = ptWidth;
+				lmd.height = ptHeight;
+				
+			} 
+		]]>
+	</mx:Script> 
+	 
+	<mx:Style source="main.css"/>  
+	 
+	<!--mx:ApplicationControlBar width="100%">
+		<mx:Button icon="@Embed('assets/icon_addlist.gif')" toolTip="Sites" click="clickSites();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>
+		<mx:Button icon="@Embed('assets/icon_tile.png')" toolTip="Customers" click="clickCustomers();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>
+		<mx:Button icon="@Embed('assets/AddUsericon.png')" toolTip="Users" click="clickUsers();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>		
+		<mx:Button icon="@Embed('assets/icon_chat.png')" toolTip="Arrange Pannels" click="restore();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>
+		<mx:Spacer width="50%"/>
+		<mx:Label color="white" text="{machineName}" />
+		<mx:Spacer width="50%"/>
+		<mx:Label color="white" text="Solar Monitoring System - PowerOne" fontWeight="bold" fontSize="12"/>
+	</mx:ApplicationControlBar-->
+	
+	<MDIFrame id="mdiFrame" width="100%" height="100%"/>
+		
+</mx:Application>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" initialize="init()" creationComplete="created()" width="100" height="260">
+<!--mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" initialize="init()" creationComplete="created()" 
+	   height="400" width="300"-->
+<!--mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"/-->
+    <mx:Script>
+        <![CDATA[
+            import mx.core.UIComponent; 
+			import mx.controls.Alert;
+  
+            private var batteryBank:UIComponent;
+            private var batteryCell:UIComponent;
+                        
+            [Bindable] public var batteryBankColor:uint = 0xFF0000; 
+			[Bindable] public var batteryTipColor:uint = 0xFF1010;
+			[Bindable] public var batteryBankOutLineColor:uint = 0xFFFFFF; 
+            [Bindable] public var batteryCellColor:uint = 0xFF00FF; 
+            [Bindable] public var batteryCellOutLineColor:uint = 0x00FF00; 
+            [Bindable] public var batteryTextBKColor:uint = 0xFFFFFF;  //0x535fb4
+            [Bindable] public var TextBKColor:uint = 0x000000;
+                      
+            [Bindable] public var barXpos:int=50;
+			[Bindable] public var barYpos:int=220;
+            
+            [Bindable] public var availableBettery:Number=0;
+
+			[Bindable] private var maxBarHeight:Number=200;
+			[Bindable] private var maxBarWidth:Number=50;
+			
+ 			[Bindable] private var batteryTipHeight:Number=10;
+ 			[Bindable] private var batteryTipWidth:Number=30;
+ 			[Bindable] private var batteryCellHeight:Number=10;
+			
+			[Bindable] private var barScale:Number=0;
+ 			[Bindable] private var barActualVal:Number=0;
+ 			
+
+            private function init():void
+            { 
+            	batteryBank = new UIComponent;
+            	batteryCell = new UIComponent;
+            }
+            
+                      
+            public function updateBarLevel():void {
+			 	 batteryCell.graphics.clear();
+
+	      		for(var i:int=14;i<maxBarHeight;i=i+10) 
+	        	{
+		            batteryCell.graphics.lineStyle(2,batteryCellOutLineColor);
+					batteryCell.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2)+4,barYpos-i, maxBarWidth-8, batteryCellHeight, 2, 2, 2, 2);
+					
+					if (i<availableBettery*1.5) {
+					batteryCell.graphics.beginFill(batteryCellOutLineColor,0.8);
+					batteryCell.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2)+4,barYpos-i, maxBarWidth-8, batteryCellHeight, 2, 2, 2, 2);
+		       	    batteryCell.graphics.endFill();
+		   			}
+				 }
+				batteryCell.addChild(drawText("          ",barXpos-10,barYpos+10,batteryBankOutLineColor,batteryTextBKColor));
+				batteryCell.addChild(drawText(availableBettery+"",barXpos-10,barYpos+10,batteryBankOutLineColor,batteryTextBKColor));
+
+             }
+             
+             private function drawText(textVal:String, xVal:int, yVal:int,textColor:uint,textBKColor:uint):TextField {
+				var textField:TextField = new TextField();
+				textField.backgroundColor = textBKColor;
+				textField.background = true;
+				//textField.height = 20;
+				//textField.width = 30;
+				//testField.text = textVal;
+				textField.htmlText = "<b> Battery:" + textVal + "</b>";
+				textField.textColor = TextBKColor;//textColor;
+				textField.autoSize = TextFieldAutoSize.LEFT; 
+				textField.x = xVal-20;
+				textField.y = yVal;
+			
+				//textField.text = textVal;
+				return textField;
+			}
+			
+            private function changeBatteryLevel():void
+            {
+            	updateBarLevel();
+            }
+            
+            public function set value(val:Number):void
+            {
+            
+            	//updateBarLevel(val);
+            	//fuelValue.text=val+"";
+            	availableBettery = val;
+            	//Alert.show("battery value : "+availableBettery);
+
+            } 
+            
+            public function changeValue(val:Number):void
+            {
+            	  availableBettery=val;
+            	  updateBarLevel();
+            }
+            
+            
+            private function created():void
+            {
+                //create all the visual assets
+                createVisualAssets()
+                drawBatteryBank();
+                updateBarLevel();
+            }
+
+            private function createVisualAssets():void
+            {
+                addChild(batteryBank);
+                addChild(batteryCell);
+            }     
+            
+         /**
+	  	 * This function draws the battery bank. 
+	  	 */
+	  	  private function drawBatteryBank():void
+	      {  	
+	      	//var gradientBoxMatrix:Matrix = new Matrix();
+			//gradientBoxMatrix.createGradientBox(100, 40, 0, 0, 0);
+			
+            batteryBank.graphics.lineStyle(4,batteryBankOutLineColor,0.8);
+            batteryBank.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2),barYpos-maxBarHeight, maxBarWidth, maxBarHeight, 1, 1, 1, 1);
+            batteryBank.graphics.drawRoundRectComplex(barXpos-(batteryTipWidth/2),barYpos-maxBarHeight-batteryTipHeight, batteryTipWidth, batteryTipHeight, 1, 1, 1, 1);
+
+            batteryBank.graphics.beginFill(batteryBankColor);
+      	    //batteryBank.graphics.beginGradientFill(GradientType.LINEAR,[0x0000FF, 0x00FF00, 0xFF0000], [1, 1, 1], [0, 128, 255],gradientBoxMatrix);
+            batteryBank.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2),barYpos-maxBarHeight, maxBarWidth, maxBarHeight, 1, 1, 1, 1);
+       	    batteryBank.graphics.endFill();
+       	    
+       	    batteryBank.graphics.beginFill(batteryTipColor);
+      	    //batteryBank.graphics.beginGradientFill(GradientType.LINEAR,[0x0000FF, 0x00FF00, 0xFF0000], [1, 1, 1], [0, 128, 255],gradientBoxMatrix);
+            batteryBank.graphics.drawRoundRectComplex(barXpos-(batteryTipWidth/2),barYpos-maxBarHeight-batteryTipHeight, batteryTipWidth, batteryTipHeight, 1, 1, 1, 1);
+       	    batteryBank.graphics.endFill();
+       	  }
+
+        ]]>
+    </mx:Script>
+    			<!--mx:Canvas id="temperatureArea"  width="120" height="387" borderStyle="inset" borderColor="#E7EBEE"-->
+                    <!--mx:Button id="submit" label="submit" click="changeVal()" x="0" y="10" width="42"/-->
+                    <!--mx:TextInput id="tempValue" visible="false" x="46" y="10" width="32"/-->
+                    <!--mx:Image id="canvasImage" source="assets/images/temp1.jpg" x="28" y="40"/-->
+                <!--/mx:Canvas-->
+	    
+	    <mx:Metadata>
+        [Event(name="valueChanged", type="flash.events.Event")]
+    	</mx:Metadata> 
+    
+</mx:Canvas>
+<!--/mx:Application-->

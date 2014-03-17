@@ -1,0 +1,55 @@
+@font-face
+{
+    src: url("assets/MyriadWebPro.ttf");
+    font-family: myriad;
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face
+{
+    src: url("assets/MyriadWebPro-Bold.ttf");
+    font-family: myriad;
+    font-style: normal;
+    font-weight: bold;
+}
+
+Application {
+	background-color:#535353;
+	paddingTop:0;
+	paddingBottom:0;
+	paddingLeft:0;
+	paddingRight:0;
+	vertical-gap:0;
+}
+  
+ApplicationControlBar {
+	corner-radius: 0;
+}
+
+.menuBarButton {
+	corner-radius:2;
+	label-gap:0;
+	color: #FFFFFF;
+}
+
+.title
+{
+    font-family: myriad; 
+    font-size: 24pt;
+    font-weight: bold;
+}
+
+
+HSlider {
+	showTrackHighlight: true;
+}
+
+Panel {
+	roundedBottomCorners: true;
+	border-alpha: 1;
+}
+
+.taskBarButton {
+	corner-radius: 2;	
+}

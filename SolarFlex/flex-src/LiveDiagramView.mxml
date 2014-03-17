@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIPanel xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:meter="com.brightPoint.controls.*"
+	width="364" height="400"
+	title="Data Trend" layout="absolute" creationComplete="creationCompleteHAndler()">
+	
+	 
+	<mx:Script> 
+		<![CDATA[
+		import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent; 
+		import mx.rpc.events.FaultEvent;
+		import mx.collections.XMLListCollection;	
+		
+		[Bindable] public static var machineId:String = null;
+		[Bindable] public static var serverIpAndPort:String = "localhost:8080";		
+			  
+		[Bindable] 
+        private var paramData:XMLListCollection = null;
+        private var timer:Timer = new Timer(1000, 1);    
+
+			protected function creationCompleteHAndler():void
+			{
+		       //timer.addEventListener(TimerEvent.TIMER_COMPLETE, callService);
+			}
+			 
+		   /*private function callService(e:TimerEvent):void
+		   {
+			   timer.reset();
+  				if (machineId != null && machineId != "")
+			   		paramSrv.send();
+		   }
+
+	        private function tempResultHandler(event:ResultEvent):void
+			{
+				timer.start();
+				var xmlList:XMLList = XML(event.result).children();
+				paramData =  new XMLListCollection(xmlList);
+				//Alert.show("WS result. "+paramData);   //.getItemAt(8));
+				
+			}
+			
+			public function httpFault(event:FaultEvent):void {
+				timer.start();
+                var faultstring:String = event.fault.faultString;
+                Alert.show("LiveDiagramView"+faultstring);
+            }
+            
+            		
+			public function onchangeMachineId(mId:String):String{
+				//Alert.show("calling web erviers :"+machineId);
+				  if (machineId != null && machineId != "")		
+				  {
+   			        timer.start();
+  				    paramSrv.send();
+				  }
+ 
+				return mId;
+			}*/
+	]]>
+	</mx:Script>
+	
+		 <mx:Image id="img1" source="images/Solar_inverted1.jpg" 
+                  width="100%" height="100%" scaleContent="true" maintainAspectRatio="false"/>	
+
+
+	
+	<!--mx:HTTPService id="paramSrv" useProxy="false" method="GET" resultFormat="e4x" 
+		url="http://{serverIpAndPort}/SolarService/history/machines/{machineId}/last/10.xml"
+		 result="tempResultHandler(event)" fault="httpFault(event)"/>
+	
+	<mx:DataGrid dataProvider="{paramData}" width="100%" height="100%">
+	         <mx:columns>
+                     <mx:DataGridColumn id="timestamp"
+                                   dataField="Timestamp"
+                                   headerText="Timestamp" minWidth="200" />
+
+                     <mx:DataGridColumn id="panelPower"
+                                   dataField="data8"
+                                   headerText="Panel Power" minWidth="100" />
+                                   
+               		 <mx:DataGridColumn id="inverterPower"
+                                   dataField="data10"
+                                   headerText="Inverter Power" minWidth="100" />
+
+                     <mx:DataGridColumn id="utilityPower"
+                                   dataField="data9"
+                                   headerText="Utility Power" minWidth="100" />
+                                   
+ 	                <mx:DataGridColumn id="panelVoltage"
+                                   dataField="data1" 
+                                   headerText="Panel Voltage" />
+
+                     <mx:DataGridColumn id="utilityVoltage"
+                                   dataField="data3"
+                                   headerText="Utility Voltage" />
+                                   
+                     <mx:DataGridColumn id="inverterVoltage"
+                                   dataField="data4"
+                                   headerText="Inverter Voltage" />
+                                   
+                     <mx:DataGridColumn id="batteryVoltage"
+                                   dataField="data2"
+                                   headerText="Battery Voltage" />
+                                   
+                     <mx:DataGridColumn id="panelCurrent"
+                                   dataField="data5"
+                                   headerText="Panel Current" />
+                                   
+                     <mx:DataGridColumn id="utilityCurrent"
+                                   dataField="data6"
+                                   headerText="Utility Current" />
+                                   
+                     <mx:DataGridColumn id="inverterCurrent"
+                                   dataField="data7"
+                                   headerText="Inverter Current" />
+
+                   	 <mx:DataGridColumn id="panelCumEnergy"
+                                   dataField="data11"
+                                   headerText="Panel Cum Energy" />
+                                   
+                     <mx:DataGridColumn id="utilityCumEnergy"
+                                   dataField="data12"
+                                   headerText="Utility Cum Energy" />
+                                   
+                     <mx:DataGridColumn id="inverterEnergy"
+                                   dataField="data13"
+                                   headerText="Inverter Energy" />
+                                   
+            </mx:columns>
+
+	</mx:DataGrid>
+
+	<mx:Form>
+        <mx:FormItem label="Open Event:" visible="false">
+            <mx:Label id="forOpen" width="150" text="{onchangeMachineId(machineId)}"/>            
+        </mx:FormItem>
+ </mx:Form--> 
+    
+	
+<!-- 
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+		
+		import mx.controls.Alert;
+		[Bindable] private var TEXT_BACK_GROUND_GR:uint = 0x00FF00;
+ 		[Bindable] private var TEXT_BACK_GROUND_RE:uint = 0xFF0000;
+ 		[Bindable] private var TEXT_COLOR:uint = 0x000000
+ 		private var drawColour:uint = 0x00FF00;
+ 		private var textInput:TextField = null;   
+	    private var format:TextFormat = null;  	
+	    [Bindable] private var myBitmap:Bitmap = null;
+		[Bindable] private var myImage:Image = null; 
+		[Bindable] private var mcDiagram:BitmapData;
+		//[Bindable] private var pointId:Number = 0;
+	    
+	    
+		 private function initApp():void {
+		 	getmachineDate();
+		 }	
+
+		// for image bitmap
+   		 private function getmachineDate():void{
+    				
+    				myBitmap = null;
+	     			myImage =  null;
+					mcDiagram = Bitmap(img1.content).bitmapData;
+					//mcDiagram = Bitmap(sourceImage).bitmapData;
+			     	var dynamicParts:UIComponent = new UIComponent();
+			     	dynamicParts.cachePolicy = "off";
+			        var strVal:String = "SOLAR m";
+					var xValue:int = 100;
+					var yValue:int = 100;
+					var alarmVal:String = "TRUE";	
+			   
+					dynamicParts.addChild(drawText(strVal,xValue,yValue,alarmVal));
+			    
+			    	mcDiagram.draw(dynamicParts);
+			    	
+			    	myBitmap = new Bitmap(mcDiagram);
+	     			myImage =  new Image();
+	     			myImage.source = myBitmap;
+					canvasId.addChild(myImage);
+			    	
+			   // 	img1.source ="";
+			  //  	img1.source = sourceImage;
+		    	 
+			}
+    
+        // for image
+     private function drawText(textVal:String, xVal:int, yVal:int, alarmVal:String):TextField {
+     		textInput = new TextField();
+     		format = new TextFormat();
+     	//	Alert.show("text");
+			if(alarmVal == "TRUE"){
+     			textInput.backgroundColor = TEXT_BACK_GROUND_GR;     			     	   				     			
+     		}else{
+     			textInput.backgroundColor = TEXT_BACK_GROUND_RE;     			
+     		}	 	
+     		textInput.htmlText = textVal+" WH";					
+			textInput.background = true;
+			textInput.height = 50;
+			textInput.width = 35;							
+			textInput.textColor = TEXT_COLOR;
+			textInput.autoSize = TextFieldAutoSize.LEFT; 	 
+			textInput.border = true;
+			textInput.alpha = 5.0;			
+			textInput.x = xVal;
+			textInput.y = yVal;
+			//format function
+			format.font = "Arial";
+       		format.size =  15;
+       		format.bold = true;
+       		textInput.defaultTextFormat = format;
+			return textInput;
+		}  
+    
+    
+		]]>
+	</mx:Script>
+	 <mx:Image id="img1" source="images/solarImage.PNG" 
+                  width="1%" height="1%" maintainAspectRatio="false" visible="false"/>	
+		                  
+		<mx:HBox height="100%" width="100%">
+			<mx:VBox height="100%" width="30%">
+				<nui:Battery id="battery" value="0">
+				</nui:Battery>
+			</mx:VBox>
+			<mx:VBox height="100%" width="70%">
+				<mx:Canvas height="100%" width="100%" id="canvasId">
+								
+				</mx:Canvas>
+			</mx:VBox>
+		</mx:HBox>
+	
+-->
+</MDIPanel>

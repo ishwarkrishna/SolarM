@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- http://blog.flexexamples.com/2007/10/15/using-data-effects-to-animate-chart-data/ -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        verticalAlign="middle"
+        backgroundColor="white">
+
+    <mx:Script>
+        <![CDATA[
+            private function updateDP():void {
+                var str:String = categoryFieldComboBox.selectedItem.data;
+                barSeries.xField = str;
+                barSeries.displayName = str;
+            }
+        ]]>
+    </mx:Script>
+
+    <mx:SeriesInterpolate id="seriesInterpolate" duration="1000" />
+    <mx:SeriesSlide id="seriesSlide" duration="1000" direction="right" />
+    <mx:SeriesZoom id="seriesZoom" duration="1000" />
+
+    <mx:Array id="dataEffects">
+        <mx:Object label="seriesInterpolate" data="{seriesInterpolate}" />
+        <mx:Object label="seriesSlide" data="{seriesSlide}" />
+        <mx:Object label="seriesZoom" data="{seriesZoom}" />
+    </mx:Array>
+
+    <mx:Array id="categoryFields">
+        <mx:Object data="obp" label="OBP" />
+        <mx:Object data="slg" label="SLG" />
+        <mx:Object data="avg" label="AVG" />
+    </mx:Array>
+
+    <mx:ArrayCollection id="arrColl">
+        <mx:source>
+            <mx:Array>
+                <mx:Object name="R Winn" obp=".353" slg=".445" avg=".300" />
+                <mx:Object name="P Feliz" obp=".290" slg=".418" avg=".253" />
+                <mx:Object name="O Vizquel" obp=".305" slg=".316" avg=".246" />
+                <mx:Object name="B Molina" obp=".298" slg=".433" avg=".276" />
+                <mx:Object name="R Durham" obp=".295" slg=".343" avg=".218" />
+            </mx:Array>
+        </mx:source>
+    </mx:ArrayCollection>
+
+    <mx:ApplicationControlBar dock="true">
+        <mx:Form>
+            <mx:FormItem label="categoryField:">
+                <mx:ComboBox id="categoryFieldComboBox"
+                    dataProvider="{categoryFields}"
+                        change="updateDP();" />
+            </mx:FormItem>
+            <mx:FormItem label="showDataEffect:">
+                <mx:ComboBox id="showDataEffectComboBox"
+                        dataProvider="{dataEffects}"
+                        change="updateDP();" />
+            </mx:FormItem>
+        </mx:Form>
+    </mx:ApplicationControlBar>
+
+     <mx:BarChart id="barChart"
+             showDataTips="true"
+             dataProvider="{arrColl}"
+             width="100%"
+             height="100%">
+        <mx:verticalAxis>
+            <mx:CategoryAxis categoryField="name"/>
+        </mx:verticalAxis>
+        <mx:series>
+            <mx:BarSeries id="barSeries"
+                    yField="name"
+                    xField="obp"
+                    displayName="obp"
+                    showDataEffect="{showDataEffectComboBox.selectedItem.data}" />
+        </mx:series>
+    </mx:BarChart>
+
+</mx:Application>

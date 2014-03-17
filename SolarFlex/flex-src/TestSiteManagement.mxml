@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" width="826" height="410"
+	layout="absolute" 
+	creationComplete="init()">	
+		<mx:Script>
+        <![CDATA[
+        	import mx.utils.StringUtil;
+          import mx.events.CloseEvent;
+          import mx.managers.PopUpManager;
+          import mx.binding.utils.BindingUtils;
+          import mx.collections.XMLListCollection;
+          import mx.rpc.events.FaultEvent;
+          import mx.rpc.events.ResultEvent;
+          import mx.events.DataGridEventReason;
+          import mx.formatters.NumberFormatter;
+          import mx.events.ListEvent;
+          import mx.events.DataGridEvent;
+          import mx.controls.Alert;
+        	
+          public var colINdexVal:Number = 0;
+          public  var cellValue:String = null;
+          private var colRowIndex :String = null;
+          private var editDataId:int;
+          
+          [Bindable] public var cusIdEdit:int;
+          [Bindable] private var cusNameEdit:String = null;
+          [Bindable] private var areaEdit:String = null;
+          [Bindable] private var cityEdit:String = null;
+          [Bindable] private var nameEdit:String = null;
+          [Bindable] private var simNoEdit:String = null;
+          [Bindable] private var imeiNoEdit:String = null;
+          [Bindable] private var addType:String = null;
+          [Bindable] private var addCapacity:String = null;
+		  [Bindable] private var paramData:XMLListCollection = null;
+          [Bindable] private var addReturnList:XMLListCollection = null;
+          [Bindable] private var addValue:String = null;
+          [Bindable] public static var serverIpAndPort:String = "180.179.36.118:8080";
+          [Bindable] public static var addResult:String = null;
+          [Bindable] [Embed(source="images/editIcon.png")]
+		  public var editIcon:Class;
+          [Bindable] private var cusReturnList:XMLListCollection = null;
+          [Bindable] private var cusIdReturnList:XMLListCollection = null;
+       	     
+       	  	[Bindable] private var regFlag:String = "add";
+       	  	[Bindable] private var cusIdStr:String = "";
+       	  	[Bindable] private var cusNameStr:String = "";
+         	 private var imeiNoStr:String = "";
+         	[Bindable] private var nameStr:String = "";
+         	[Bindable] private var cityStr:String = "";
+         	[Bindable] private var areaStr:String = "";
+         	[Bindable] private var simNoStr:String = "";
+         	[Bindable] private var capacityStr:String = "";
+         	[Bindable] private var protocolTypeStr:String = "";
+         	[Bindable]var siteTempCollection : ArrayCollection = new ArrayCollection();
+         	
+            public function itemClickEventEdit(event:ListEvent):void {
+            	try{
+            		/*regFlag = "edit";
+	            	imeiNoStr = siteDetails.selectedItem.IMEINo.toString();
+	            	nameStr = siteDetails.selectedItem.name.toString();
+	                cityStr = siteDetails.selectedItem.city.toString();
+	                areaStr = siteDetails.selectedItem.area.toString();
+	            	simNoStr = siteDetails.selectedItem.simNo.toString();
+	            	capacityStr = siteDetails.selectedItem.varData1.toString();
+	            	cusNameStr = siteDetails.selectedItem.customerName.toString();      
+	            	protocolTypeStr = siteDetails.selectedItem.protocolType.toString();
+	            	populateEditableData();*/
+            	}catch(err:Error){
+            		Alert.show("itemClickEventEdit....."+err);
+            	}
+            	
+        	}
+        	
+        	private function closeHandler(event:CloseEvent):void {
+        		try{
+        			PopUpManager.removePopUp(this);
+        		}catch(err:Error){
+            		Alert.show("closeHandler....."+err);
+        		}
+		    }
+		    
+		    public function openEditPopup():void{
+		    	try{
+		    		regFlag = "edit";            			
+		    	addImgId.visible =false;
+            	gridImgid.visible =true;
+            	myViewStack.selectedChild = machineEntryCanvas;
+ 				//populateEditableData();
+		    	}catch(err:Error){
+            		Alert.show("openEditPopup....."+err);
+		    	}	
+            }
+		    
+            public function saveMachineInfo():void {
+            	//Alert.show("in Save");
+            	try{
+            		/*cusIdStr = customerNameCB.selectedItem.@customerId.toString();
+	         		Alert.show("in Save"+cusIdStr);
+	         		imeiNoStr = imeiNoTxt.text;
+	         		nameStr = nameTxt.text;
+	         		cityStr = cityTxt.text;
+	         		areaStr = areaTxt.text;
+	         		simNoStr = simNoTxt.text;
+	         		capacityStr = capacityTxt.text;
+	         		protocolTypeStr = protocolTypeCB.selectedLabel.toString();         		
+	         		if(cusIdStr != "" && imeiNoStr != "" && nameStr !="" 
+	            		 && cityStr != "" && areaStr != ""
+	         			 && simNoStr != "" && capacityStr != "" && protocolTypeStr != ""){
+	         				addValue = areaStr+","+cityStr+","+cusIdStr+","+
+	         						   imeiNoStr+","+nameStr+","+
+	         						   simNoStr +","+protocolTypeStr+","+capacityStr;
+	         			//Alert.show("Its coming inside..432423........."+"http://"+serverIpAndPort+"/SolarService/registration/machines/add/"+addValue+"/"+regFlag+".xml");
+	         			saveMachineDetailsService.url="http://"+serverIpAndPort+"/SolarService/registration/machines/add/"+addValue+"/"+regFlag+".xml";
+	        			saveMachineDetailsService.method = "POST";
+	        			saveMachineDetailsService.send();	
+	         		}else{
+	         			addResult = "Please fill all the field.";
+	         		}*/
+            	}catch(err:Error){
+            		Alert.show("saveMachineInfo....."+err);
+            	}
+         		
+         	}
+         	
+            public function clearData():void{
+            	try{
+            		if(regFlag=="add"){
+            		/* imeiNoTxt.text= "";
+            		nameTxt.text= "";
+         			areaTxt.text= "";
+         			cityTxt.text= "";
+         			simNoTxt.text= "";
+         			capacityTxt.text= ""; */
+            	}else{
+            		populateEditableData();
+            	}
+            	}catch(err:Error){
+            		Alert.show("clearData....."+err);
+            	}
+         	}
+         	
+         	public function populateEditableData():void{
+         		try{
+         	/*		imeiNoTxt.text = imeiNoStr;
+				cityTxt.text = cityStr;
+         		areaTxt.text = areaStr;
+         		simNoTxt.text = simNoStr;
+         		capacityTxt.text = capacityStr;
+         		var index:String = cusNameStr;
+         		for(var objIndex:int = 0; objIndex < customerNameCB.dataProvider.length; objIndex++) {
+				  if(customerNameCB.dataProvider[objIndex].@customerName == index)
+				  {
+				     customerNameCB.selectedIndex = objIndex;
+				     break;
+				  }
+				}
+				//customerNameCB.selectedIndex = Number(cusIdStr);
+				var index1:String = protocolTypeStr;
+				for(var objIndex1:int = 0; objIndex1 < protocolTypeCB.dataProvider.length; objIndex1++) {
+				  if(protocolTypeCB.dataProvider[objIndex1].label == index1)
+				  {
+				     protocolTypeCB.selectedIndex = objIndex1;
+				     break;
+				  }
+				}
+				
+				nameTxt.text = nameStr; */
+         		}catch(err:Error){
+            		Alert.show("populateEditableData....."+err);
+            	}
+         		
+         	}
+         	
+			protected function init():void{
+				try{
+					myViewStack.selectedChild = machineDetailsCanvas;
+					addImgId.visible =true;
+	            	gridImgid.visible =false;
+	            	paramAllCus.url="http://"+serverIpAndPort+"/SolarService/masters/customers/allCustomer.xml";
+			 		//paramAllCus.send();
+					getMachineDetailsService.url="http://"+serverIpAndPort+"/SolarService/masters/machines.xml";
+			 		//getMachineDetailsService.send();
+			 		txtFilter.addEventListener(Event.CHANGE, filterSiteGrid);
+				}catch(err:Error){
+            		Alert.show("init....."+err);
+            	}
+				
+			}
+         	
+         	private function machineDetailsRH(event:ResultEvent):void{
+         		try{
+         			//paramData =  new XMLListCollection(XML(event.result).children());
+					//myViewStack.selectedChild = machineDetailsCanvas;
+					var xmlList:XMLList = XML(event.result).children();
+					for each(var prop:XML in xmlList){ 
+				        siteTempCollection.addItem({IMEINo : prop.IMEINo, name : prop.name, city : prop.city,
+				        	area : prop.area , simNo : prop.simNo , varData1 : prop.varData1 , protocolTypeDesc :prop.protocolTypeDesc,
+				        	customerName :prop.customerName,protocolType : prop.protocolType});	
+				     }
+         		}catch(err:Error){
+            		Alert.show("machineDetailsRH....."+err);
+            	}
+				
+			}
+			
+			public function httpFault(event:FaultEvent):void {
+				try{
+					var faultstring:String = event.fault.faultString;
+					Alert.show("faultstring......."+faultstring);
+	               	addResult = faultstring;
+				}catch(err:Error){
+            		Alert.show("httpFault....."+err);
+            	}
+            } 
+           
+            private function saveMachineRH(event:ResultEvent):void{
+            	try{
+            		/*myViewStack.selectedChild = machineDetailsCanvas;
+					addImgId.visible =true;
+	            	gridImgid.visible =false;	
+					getMachineDetailsService.url="http://"+serverIpAndPort+"/SolarService/masters/machines.xml";
+			 		getMachineDetailsService.send();*/
+            	}catch(err:Error){
+               		Alert.show("saveMachineRH....."+err);
+            	}
+			}
+         
+			private function cusTempResultHandler(event:ResultEvent):void
+			{
+				try{
+					var xmlList:XMLList = XML(event.result).children();
+					cusReturnList =  new XMLListCollection(xmlList);
+					Alert.show("cusReturnList"+cusReturnList);
+					cursorManager.removeBusyCursor();
+				}catch(err:Error){
+            		Alert.show("cusTempResultHandler....."+err);
+            	}
+			}
+			
+            public function addSite():void{
+            	try{
+            		myViewStack.selectedChild = machineEntryCanvas;
+	            	addImgId.visible =false;
+	            	gridImgid.visible =true;
+	            	regFlag = "add";
+	            	clearData();
+            	}catch(err:Error){
+            		Alert.show("addSite....."+err);
+            	}
+            }
+            
+            private function filterSiteGrid(event:Event):void{
+            	try{
+            		var filterText:String = StringUtil.trim(txtFilter.text.toLowerCase());
+					var columnArray:Array = ['IMEINo','name','city','area','simNo','varData1','protocolTypeDesc','customerName'];
+					var gridDataProvider:ArrayCollection = this.siteTempCollection as ArrayCollection;
+					var dataGridName:String = 'siteDetails';
+					var filteredData:Array = [];
+					var added:Boolean=false;
+					var i:int;
+					var j:int;
+					for(i=0; i < gridDataProvider.length; i++){	
+						added = false;
+						for(j=0; j<columnArray.length; j++){			
+							if(gridDataProvider[i][columnArray[j]]!=null){
+								var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+								if(!added){      
+									if(filterString.indexOf(filterText) != -1){
+									   filteredData.push(gridDataProvider[i]);
+									   added = true;
+									} 
+								}else{
+									break;
+								}
+							}	
+						}
+					}
+					if(filterText.length == 0){
+						this[dataGridName].dataProvider = gridDataProvider;
+					}else{
+						this[dataGridName].dataProvider = filteredData;
+					}
+            	}catch(err:Error){
+            		Alert.show("filterSiteGrid....."+err);
+            	}	
+			}
+				
+        ]]>
+    </mx:Script>
+    
+    <mx:HTTPService id="getMachineDetailsService" useProxy="false" method="GET" resultFormat="e4x"
+    	result="machineDetailsRH(event)" fault="httpFault(event)"/>
+	
+	<mx:HTTPService id="paramAllCus" useProxy="false" method="GET" resultFormat="e4x"
+			result="cusTempResultHandler(event)" fault="httpFault(event)"/>
+		 	
+	 <mx:HTTPService id="saveMachineDetailsService"  
+			result="saveMachineRH(event)" fault="httpFault(event)"/>
+       
+   	
+    	<mx:ViewStack width="100%" height="100%" id="myViewStack" creationPolicy="all">
+    		<mx:Canvas id="machineDetailsCanvas">
+    			<mx:HBox height="100%" width="100%">
+    				<mx:VBox height="100%" width="100%">
+    					<mx:HBox width="100%">
+    						<mx:Label text="Search : " height="25" fontSize="13" fontWeight="bold"/>
+			    			<mx:TextInput id="txtFilter" width="290" height="25" fontSize="12" />
+						</mx:HBox>
+    					<mx:HBox height="100%" width="100%">
+    						<mx:DataGrid width="100%" height="100%" itemClick="itemClickEventEdit(event);" id="siteDetails" 
+    							dataProvider="{siteTempCollection}" editable="false">
+								<mx:columns>
+									<mx:DataGridColumn headerText="IMEI No" id="imeiNoDGC" dataField="IMEINo" editable="false"/>
+									<mx:DataGridColumn headerText="Name"  id="nameDGC" dataField="name"/>
+									<mx:DataGridColumn headerText="City" id="cityDGC" dataField="city"/> 
+									<mx:DataGridColumn headerText="Area" id="areaDGC" dataField="area"/>
+									<mx:DataGridColumn headerText="Sim No" id="simNoDGC" dataField="simNo"/> 
+									<mx:DataGridColumn headerText="Capacity" id="capacityDGC" dataField="varData1"/>
+									<mx:DataGridColumn id="protocolTypeDGC" dataField="protocolType" visible="false"/>
+									<mx:DataGridColumn headerText="Type" dataField="protocolTypeDesc"/> 
+									<mx:DataGridColumn headerText="Customer Name" dataField="customerName"/>
+									<mx:DataGridColumn headerText="customer Id" dataField="customerId" width="30" visible="false"/>
+									<mx:DataGridColumn headerText="Edit" dataField="Edit" width="30">
+										<mx:itemRenderer>
+											<mx:Component>
+												<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+													<mx:Image 
+														source="{outerDocument.editIcon}" horizontalAlign="right" scaleContent="false"
+														maintainAspectRatio="true" toolTip=" Edit" width="18"
+														useHandCursor="true" buttonMode="true" mouseChildren="false" 
+														click="{outerDocument.openEditPopup()}" />
+												</mx:HBox>
+											</mx:Component>
+										</mx:itemRenderer>
+									</mx:DataGridColumn>	 
+					    		</mx:columns>
+				    		</mx:DataGrid>
+    					</mx:HBox>
+    				</mx:VBox> 
+		    		
+		    	</mx:HBox>
+    		</mx:Canvas>
+    		<mx:Canvas id="machineEntryCanvas">
+    			<mx:VBox height="100%" width="100%">
+    			<mx:HBox height="5%" width="100%"/>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Imei No :" textAlign="right" fontWeight="bold"/>
+    					<!-- 
+				 		<mx:TextInput id="imeiNoTxt" restrict="0-9.+ \\-"/>
+				 		-->
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Name :" textAlign="right" fontWeight="bold"/>
+    					<!-- 
+				 		<mx:TextInput id="nameTxt"/>
+				 		-->
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Area :" textAlign="right" fontWeight="bold"/>
+    					<!-- 
+				 		<mx:TextInput id="areaTxt"/>
+				 		-->
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="City :" textAlign="right" fontWeight="bold"/>
+    					<!-- 
+				 		<mx:TextInput id="cityTxt"/>
+				 		-->
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Sim No :" textAlign="right" fontWeight="bold"/>
+    					<!-- 
+				        <mx:TextInput id="simNoTxt" restrict="0-9+ \\-"/>
+				        -->
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Customer Name :" textAlign="right" fontWeight="bold"/>
+				 		<mx:ComboBox id="customerNameCB" labelField="@customerName"
+            					dataProvider="{cusReturnList}" prompt="Select Customer"/> 
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Type :" textAlign="right" fontWeight="bold"/>
+						<mx:ComboBox id="protocolTypeCB" prompt="Select Type"> 
+						      <mx:ArrayCollection>
+						         <mx:Object label="1" data="1"/>
+						         <mx:Object label="2" data="2"/>
+						      </mx:ArrayCollection>
+						</mx:ComboBox>
+    				</mx:HBox>
+    			 <mx:HBox height="8%" width="100%">
+    			 	<mx:Label width="25%" text="Capacity :" textAlign="right" fontWeight="bold"/> 
+    			 	<!-- 
+				 	<mx:TextInput id="capacityTxt" restrict="0-9. \\-"/>	
+				 	-->			 
+    			 </mx:HBox>
+				 <mx:HBox width="100%" height="8%" horizontalAlign="center">
+				 	<mx:VBox width="25%">
+				 		
+				 	</mx:VBox>
+    			 	<mx:VBox width="60%" height="100%" horizontalAlign="left">
+    			 		<mx:HBox width="100%">
+    			 			<mx:Image toolTip="save"
+				 				source="@Embed(source='images/Save.png')" buttonMode="true" 
+				 				click="saveMachineInfo();"/>  
+							<mx:Image toolTip="cancel"
+					 			source="@Embed(source='images/Cancel.png')"  buttonMode="true"
+					 			click="clearData();"/> 
+    			 		</mx:HBox>    			 		
+    			 	</mx:VBox>
+    			 </mx:HBox>
+		    	</mx:VBox>
+    		</mx:Canvas>    		
+    	</mx:ViewStack>    	
+    	<mx:ControlBar   height="34" y="336">
+			<!--mx:Spacer width="50%"/-->
+			<mx:Button icon="@Embed('assets/AddUsericon.png')" height="16" toolTip="Add Site"  width="16" 
+				id="addImgId" click="addSite();" bottom="5" />
+			<mx:Button icon="@Embed('/images/Table.png')" height="16" toolTip="Report"  width="16" 
+				id="gridImgid" click="init();" bottom="7"/>
+		</mx:ControlBar>
+			<!--mx:Button icon="@Embed('images/editIcon.png')" toolTip="Edit Site" useHandCursor="true" buttonMode="true"  
+					id="editImgId" click="openEditSite();" width="25" mouseChildren="false"/-->
+					
+			<!--mx:Image toolTip="Save" id="saveEditButton" enabled="false" alpha="0.2" visible="false"
+						source="@Embed(source='images/Save.png')" useHandCursor="true" buttonMode="true"
+						mouseChildren="false" click="saveEditList(event);"
+						width="16" height="16" /-->
+</mx:Application>

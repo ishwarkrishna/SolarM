@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actionScriptProperties mainApplicationPath="LevelHome.mxml" version="3">
+<compiler additionalCompilerArguments="-locale en_US" copyDependentFiles="true" enableModuleDebug="true" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersion="9.0.124" htmlPlayerVersionCheck="true" outputFolderPath="bin-debug" sourceFolderPath="flex-src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
+<compilerSourcePath/>
+<libraryPath defaultLinkType="1">
+<libraryPathEntry kind="4" path="">
+<modifiedEntries>
+<libraryPathEntry kind="3" linkType="4" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" useDefaultLinkType="true">
+<crossDomainRsls>
+<crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="framework_3.1.0.2710.swz"/>
+<crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="framework_3.1.0.2710.swf"/>
+</crossDomainRsls>
+</libraryPathEntry>
+</modifiedEntries>
+</libraryPathEntry>
+<libraryPathEntry kind="1" linkType="1" path="libs"/>
+</libraryPath>
+<sourceAttachmentPath/>
+</compiler>
+<applications>
+<application path="LineAreaSeriesExample.mxml"/>
+<application path="SolarPowerSummary_old.mxml"/>
+<application path="TempList.mxml"/>
+<application path="UserManagement.mxml"/>
+<application path="TestRest.mxml"/>
+<application path="LevelHome.mxml"/>
+<application path="CustomerManagement.mxml"/>
+<application path="LevelSummary.mxml"/>
+<application path="LiveParamData.mxml"/>
+<application path="LiveDiagramView.mxml"/>
+<application path="LastNMachineData.mxml"/>
+<application path="MDIFrame.mxml"/>
+<application path="TestView.mxml"/>
+<application path="HClusterColumnExample.mxml"/>
+<application path="SolarHome-V1.mxml"/>
+<application path="EscalationDetails.mxml"/>
+<application path="SolarPowerSummary.mxml"/>
+<application path="LevelSiteNavigation.mxml"/>
+<application path="ParamTrend.mxml"/>
+<application path="LevelMachineData.mxml"/>
+<application path="AddEditPopUp.mxml"/>
+<application path="AddSite.mxml"/>
+<application path="SolarHome.mxml"/>
+<application path="TestSiteManagement.mxml"/>
+<application path="ParamTrendReport.mxml"/>
+<application path="SiteNavigation.mxml"/>
+<application path="Test.mxml"/>
+<application path="SiteMasterDetails.mxml"/>
+<application path="View1.mxml"/>
+<application path="SiteManagement.mxml"/>
+<application path="testBattery.mxml"/>
+</applications>
+<modules/>
+<buildCSSFiles/>
+</actionScriptProperties>

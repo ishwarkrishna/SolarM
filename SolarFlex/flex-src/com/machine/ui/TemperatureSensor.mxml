@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" initialize="init()" creationComplete="created()" width="100" height="260">
+<!--mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" initialize="init()" creationComplete="created()" 
+	   height="400" width="300" -->
+
+    <mx:Script>
+        <![CDATA[
+        	/*import mx.controls.Label;
+            import mx.controls.Alert;  
+              */
+            import mx.core.UIComponent;
+            
+            private var currentBar:UIComponent;
+            private var ticks:UIComponent;
+            private var sensorCircle:UIComponent;
+            private var sensorRect:UIComponent;
+                        
+            [Bindable] public var currentBarColor:uint = 0x009DFF; 
+			[Bindable] public var ticksColor:uint = 0xFFF00F; 
+            [Bindable] public var sensorFillColor:uint = 0xFF0000; 
+            [Bindable] public var sensorOutlineColor:uint = 0xFFFFFF; 
+            [Bindable] public var TextBKColor:uint = 0xFF0000; 
+             [Bindable] public var textLineColor:uint = 0xFFFFFF; 
+            
+            [Bindable] public var barXpos:int=40;
+			[Bindable] public var barYpos:int=190;
+            
+            [Bindable] public var currentBarHeight:int=0;
+
+			[Bindable] private var maxBarHeight:Number=100;
+			[Bindable] private var maxBarWidth:Number=20;
+			[Bindable] private var barScale:Number=0;
+ 			[Bindable] private var barActualVal:Number=0;
+ 			[Bindable] private var circleRedius:Number=30;
+ 			
+
+            private function init():void
+            {
+            	currentBar = new UIComponent;
+            	ticks = new UIComponent;
+            	sensorCircle = new UIComponent;
+            	sensorRect = new UIComponent;
+            	
+            	barScale = 180;
+            }
+            
+             public function updateBarLevel(currentBarHeight:Number):void {
+            	barActualVal = (currentBarHeight*barScale)/maxBarHeight;
+            	//Alert.show(barActualVal+"");
+				 if (barActualVal <= barScale)
+				 {
+				 	currentBar.graphics.clear();
+	            	currentBar.graphics.beginFill(sensorFillColor);
+					currentBar.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2),barYpos-barActualVal+2, maxBarWidth, barActualVal, 10, 10, 0, 0);
+					currentBar.graphics.endFill();
+					currentBar.addChild(drawText("        ",barXpos-(maxBarWidth/2),barYpos+circleRedius,sensorOutlineColor,sensorFillColor));
+					currentBar.addChild(drawText(currentBarHeight+"",barXpos-(maxBarWidth/2),barYpos+circleRedius,sensorOutlineColor,sensorFillColor));
+				 }
+             }
+             
+            private function drawText(textVal:String, xVal:int, yVal:int,textColor:uint,textBKColor:uint):TextField {
+				var textField:TextField = new TextField();
+				textField.backgroundColor = TextBKColor;//textBKColor;
+				textField.background = true;
+				textField.htmlText = "<b>" + textVal + "</b>";
+				textField.textColor = textLineColor;
+				textField.autoSize = TextFieldAutoSize.CENTER; 
+				textField.x = xVal-3;
+				textField.y = yVal-10;
+				//textField.text = textVal;
+				return textField;
+			}
+
+             /*private function drawText(textVal:String, xVal:int, yVal:int,textColor:uint,textBKColor:uint):Label {
+            	private var label1:Label;
+    			label1.text = textVal;
+    			label1.x = xVal;
+    			label1.y = yVal;
+				return label1;
+			}*/
+			
+            private function changeFuelLevel():void
+            {
+            	updateBarLevel(Number(tempValue.text));
+            }
+            
+            public function set value(val:Number):void
+            {
+            
+            	//updateBarLevel(val);
+            	//fuelValue.text=val+"";
+            	currentBarHeight = val;
+            	
+            } 
+            
+            public function changeValue(val:Number):void
+            {
+            	  updateBarLevel(val);
+            }
+            
+            
+            private function created():void
+            {
+                //create all the visual assets
+                createVisualAssets()
+                drawTicks();
+                drawSensorCircle();
+                drawSensorRect();
+                updateBarLevel(currentBarHeight);
+            }
+
+            private function createVisualAssets():void
+            {
+                addChild(ticks);
+                addChild(sensorCircle);
+                addChild(sensorRect);
+                addChild(currentBar);
+                addChild(ticks);
+            }     
+            
+         /**
+	  	 * This function draws the bottem of the sensor. 
+	  	 */
+	  	  private function drawSensorCircle():void
+	      {  	
+            sensorCircle.graphics.clear();
+            sensorCircle.graphics.beginFill(sensorFillColor);
+            sensorCircle.graphics.drawCircle(barXpos, barYpos+circleRedius,circleRedius);
+            sensorCircle.graphics.endFill();
+            sensorCircle.graphics.lineStyle(2,sensorOutlineColor);
+            sensorCircle.graphics.drawCircle(barXpos, barYpos+circleRedius,circleRedius+1);
+
+       	  }
+
+         /**
+	  	 * This function draws the rectangle in the body of sensor. 
+	  	 */
+	  	  private function drawSensorRect():void
+	      {  	
+            sensorRect.graphics.lineStyle(2,sensorOutlineColor);
+            sensorRect.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2),barYpos-barScale, maxBarWidth+1, barScale, 10, 10, 0, 0);
+            sensorRect.graphics.beginFill(0xFEE8D6);
+            sensorRect.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2),barYpos-barScale, maxBarWidth, barScale, 10, 10, 0, 0);
+       	    sensorRect.graphics.endFill();
+       	  }
+
+
+         /**
+	  	 * This function draws the tick marks
+	  	 */
+	  	  private function drawTicks():void
+	      {  	
+	      	var ticksX:Number=barXpos-10;
+	      	var ticksY:Number=barYpos;
+	      	
+	      	ticks.graphics.clear();
+           //	var label1:Label;
+	      	for(var i:int=0;i<barScale;i=i+10) 
+	        {
+	        	//label1 = new Label;
+            	ticks.graphics.lineStyle(1,ticksColor,1,false,LineScaleMode.NONE,CapsStyle.NONE);
+            	ticks.graphics.moveTo(ticksX,ticksY-i)
+            	ticks.graphics.lineTo(ticksX+10,ticksY-i)
+            	
+    			 // for number for ticks
+    			/*label1.text = ""+(maxBarHeight*i)/barScale;
+    			label1.x = ticksX-50;
+    			label1.y = (ticksY-10)-i;
+            	addChild(label1);*/
+            	
+	        }
+      	}
+            
+        ]]>
+    </mx:Script>
+    			<!--mx:Canvas id="temperatureArea"  width="120" height="387" borderStyle="inset" borderColor="#E7EBEE"-->
+                    <!--mx:Button id="submit" label="submit" click="changeFuelLevel()" x="0" y="10" width="42"/ -->
+                    <mx:TextInput id="tempValue" visible="false" x="46" y="10" width="32"/>
+                    <!--mx:Image id="canvasImage" source="assets/images/temp1.jpg" x="28" y="40"/-->
+                <!--/mx:Canvas-->
+	
+</mx:Canvas>
+<!--/mx:Application-->

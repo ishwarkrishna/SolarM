@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+	initialize="init()" creationComplete="created()" 
+	   height="400" width="300">
+
+    <mx:Script>
+        <![CDATA[
+            import mx.core.UIComponent; 
+			import mx.controls.Alert;
+  
+            private var levelTank:UIComponent;
+            private var levelAvailable:UIComponent;
+            private var ticks:UIComponent;
+                        
+            [Bindable] public var levelTankColor:uint = 0xFF0000; 
+			[Bindable] public var levelTankOutLineColor:uint = 0xFFFFFF; 
+            [Bindable] public var levelAvailableOutLineColor:uint = 0x00FF00; 
+            [Bindable] public var levelTextBKColor:uint = 0xFFFFFF;  //0x535fb4
+            [Bindable] public var TextBKColor:uint = 0x000000;
+            [Bindable] public var ticksColor:uint = 0xFFF00F; 
+                      
+            [Bindable] public var barXpos:int=100;
+			[Bindable] public var barYpos:int=350;
+            [Bindable] public var currentLevel:Number=80;
+			[Bindable] private var maxBarHeight:Number=250;
+			[Bindable] private var maxBarWidth:Number=100;
+			[Bindable] private var barScale:Number=0;
+ 			[Bindable] private var barActualVal:Number=0;
+ 			
+
+            private function init():void
+            { 
+            	levelTank = new UIComponent;
+            	levelAvailable = new UIComponent;
+            	ticks = new UIComponent;
+            	barScale = maxBarHeight;
+            }
+            
+                      
+            public function updateBarLevel():void {
+				levelAvailable.graphics.clear();
+
+				levelAvailable.graphics.beginFill(levelAvailableOutLineColor,0.8);
+				levelAvailable.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2)+2,barYpos-currentLevel, maxBarWidth-4, currentLevel, 1, 1, 1, 1);
+	       	    levelAvailable.graphics.endFill();
+				levelAvailable.addChild(drawText("          ",barXpos-10,barYpos+10,levelTankOutLineColor,levelTextBKColor));
+				levelAvailable.addChild(drawText(currentLevel+"",barXpos-10,barYpos+10,levelTankOutLineColor,levelTextBKColor));
+
+             }
+             
+             private function drawText(textVal:String, xVal:int, yVal:int,textColor:uint,textBKColor:uint):TextField {
+				var textField:TextField = new TextField();
+				textField.backgroundColor = textBKColor;
+				textField.background = true;
+				textField.htmlText = "<b> Fuel:" + textVal + "</b>";
+				textField.textColor = TextBKColor;//textColor;
+				textField.autoSize = TextFieldAutoSize.LEFT; 
+				textField.x = xVal-20;
+				textField.y = yVal;
+				return textField;
+			}
+			
+            private function changeBatteryLevel():void
+            {
+            	updateBarLevel();
+            }
+            
+            public function set value(val:Number):void
+            {
+            
+            	currentLevel = val;
+
+            } 
+            
+            public function changeValue(val:Number):void
+            {
+            	  currentLevel=val;
+            	  updateBarLevel();
+            }
+            
+            
+            private function created():void
+            {
+                createVisualAssets()
+                drawLevelTank();
+                updateBarLevel();
+                drawTicks();
+            }
+
+            private function createVisualAssets():void
+            {
+                addChild(levelTank);
+                addChild(levelAvailable);
+                addChild(ticks);
+            }     
+            
+         /**
+	  	 * This function draws the battery bank. 
+	  	 */
+	  	  private function drawLevelTank():void
+	      {  	
+            levelTank.graphics.lineStyle(4,levelTankOutLineColor,0.8);
+            levelTank.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2),barYpos-maxBarHeight, maxBarWidth, maxBarHeight, 1, 1, 1, 1);
+            levelTank.graphics.beginFill(levelTankColor);
+            levelTank.graphics.drawRoundRectComplex(barXpos-(maxBarWidth/2),barYpos-maxBarHeight, maxBarWidth, maxBarHeight, 1, 1, 1, 1);
+       	    levelTank.graphics.endFill();
+       	  }
+       	  
+       	           /**
+	  	 * This function draws the tick marks
+	  	 */
+	  	  private function drawTicks():void
+	      {  	
+	      	var ticksX:Number=barXpos-10;
+	      	var ticksY:Number=barYpos;
+	      	
+	      	ticks.graphics.clear();
+	      	for(var i:int=0;i<barScale;i=i+10) 
+	        {
+            	ticks.graphics.lineStyle(1,ticksColor,1,false,LineScaleMode.NONE,CapsStyle.NONE);
+            	ticks.graphics.moveTo(ticksX,ticksY-i)
+            	ticks.graphics.lineTo(ticksX+10,ticksY-i)
+            	
+	        }
+      	}
+
+
+        ]]>
+    </mx:Script>
+    			
+	    <mx:Metadata>
+        [Event(name="valueChanged", type="flash.events.Event")]
+    	</mx:Metadata> 
+    
+
+</mx:Application>

@@ -1,0 +1,1604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+	creationComplete="loadValues(),init(event)" horizontalAlign="center" 
+	verticalAlign="middle"  color="#080808" borderColor="#FFF8E0" backgroundColor="#FFF8E0"
+	xmlns:local="*" 
+	xmlns:tInput="assets.actionScript.*" 
+	xmlns:controls="com.iwobanas.controls.*" 
+	initialize="initTimer()"
+	xmlns:dataGridClasses="com.iwobanas.controls.dataGridClasses.*"
+	applicationComplete="init(event)" height="100%" width="100%">
+	
+<mx:Style source="defaults.css" />	
+
+<mx:Script>   
+	<![CDATA[
+		import assets.actionScript.Trim;
+		import com.scottlogic.charts.DataGridExporter;
+		import mx.controls.ComboBase;
+		import assets.script.pods.view.Data;
+		import org.alivepdf.layout.Unit;
+		import mx.collections.ICollectionView;
+		import assets.actionScript.EscalationDTO;
+		import alarmSlide.TowerSelection;
+		
+		import flash.net.navigateToURL;
+		import mx.binding.utils.BindingUtils;
+		import mx.controls.dataGridClasses.DataGridItemRenderer;
+		import mx.events.ListEvent;
+		import mx.charts.chartClasses.DualStyleObject;
+		import assets.actionScript.TowerInchargeRoleMappingDTO;
+		import flash.utils.clearInterval;
+		import flash.utils.setInterval;
+		import alarmSlide.SendMessageForEscalation;
+		import mx.skins.halo.BusyCursor;
+		import alarmSlide.REForAlarmReport;
+		import flash.events.*;
+		
+		import mx.managers.ToolTipManager;
+		import mx.controls.ToolTip;
+		import mx.collections.SortField;
+		import mx.collections.Sort;
+		import mx.messaging.messages.RemotingMessage;
+		import mx.events.AdvancedDataGridEvent;
+		import assets.actionScript.TowerStatus;  
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import assets.actionScript.ValueObject;
+		import mx.messaging.channels.AMFChannel;
+		import alarmSlide.LEDChar;
+		import mx.utils.URLUtil;
+		import com.adobe.serialization.json.JSON;
+		import com.adobe.serialization.json.JSONDecoder;  
+		import mx.collections.ArrayCollection;
+		import mx.collections.IViewCursor;
+		import mx.collections.IHierarchicalCollectionView;
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;  
+        import flash.net.FileReference;
+ 	    import mx.messaging.messages.IMessage;
+	    import mx.messaging.Channel;
+	    import mx.messaging.ChannelSet; 	
+	    import mx.messaging.channels.StreamingAMFChannel;
+		import flash.display.StageDisplayState;       
+		import mx.collections.ArrayCollection;
+		import mx.managers.CursorManager;
+		import com.scottlogic.charts.Exporter;               
+		private var sendMessageScreen:SendMessageForEscalation;
+		private var escalationAlarmHistoryPopup:EscalationAlarmHistoryPopup;
+		public var manualOrScheduleTicketing:ManualOrScheduleTicketing;
+		public var editEscalationLevelPopup:EditEscalationLevelPopup;		
+		private var escalationLevelPopup:EscalationLevelPopup;	
+		private var escalationSiteDetailsPopup:EscalationSiteDetailsPopup;	
+		
+		[Bindable] private var towerName:String = "NoData";   
+		[Bindable] private var contactNumber:String = "NoData"; 
+		
+		// Data Storgae variables
+		[Bindable] private var energyConsumption:ArrayCollection = new ArrayCollection();
+		[Bindable] public var dataColl:ArrayCollection = new ArrayCollection();
+		[Bindable] public var closedTicketArrayColl:ArrayCollection = new ArrayCollection();
+		[Bindable] private var towerDetails:ArrayCollection = new ArrayCollection();
+		[Bindable] private var escalationData:ArrayCollection = new ArrayCollection();
+		[Bindable] public var escalationLevelDetails:ArrayCollection = new ArrayCollection();
+		[Bindable] public var towerEscalationLevelDetails:ArrayCollection = new ArrayCollection();
+		[Bindable] private var escalationMasterList:ArrayCollection = new ArrayCollection();
+		[Bindable] public var alarmDetailsList:ArrayCollection = new ArrayCollection();
+		
+		[Bindable] public var siteInformationList:ArrayCollection;
+		[Bindable] public var communicationInfoList:ArrayCollection;
+		[Bindable] public var operatorDetailsList:ArrayCollection;
+		[Bindable] public var siteLiveDataList:ArrayCollection;
+		[Bindable] public var siteLiveAlarmDetailsList:ArrayCollection;
+		[Bindable] public var ticketEscalationStateList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var siteAndDistrictDisplayName:String="";
+		public var categoriesArrColl:ArrayCollection = null;
+		public var tempArrColl:ArrayCollection = null;
+		public var userID:int = 0;
+		public var locationId:int = 0;
+		public var customerId:int = 0; 
+		private var popupWin:PopupForTicketing;
+		public var isTowerLevel:Boolean = false;
+		public var isTowerLevelBeforeLevel:Boolean = false; 
+		public var towerId:int = 0;
+		// to store tower configuration
+		public static var data:ArrayCollection = new ArrayCollection();
+
+		private var intervalUnit:uint;
+
+		[Bindable]   
+		public var folderList:XMLList;
+		// BlazeDS variables
+	   [Bindable] public var channelUrl:String;   
+	   
+	    [Bindable] public var liveId:int=0;
+	   
+	   	[Bindable] 
+	   	public var emailOrSmsMessageFormat:String = "";
+		
+		[Bindable]
+		private var escalationEditOption:Boolean = false;
+		
+		[Bindable]
+		private var swapCount:int = 0;
+		
+//  ---------------------------- To Control Session ------------------------- //		
+        public var myTimer:Timer;
+		
+		private function initTimer():void
+		{
+			 myTimer = new Timer(1800000);
+		     myTimer.addEventListener("timer",logout);
+		     this.addEventListener(MouseEvent.MOUSE_MOVE, resetTimer);
+		     myTimer.start();
+		}
+		
+		private function logout(event:Event):void
+		{
+			this.addEventListener(MouseEvent.CLICK,forward);
+		}
+		
+		private function forward(event:Event):void
+		{
+			navigateToURL( new URLRequest("jsp/checkin/index.jsp"),"_self");	
+		}
+		
+		private function resetTimer(event:Event):void
+		{
+			myTimer.reset();
+		    initTimer();	
+		}
+//  ---------------------------- To Control Session ------------------------- //
+//***************************************************************************************************************************************//		   
+		    /**
+		    * This method will be called as soon as SWF loads in the browser , creating a AMF channel which communicates to Java
+		    **/ 
+		    private function loadValues():void{	
+		    	
+				ticketViewStack.selectedChild = liveTicketVBox;
+		    	userID = Application.application.parameters.userId; 
+		    	customerId = Application.application.parameters.customerId; 	
+		    	locationId = Application.application.parameters.locID;
+		    	towerId =Number(Application.application.parameters.towerId); 
+		    	var isTowerLevelStr:String = Application.application.parameters.isTowerLevel.toString();
+		    	var isTowerLevelBeforeLevelStr:String = Application.application.parameters.isTowerLevelBeforeLevel.toString();	
+		    	isTowerLevel = (isTowerLevelStr == "true") ? true : false;
+		    	isTowerLevelBeforeLevel = (isTowerLevelBeforeLevelStr == "true") ? true : false;
+		    	if("true" == Application.application.parameters.escalationEditOption.toString()){
+			    	escalationEditOption = true;
+			    } 
+				channelUrl = "./messagebroker/amf";
+				
+			   
+			 	/*userID = 1;
+		    	customertId = 1;
+		    	locationId =1;
+			   	escalationEditOption = true;
+			  	channelUrl = "http://localhost:5009/Telecom/messagebroker/amf"; 
+			  	*/
+	        	var cs:ChannelSet = new ChannelSet();
+				var customChannel:AMFChannel = new AMFChannel("my-amf",channelUrl);
+				cs.addChannel(customChannel);
+				remoteObject.channelSet = cs;	
+				remoteObject.getEscalationMaster();
+				cursorManager.setBusyCursor();
+				remoteObject.getSeverityBasedTktCount(customerId,locationId,isTowerLevel,towerId);
+				remoteObject.getAllLiveEscalationDetails(userID,customerId,displayTower.selectedItem.data,ticketType.selectedItem.data,locationId,ticketAge.selectedItem.data.toString(),isTowerLevel,towerId);
+				displayTower.selectedIndex = 0;
+				refereshTime.selectedIndex = 0;
+  	   			
+		    } 
+			
+			private function getSeverityTkt(severityName:String):void{
+				cursorManager.setBusyCursor();
+            	remoteObject.getAllOpenTktSeverityBased(userID,customerId,"AllTower","ALL",locationId,"0",isTowerLevel,towerId,severityName);
+		    }
+//***************************************************************************************************************************************//		   
+			public var selectedTicketState:Number= 0;
+            // Handle the recevied message.
+            private function resultHandler(event:ResultEvent):void {
+            	var message:RemotingMessage = event.token.message as RemotingMessage;
+            	switch(message.operation)
+				{					
+					case "getSeverityBasedTktCount":
+							var severityTktCount:Object = event.result as Object;
+							criticalCountId.label = severityTktCount.critical;
+							majorCountId.label = severityTktCount.major;
+							minorCountId.label = severityTktCount.minor;
+							otherCountId.label = severityTktCount.other;
+							normalCountId.label = severityTktCount.normal;
+							titleLabel.text = "Total Live Tickets : "+ (Number(severityTktCount.critical.toString())+Number(severityTktCount.major.toString())+Number(severityTktCount.minor.toString())+Number(severityTktCount.other.toString())+Number(severityTktCount.normal.toString()));
+							break;
+							
+					case "getAllLiveEscalationDetails":
+							dataColl = new ArrayCollection();							
+							dataColl = event.result as ArrayCollection;
+							cursorManager.removeAllCursors();
+							break;
+							
+					case "getAllOpenTktSeverityBased":
+							dataColl = new ArrayCollection();							
+							dataColl = event.result as ArrayCollection;
+							cursorManager.removeAllCursors();
+							break;		
+							
+					case "getLiveEscalationInfo":
+							escalationData = new ArrayCollection();	
+							cursorManager.setBusyCursor();	
+							escalationData = event.result as ArrayCollection;
+							popupWin = new PopupForTicketing();
+ 	       					popupWin.addEventListener("UpdateEscalationData", updateEscalationData);
+ 	        
+							PopUpManager.addPopUp(popupWin, this, true);
+       						PopUpManager.centerPopUp(popupWin);
+                			//popupWin.cus_id = customerId;
+ 	 						popupWin.userId = userID;
+                			popupWin.towerName.text = escalationData.getItemAt(0).towerName;
+                			popupWin.ticketId.text = escalationData.getItemAt(0).ticketId;	
+							popupWin.district.text =  escalationData.getItemAt(0).district;	
+							popupWin.severity.text =  escalationData.getItemAt(0).severityType;	
+							popupWin.alarmName.text =  escalationData.getItemAt(0).alarm;	
+							popupWin.occuredTime.text =  escalationData.getItemAt(0).occuredTime;	
+							popupWin.escalationLevel.text =  escalationData.getItemAt(0).escalationLevel;	
+							popupWin.age.text =  escalationData.getItemAt(0).age;
+							popupWin.communicationMessage.text = escalationData.getItemAt(0).esclastLogMessage;	
+							popupWin.escalationMessage.text =  escalationData.getItemAt(0).communicationInfo;	
+							popupWin.newEscalationMessage.text = "";
+							popupWin.ticketType.text =  escalationData.getItemAt(0).ticketType;	
+							popupWin.charCount = 0;
+							popupWin.combTicketStatus.enabled  = false;    
+						    if(escalationData.getItemAt(0).ticketType != "AUTO"){
+	    					    popupWin.combTicketStatus.enabled = true;
+						    }
+							selectedTicketState= escalationData.getItemAt(0).ticketState;
+							
+									
+							popupWin.combTicketStatus.dataProvider = ticketEscalationStateList;
+							popupWin.combTicketStatus.selectedIndex = findIndex(ticketEscalationStateList,selectedTicketState);
+							popupWin.actualTktCategoId = escalationData.getItemAt(0).tktCategoriesId;
+							
+							categoriesArrColl = new ArrayCollection();
+							categoriesArrColl = escalationData.getItemAt(0).ticketClosedCategoriesList;	
+							tempArrColl = new ArrayCollection();				       							
+							tempArrColl = getTempCatogeArrColl(categoriesArrColl);
+							popupWin.categoriesCombobox.dataProvider = tempArrColl;
+		                  	popupWin.categoriesCombobox.selectedIndex = findIndex(tempArrColl,escalationData.getItemAt(0).tktCategoriesId);
+							cursorManager.removeAllCursors();
+							break;
+							
+					case "getOtherTicketInfo":
+							escalationData = new ArrayCollection();		
+							escalationData = event.result as ArrayCollection;
+							popupWin = new PopupForTicketing();
+ 	       					popupWin.addEventListener("UpdateEscalationData", updateEscalationData);
+ 	        
+							PopUpManager.addPopUp(popupWin, this, true);
+       						PopUpManager.centerPopUp(popupWin);
+                			//popupWin.cus_id = customerId;
+ 	 						popupWin.userId = userID;
+                			popupWin.towerName.text = escalationData.getItemAt(0).towerName;
+                			popupWin.ticketId.text = escalationData.getItemAt(0).ticketId;	
+							popupWin.district.text =  escalationData.getItemAt(0).district;	
+							popupWin.severity.text =  escalationData.getItemAt(0).severityType;	
+							popupWin.alarmName.text =  escalationData.getItemAt(0).alarm;	
+							popupWin.occuredTime.text =  escalationData.getItemAt(0).occuredTime;	
+							popupWin.escalationLevel.text =  escalationData.getItemAt(0).escalationLevel;	
+							popupWin.age.text =  escalationData.getItemAt(0).age;
+							popupWin.communicationMessage.text = escalationData.getItemAt(0).esclastLogMessage;	
+							popupWin.escalationMessage.text =  escalationData.getItemAt(0).communicationInfo;
+							popupWin.ticketType.text =  escalationData.getItemAt(0).ticketType;
+							popupWin.charCount = 0; 
+							popupWin.ticketFor="OPEN";
+							popupWin.combTicketStatus.enabled  = false;    
+						    if(escalationData.getItemAt(0).ticketType != "AUTO"){
+	    					    popupWin.combTicketStatus.enabled = true;
+						    }
+
+							selectedTicketState= escalationData.getItemAt(0).ticketState;				
+						
+							popupWin.combTicketStatus.dataProvider = ticketEscalationStateList;
+							popupWin.newEscalationMessage.text = "";
+							popupWin.combTicketStatus.selectedIndex = findIndex(ticketEscalationStateList,selectedTicketState);
+							popupWin.actualTktCategoId = escalationData.getItemAt(0).tktCategoriesId;
+							
+							categoriesArrColl = new ArrayCollection();
+							categoriesArrColl = escalationData.getItemAt(0).ticketClosedCategoriesList;					       							
+							tempArrColl = new ArrayCollection();				       							
+							tempArrColl = getTempCatogeArrColl(categoriesArrColl);
+							popupWin.categoriesCombobox.dataProvider = tempArrColl;
+		                  	popupWin.categoriesCombobox.selectedIndex = findIndex(tempArrColl,escalationData.getItemAt(0).tktCategoriesId);
+
+							break;
+							
+					case "getClosedTicketInfo":
+							escalationData = new ArrayCollection();		
+							escalationData = event.result as ArrayCollection;
+							popupWin = new PopupForTicketing();
+ 	       					popupWin.addEventListener("UpdateClosedTicket", updateClosedTicket);
+  	        
+							PopUpManager.addPopUp(popupWin, this, true);
+       						PopUpManager.centerPopUp(popupWin);
+                			//popupWin.cus_id = customerId;
+ 	 						popupWin.userId = userID;
+                			//Alert.show(emailOrSmsMessageFormat);
+                			popupWin.towerName.text = escalationData.getItemAt(0).towerName;
+                			popupWin.ticketId.text = escalationData.getItemAt(0).ticketId;	
+							popupWin.district.text =  escalationData.getItemAt(0).district;	
+							popupWin.severity.text =  escalationData.getItemAt(0).severityType;	
+							popupWin.alarmName.text =  escalationData.getItemAt(0).alarm;	
+							popupWin.escalatedLevelLabel.text="Occurred Time";
+							popupWin.escalationLevel.text =  escalationData.getItemAt(0).occuredTime;
+							popupWin.occurredTimeLabel.text="Cleard Time";
+							popupWin.occuredTime.text= escalationData.getItemAt(0).cleardTime;	
+							popupWin.age.text =  escalationData.getItemAt(0).age;
+							popupWin.escalationMessage.text =  escalationData.getItemAt(0).esclastLogMessage;
+							popupWin.ticketType.text =  escalationData.getItemAt(0).ticketType;
+							popupWin.charCount = 0; 
+							popupWin.combTicketStatus.enabled  = false;   
+							selectedTicketState= escalationData.getItemAt(0).ticketState;				
+							ticketEscalationStateList = new ArrayCollection();
+							ticketEscalationStateList.addItem({state:2,label:'CLOSED'});
+							popupWin.combTicketStatus.dataProvider = ticketEscalationStateList;
+							popupWin.newEscalationMessage.text = "";
+							popupWin.combTicketStatus.selectedIndex = findIndex(ticketEscalationStateList,selectedTicketState);
+							popupWin.dynamicVBox.removeChild(popupWin.communicationMessageHbox);
+							popupWin.ticketFor="CLOSED";
+							categoriesArrColl = new ArrayCollection();
+							tempArrColl = new ArrayCollection();				       							
+							categoriesArrColl = escalationData.getItemAt(0).ticketClosedCategoriesList;					       							
+							tempArrColl = getTempCatogeArrColl(categoriesArrColl);
+							popupWin.actualTktCategoId = escalationData.getItemAt(0).tktCategoriesId;
+							popupWin.categoriesCombobox.dataProvider = tempArrColl;
+		                  	popupWin.categoriesCombobox.selectedIndex = findIndex(tempArrColl,escalationData.getItemAt(0).tktCategoriesId);
+							
+							break;
+						  
+					case "getEscalationMaster":
+							escalationMasterList = new ArrayCollection();		
+							escalationMasterList = event.result as ArrayCollection;
+							escalationMasterInfoId.dataProvider = escalationMasterList;
+							break;
+							
+						  
+					case "getEscalationDetails":
+							escalationLevelDetails = new ArrayCollection();		
+							escalationLevelDetails = event.result as ArrayCollection;
+								
+							PopUpManager.addPopUp(editEscalationLevelPopup, this, true);
+       						PopUpManager.centerPopUp(editEscalationLevelPopup);
+							editEscalationLevelPopup.escalationDetails = this;
+							break;
+      						
+       				case "getTowerEscalationInchargeDetails":
+							towerEscalationLevelDetails = new ArrayCollection();		
+							towerEscalationLevelDetails = event.result as ArrayCollection;
+
+							PopUpManager.addPopUp(escalationLevelPopup, this, true);
+       						PopUpManager.centerPopUp(escalationLevelPopup);
+       						escalationLevelPopup.cus_Id = customerId;
+       						escalationLevelPopup.user_Id = userID;
+       						escalationLevelPopup.escalationDetails = this;
+       						break;		
+							
+					case "updateEscalationInfoForOtherTicket":
+						 	var otherEcsStatus:Boolean = event.result as Boolean
+							if(otherEcsStatus){
+								 dataColl.getItemAt(dataColl.getItemIndex(adg.selectedItem)).esclastLogMessage = updatedMessage;
+								 Alert.show("Successfully updated.");
+								 manualRPCCall();
+								 
+							}else{
+								 Alert.show("Updating Failed.");
+							}
+						 
+					      break;
+					case "updateClosedTicked":
+						 	var closedTktStatus:Boolean = event.result as Boolean
+							if(closedTktStatus){
+								 updatedMessage = closedTicketArrayColl.getItemAt(closedTicketArrayColl.getItemIndex(closedTicketsDG.selectedItem)).esclastLogMessage+" "+updatedMessage;
+								 closedTicketArrayColl.getItemAt(closedTicketArrayColl.getItemIndex(closedTicketsDG.selectedItem)).esclastLogMessage = updatedMessage;
+								 updatedMessage ="";
+								 Alert.show("Successfully updated.");
+							}else{
+								 Alert.show("Updating Failed.");
+							}
+						 
+					      break;
+					      
+					case "updateEscalationInfoForAutoTicket":
+						 	var autoEcsStatus:Boolean = event.result as Boolean
+						 	if(autoEcsStatus){
+						 		dataColl.getItemAt(dataColl.getItemIndex(adg.selectedItem)).esclastLogMessage = updatedMessage;
+								Alert.show("Successfully updated.");
+							}else{
+								Alert.show("Updating Failed.");
+							}
+						 
+					      break;
+					      
+					case "getAlarmDetails":
+							alarmDetailsList = new ArrayCollection();		
+							alarmDetailsList = event.result as ArrayCollection;
+							
+					      break;
+					      
+					case "getSiteDetails":
+						  var siteDetailsDTO:EscalationSiteDetailsDTO = event.result as Object;
+						  
+						  siteInformationList = new ArrayCollection();
+						  communicationInfoList = new ArrayCollection();
+						  operatorDetailsList = new ArrayCollection();
+						  siteLiveDataList = new ArrayCollection();
+						  
+						  siteInformationList = siteDetailsDTO.siteDetailsList as ArrayCollection;
+						  communicationInfoList = siteDetailsDTO.communicationDetailsList as ArrayCollection;
+						  operatorDetailsList = siteDetailsDTO.operatorsDetailsList as ArrayCollection;
+						  siteLiveDataList = siteDetailsDTO.siteLiveDetailsList as ArrayCollection;
+					
+					      break;
+					 
+					case "getSiteLiveAlarmsDetails":
+						  siteLiveAlarmDetailsList = new ArrayCollection();	
+						  siteLiveAlarmDetailsList = event.result as ArrayCollection;
+					      break;      
+				
+					case "updateEscalation":
+						 var updateStatus:Boolean = event.result as Boolean
+						
+						 if(updateStatus){
+						 	Alert.show("Successfully updated.");
+						 }
+					    
+					     break;
+					      
+					case "sendSMS":
+						var flagSMS:Boolean = event.result as Boolean
+						
+						if(flagSMS){
+							Alert.show("SMS Successfully Send");
+						}else{
+							Alert.show("Message Send Fail");
+						}
+		              
+		               cursorManager.removeBusyCursor();
+		               break;
+					
+					case "sendEmail":
+						var flagEmail:Boolean = event.result as Boolean
+						
+						if(flagEmail){
+							Alert.show("EMail Successfully Send");
+							
+						}else{
+							Alert.show("Message Send Fail");
+						}
+						
+						cursorManager.removeBusyCursor();
+						 break;
+					
+					case "getTowerHierarchyXMLFormat":
+						var xmlStr:String = event.result as String;
+						folderList = new XMLList(xmlStr);
+						manualOrScheduleTicketing.folderList = folderList;
+						cursorManager.removeAllCursors();
+					    break;
+					    
+					case "createNewTicket":
+						var ticketFlag:Boolean = event.result as Boolean
+						if(ticketFlag){
+							Alert.show("Successfully created.");
+							
+						}else{
+							Alert.show("Fail to create a new ticket.");
+						}
+					    break	
+					 
+					 case "getTicketEscalationState":
+						 ticketEscalationStateList = new ArrayCollection();		
+						 ticketEscalationStateList =	event.result as ArrayCollection;
+						 
+					 break	
+					 
+				  	case "getTicketClosedDetails":
+				  		closedTicketArrayColl = new ArrayCollection();	
+					 	closedTicketArrayColl = event.result as ArrayCollection;
+					 	cursorManager.removeAllCursors();	
+					 
+					 break	
+					
+					default:
+							Alert.show("Not able to read operation from Java program : " + message.operation);
+						  	break; 		
+				}
+                                        
+            }
+ 
+ 			private function getTempCatogeArrColl(arrColl:ArrayCollection):ArrayCollection{
+				var temArrayColl:ArrayCollection = new ArrayCollection();
+				temArrayColl.addItem({label:"Select Categories",data:0});
+				for(var i:int;i<categoriesArrColl.length;i++){
+					temArrayColl.addItem({label:categoriesArrColl[i].tktCategories,data:categoriesArrColl[i].tccMasterId});
+              	}	
+              	return temArrayColl;
+			}
+//***************************************************************************************************************************************//		   
+           
+            private function findIndex(whichArray:ArrayCollection, whichItem:int):Number
+	        {
+	            var ret_value:Number = 0;
+	            for(var i:uint = 0; i < whichArray.length; i++)
+	            {
+	                if(whichArray[i].data == whichItem)
+	                {
+	                    ret_value = i;
+	                    break;
+	                }
+	            }
+	            return ret_value;
+	        }; 
+
+//***************************************************************************************************************************************//		   
+  
+            // Handle a message fault.
+            private function faultHandler(event:FaultEvent):void {    
+            	var message:RemotingMessage = event.token.message as RemotingMessage;        	
+                //Alert.show("Plaese Check Your Configuration Settings.........."+message); 
+            }	
+
+//***************************************************************************************************************************************//
+            /**
+            * This method helps into Toggle between full screen and normal screen
+            **/ 
+            private function toggleFullScreen():void {
+                try {  
+                    switch (Application.application.stage.displayState) {
+                        case StageDisplayState.FULL_SCREEN:
+                            /* If already in full screen mode, switch to normal mode. */
+                            Application.application.stage.displayState = StageDisplayState.NORMAL;     
+                                                                               
+                            break;
+                        default:                        	
+                            /* If not in full screen mode, switch to full screen mode. */
+                            Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
+                                                                                                   
+                            break;
+                    }  
+                } catch (err:SecurityError) {
+                    Alert.show(err +"");
+                    
+                }
+            }    
+//***************************************************************************************************************************************//
+			/**
+            * This method helps to get all live alarm.
+            **/ 
+			private function callRPCClick():void{
+				remoteObject.getSeverityBasedTktCount(customerId,locationId,isTowerLevel,towerId);
+		    	remoteObject.getAllLiveEscalationDetails(userID,customerId,displayTower.selectedItem.data,ticketType.selectedItem.data,locationId,ticketAge.selectedItem.data.toString(),isTowerLevel,towerId);	
+			}
+			
+			private function manualRPCCall():void{
+				refereshTime.selectedIndex = 0;
+				cursorManager.setBusyCursor();
+				remoteObject.getSeverityBasedTktCount(customerId,locationId,isTowerLevel,towerId);
+				remoteObject.getAllLiveEscalationDetails(userID,customerId,displayTower.selectedItem.data,ticketType.selectedItem.data,locationId,ticketAge.selectedItem.data.toString(),isTowerLevel,towerId);
+			}
+//***************************************************************************************************************************************//
+		   private function init(evt:Event):void {
+ 		    editEscalationLevelPopup = new EditEscalationLevelPopup();
+ 	        editEscalationLevelPopup.addEventListener("UpdateEscalationInformation", updateEscalationInformation);
+ 	        escalationLevelPopup = new EscalationLevelPopup();
+  	        sendMessageScreen = new SendMessageForEscalation();
+ 	        escalationAlarmHistoryPopup = new EscalationAlarmHistoryPopup();
+ 	        escalationAlarmHistoryPopup.addEventListener("getAlarmHistory", getAlarmHistory);
+ 	        escalationSiteDetailsPopup = new EscalationSiteDetailsPopup();
+			sendMessageScreen.addEventListener("sendSMS",sendSMSDetails);
+			sendMessageScreen.addEventListener("sendEMail",sendEMailDetails);
+		   	refreshButton.visible = true;
+    		
+    		refereshTime.enabled = true;
+    		displayTower.enabled = true;
+    		ticketType.enabled = true;
+    		
+    		adg.enabled = true;
+   		 }
+     		 
+//***************************************************************************************************************************************//
+		public var updatedMessage:String = "";
+		private function updateEscalationData(event:Event):void
+	    {
+	    	updatedMessage = popupWin.newEscalationMessage.text.toString();
+	    	var escalationId:String = popupWin.ticketId.text.toString();
+	    	var tktCategoId:Number = Number(popupWin.tktCategoId);
+	   	    PopUpManager.removePopUp(popupWin);
+	   	    if("AUTO"==selectedTicketType){
+	    		remoteObject.updateEscalationInfoForAutoTicket(escalationId,updatedMessage,userID,liveId,tktCategoId);
+	   	    }else{
+	   	    	var ticketStateId:Number = Number(popupWin.combTicketStatus.selectedItem.data.toString());
+	   	    	remoteObject.updateEscalationInfoForOtherTicket(escalationId,updatedMessage,userID,liveId,ticketStateId,tktCategoId);
+	   	    }
+
+	    }
+	    
+	    private function updateClosedTicket(event:Event):void
+	    {
+	    	updatedMessage = popupWin.newEscalationMessage.text.toString();
+	    	var ticketId:Number = Number(popupWin.ticketId.text.toString());
+	    	var tktCategoId:Number = Number(popupWin.tktCategoId);
+	    	PopUpManager.removePopUp(popupWin);
+	    	remoteObject.updateClosedTicked(ticketId,tktCategoId,updatedMessage,userID);
+	   	    
+	    }
+ 
+ //***************************************************************************************************************************************//
+       	 private var selectedTicketType:String="";
+		 public function check(escalationId:String,liveDataId:int,ticketType:String,ticketId:String):void{ 
+		 	liveId = liveDataId;  
+		 	selectedTicketType = ticketType;
+		 	
+		 	if("AUTO"==selectedTicketType){
+		 		remoteObject.getTicketEscalationState(escalationId); 
+		 		remoteObject.getLiveEscalationInfo(ticketId,customerId);
+		 	}else if("SCHEDULE"==selectedTicketType || "MANUAL"==selectedTicketType){
+		 		remoteObject.getTicketEscalationState(escalationId); 
+		 		remoteObject.getOtherTicketInfo(ticketId,customerId);
+		 	}else{
+		 		remoteObject.getClosedTicketInfo(ticketId,customerId);
+		 	}     	
+		 }	
+//***************************************************************************************************************************************//
+
+	    private function sendEMailDetails(e:Event):void{
+			cursorManager.setBusyCursor();
+			remoteObject.sendEmail(sendMessageScreen.senderMailId.text,sendMessageScreen.senderMailCcId.text,sendMessageScreen.senderSubjectId.text,sendMessageScreen.messageDataId1.text);
+	    }
+//***************************************************************************************************************************************//
+  
+	   	private function sendSMSDetails(e:Event):void{
+	     //remoteObject.init();
+	     cursorManager.setBusyCursor();
+	     remoteObject.sendSMS(sendMessageScreen.senderNumber.text,sendMessageScreen.messageDataId.text,"");
+	   	}
+//***************************************************************************************************************************************//
+	   	
+	   	public function createPopUp(towerName:String,alarm:String,occuredTime:String):void {
+	   		
+	   	  emailOrSmsMessageFormat = "["+towerName+"] "+ alarm +" "+ "Occured on " +occuredTime;
+  	      PopUpManager.addPopUp(sendMessageScreen, this, true);	
+  	      sendMessageScreen.emailOrSmsMessageFormat = emailOrSmsMessageFormat;
+	      sendMessageScreen.x = 180;
+		  sendMessageScreen.y = 100;	
+		  sendMessageScreen.senderNumber.text = "";
+		  sendMessageScreen.senderMailId.text = "";
+		  sendMessageScreen.senderMailCcId.text="";
+	    }
+//***************************************************************************************************************************************//
+   
+	    public function createPopUpForEscalationInfoDisplay(escalationId:String,district:String,towerName:String,id:String):void {
+		     siteAndDistrictDisplayName = district+":"+towerName;
+ 		     if(Number(escalationId) != 0){
+		     	var towId:int = Number(id);
+		     	remoteObject.getTowerEscalationInchargeDetails(towId,Number(escalationId));
+		     }else{
+		     	Alert.show("In this level Escalation details are NA.");
+		     }
+	      
+	    }
+//***************************************************************************************************************************************//
+	    public function getEscalationMaster():void {
+    		remoteObject.getEscalationMaster();
+	    }
+//***************************************************************************************************************************************//
+	    public function editEscalationLevel():void {
+    		remoteObject.getEscalationDetails(Number(escalationMasterInfoId.selectedItem.data.toString()));
+	    }
+	    
+//***************************************************************************************************************************************//
+	    [Bindable]
+	    public var imgClickEnable:Boolean = true;
+	    private var isStart:Boolean = true; 
+	    public function setIntervalForGettingLiveData():void {
+	    	if(isStart){
+	    		isStart = false;
+	    		
+		    	if("select" == refereshTime.selectedItem.data.toString()){
+		    		Alert.show("Please select the refersh time interval.");
+		    	}else{
+		    		
+		    		imgClickEnable = false;
+		    		Alert.show("Auto refresh option will disable all user intervention in this page.");
+		    		callRPCClick();
+					clearInterval(intervalUnit);
+		    		intervalUnit = setInterval(callRPCClick,Number(refereshTime.selectedItem.data.toString()));
+		    		refreshButton.enabled = false;
+		    		refreshButton.visible = false;
+		    		playAndStopButton.setStyle("icon",stopIcon);
+		    		refereshTime.enabled = false;
+		    		displayTower.enabled = false;
+		    		ticketType.enabled = false;
+		    		
+		    		adg.enabled = false;
+		    		age.editable = false;
+		    		createTktButton.enabled = false;
+		    		ticketId.editable = false;
+		    		siteName.editable = false;
+		    		alarm.editable = false;
+		    		occuredTime.editable = false;
+		    		escalationLevel.editable = false;
+		    		district.editable = false;
+		    	
+		    		communicationInfo.editable = false;
+		    		severity.editable = false;
+		    		
+		     	}
+	     	}else if(!isStart){
+	     		imgClickEnable = true;
+	     		isStart = true;
+	     		clearInterval(intervalUnit);
+		    	refreshButton.visible = true;
+		    	refreshButton.enabled = true;
+		    	refereshTime.selectedIndex = 0;
+		    	playAndStopButton.setStyle("icon",playIcon);
+		    		
+		    	refereshTime.enabled = true;
+		    	displayTower.enabled = true;
+		    	ticketType.enabled = true;
+		    	
+		    	adg.enabled = true;
+		    	age.editable = true;
+		    	createTktButton.enabled = true;
+		    	
+		    	district.editable = true;
+	    		ticketId.editable = true;
+	    		siteName.editable = true;
+	    		alarm.editable = true;
+	    		occuredTime.editable = true;
+	    		escalationLevel.editable = true;
+	    		
+	    		communicationInfo.editable = true;
+	    		severity.editable = true;
+		    	//adg.h =true;
+		    	
+	     	}
+	    }
+//***************************************************************************************************************************************//
+   
+   	   public var escalationInfoList:ArrayCollection;
+       public var escalationInfo:TowerInchargeRoleMappingDTO = new TowerInchargeRoleMappingDTO();
+          
+       private function updateEscalationInformation(event:Event):void {
+         
+          escalationInfoList = new ArrayCollection();
+          var tempEscalationLevelColl:ArrayCollection = new ArrayCollection();
+          tempEscalationLevelColl = editEscalationLevelPopup.tempEscalationLevelDetails;
+    
+          for(var i:uint=0 ; i < tempEscalationLevelColl.length; i++){
+           		escalationInfo = new TowerInchargeRoleMappingDTO();
+           		escalationInfo.id = tempEscalationLevelColl.getItemAt(i).id.toString();
+           		escalationInfo.data =  parseInt(tempEscalationLevelColl.getItemAt(i).duration.toString());
+           		escalationInfoList.addItem(escalationInfo);
+          }
+   		 
+   		 PopUpManager.removePopUp(editEscalationLevelPopup);
+   		 remoteObject.updateEscalation(escalationInfoList);	
+        }
+//***************************************************************************************************************************************//
+        public function forwardToHomePage():void {
+     		navigateToURL( new URLRequest("mapLocationDashboard.do"),"_self");
+	    }
+//***************************************************************************************************************************************//
+        public function createSiteDetailsPoppu(district:String,towerName:String,id:String):void {
+        	siteAndDistrictDisplayName = district+":"+towerName;
+    	
+        	towerId = Number(id);
+        	
+        	remoteObject.getSiteDetails(towerId,customerId);
+        	remoteObject.getSiteLiveAlarmsDetails(towerId,customerId);
+    		
+    		PopUpManager.addPopUp(escalationSiteDetailsPopup, this, true);
+   			PopUpManager.centerPopUp(escalationSiteDetailsPopup);
+       		escalationSiteDetailsPopup.escalationDetails = this;
+	    }        
+//***************************************************************************************************************************************//	
+	
+	 private var alarmParamCode:String = "";
+	 [Bindable]
+	 public var alarmName:String = "";
+	 //private var noOfAlarm:int = 10;
+	 public function getAlarmData(district:String,towerName:String,id:String,paramCode:String,alarm:String):void {
+	 	siteAndDistrictDisplayName = district+":"+towerName;
+    	
+    	towerId = Number(id);
+     	alarmParamCode = paramCode;
+     	alarmName = alarm;
+     	//default alarm history limit is hardcoded here.
+     	remoteObject.getAlarmDetails(towerId,alarmParamCode,10);
+     	PopUpManager.addPopUp(escalationAlarmHistoryPopup, this, true);
+   		PopUpManager.centerPopUp(escalationAlarmHistoryPopup);
+       	escalationAlarmHistoryPopup.escalationDetails = this;
+	 }
+	 
+	 public function getAlarmHistory(event:Event):void {
+	   	remoteObject.getAlarmDetails(towerId,alarmParamCode,Number(escalationAlarmHistoryPopup.alarmCountCombo.selectedItem.data.toString()));
+ 	 }
+ 	 
+ 	 public function createNewTicketPopup():void {
+ 	 	manualOrScheduleTicketing = new ManualOrScheduleTicketing();
+ 	    manualOrScheduleTicketing.addEventListener("CreateNewTicket", createNewTicket);
+ 	    CursorManager.setBusyCursor();   
+ 	 	remoteObject.getTowerHierarchyXMLFormat(userID);
+ 	 	manualOrScheduleTicketing.escalationMasterTypeList = escalationMasterList;
+	 	PopUpManager.addPopUp(manualOrScheduleTicketing, this, true);
+   		PopUpManager.centerPopUp(manualOrScheduleTicketing);
+	 }
+	 
+	  public function createNewTicket(event:Event):void {
+	  	var escalationDTO:EscalationDTO = new EscalationDTO();
+	  	escalationDTO.id = Number(manualOrScheduleTicketing.towerId);
+	  	escalationDTO.escalationType = manualOrScheduleTicketing.combEscalationtype.selectedItem.data;
+	  	escalationDTO.createdTime = manualOrScheduleTicketing.txtCreatedTime.text.toString();
+	  	escalationDTO.ticketDesc = manualOrScheduleTicketing.txtTicketDescription.text.toString();
+	  	escalationDTO.communicationInfo = manualOrScheduleTicketing.combCommunication.selectedItem.data.toString();
+	  	escalationDTO.severityType = manualOrScheduleTicketing.combSeverity.selectedItem.data.toString();
+	 	escalationDTO.ticketType = "MANUAL";
+	 	escalationDTO.escalationId = manualOrScheduleTicketing.combEscalationtype.selectedItem.data;
+	 	PopUpManager.removePopUp(manualOrScheduleTicketing);
+	 	remoteObject.createNewTicket(userID,escalationDTO);
+	 	manualRPCCall();
+	 }
+	  
+	[Bindable]
+    [Embed(source="images/Table.png")]
+    public var Table:Class;
+    
+    [Bindable]
+    [Embed(source="images/Message.png")]
+    public var Message:Class;
+    
+    [Bindable]
+    [Embed(source="images/editIcon.png")]
+    public var editIcon:Class;
+    
+    [Bindable]
+    [Embed(source="images/editIconManual.gif")]
+    public var editIconManual:Class;
+    
+    [Bindable]
+    [Embed(source="images/editIconSchedule.gif")]
+    public var editIconSchedule:Class;
+    
+    [Bindable]
+    [Embed(source="images/Report.png")]
+    public var reportIcon:Class;
+    
+    [Bindable]
+    [Embed(source="images/ReportGrey.PNG")]
+    public var reportGreyIcon:Class;
+    
+    [Bindable]
+    [Embed(source="images/View.png")]
+    public var viewIcon:Class;
+    
+    [Bindable]
+    [Embed(source="images/Play.png")]
+    public var playIcon:Class;
+    
+    [Bindable]
+    [Embed(source="images/Stop.png")]
+    public var stopIcon:Class;
+ 
+//***************************************************************************************************************************************//
+ 	[Bindable]
+    public var myColor:uint;
+
+    // Write String to labelDisplay component. 
+    public function labelColor(ticketType:String):uint 
+    { 
+ 		  if(ticketType == "AUTO"){
+ 		  	myColor = 0x000000;
+ 		  }else if(ticketType == "MANUAL"){
+ 		  	myColor = 0xEEC900;
+ 		  }else if(ticketType == "SCHEDULE"){
+ 		  	myColor = 0x0000FF;
+ 		  }    
+ 		  return myColor; 	
+    } 
+    
+     public function ticketImage(ticketType:String):Class 
+    { 
+ 		  if(ticketType == "AUTO"){
+ 		  	return editIcon;
+ 		  }else if(ticketType == "MANUAL"){
+ 		  	return editIconManual;
+ 		  }else if(ticketType == "SCHEDULE"){
+ 		  	return editIconSchedule;
+ 		  }    
+ 		  return editIcon; 	
+    } 
+
+    public function changeTicketState(vboxName:String):void 
+    { 
+		if(vboxName == "LiveTicketVBox"){
+			ticketViewStack.selectedChild = liveTicketVBox;
+		}else{
+			ticketViewStack.selectedChild = closedTicketVBox;
+			if(swapCount == 0){
+				var myDate:Date = new Date(); 
+				var newdate:String = dateFormatter.format(myDate); 
+	    		remoteObject.getTicketClosedDetails(customerId,0,"","","ALL","ALL",newdate,newdate);
+			}
+			swapCount = swapCount+1;
+		}
+    }
+    
+    public function searchClosedTicket():void 
+    { 
+    	if(differenceBetweenDates(fromDateTkt.selectedDate,toDateTkt.selectedDate) == 2){
+	     	Alert.show("'From Date' should not be greater than 'To Date'");
+	     }else { 
+	    	var closedTktId:Number = Number(txtClosedTktId.text);
+	    	var closedTktDesc:String = Trim.trim(txtClosedTktDescId.text)!="Ticket Description"?txtClosedTktDescId.text:"";
+	    	var closedTktSitename:String = Trim.trim(txtClosedTktSiteName.text)!="Site Name"?txtClosedTktSiteName.text:"";
+	    	var closedTktSeverity:String = closedTicketSeverityCombo.selectedItem.data;
+	    	var closedTktType:String = closedTicketTypeCombo.selectedItem.data;
+	    	cursorManager.setBusyCursor();
+	    	remoteObject.getTicketClosedDetails(customerId,closedTktId,closedTktSitename,closedTktDesc,closedTktSeverity,closedTktType,fromDateTkt.text.toString(),toDateTkt.text.toString());
+   		}
+   	}
+   	private function CurrentDateTimeString():String
+	{
+  		var CurrentDateTime:Date = new Date();
+   		var DateString:String = CurrentDateTime.getFullYear().toString()+"-"+doubleDigitFormat(Number(CurrentDateTime.getMonth()+1))+"-"+CurrentDateTime.getDate().toString();	
+   		var TimeString:String = CurrentDateTime.getHours().toString()+"_"+doubleDigitFormat(CurrentDateTime.getMinutes())+"_"+doubleDigitFormat(CurrentDateTime.getSeconds());
+   		var DateTimeString:String = DateString+" "+TimeString;
+   		return DateTimeString;
+ 	}
+ 	private function doubleDigitFormat(num:uint):String 
+	{
+	  	 if(num < 10) {
+	   	 	return ("0" + num);
+	  	 }
+   		return num.toString();
+  	}
+  	private function differenceBetweenDates(date1:Date, date2:Date):Number{
+		var date1Timestamp : Number = date1.getTime ();
+		var date2Timestamp : Number = date2.getTime ();
+		if(date1Timestamp <= date2Timestamp) {
+			 return 1;
+		}else {
+		 return 2;
+		}
+	 }	
+	 
+  	
+	private var ticketIdSearchStr:String =""; 
+	private var siteStr:String =""; 
+	private var descriptionStr:String =""; 
+	private var severityStr:String =""; 
+	private var commuInfoStr:String =""; 
+	      
+	private function titleSearch(item:Object):Boolean
+	{
+   		ticketIdSearchStr = (ticketIdSearchBox.text.toString() =='Ticket Id')?"":ticketIdSearchBox.text.toString();
+		siteStr = (siteSearchBox.text.toString() =='Site Name')?"":siteSearchBox.text.toString();
+		descriptionStr = (descriptionSearchBox.text.toString() =='Description')?"":descriptionSearchBox.text.toString();
+		severityStr = (severitySearchBox.text.toString() =='Severity')?"":severitySearchBox.text.toString();
+		commuInfoStr = (commuInfoSearchBox.text.toString() =='CommuInfo')?"":commuInfoSearchBox.text.toString();
+	
+		var isMatch:Boolean = false        
+        if(	item.alarm.toString().toLowerCase().search(descriptionStr.toLowerCase()) != -1 && 
+         	item.towerName.toString().toLowerCase().search(siteStr.toLowerCase()) != -1 &&
+         	item.ticketId.toString().toLowerCase().search(ticketIdSearchStr.toLowerCase()) != -1 &&
+         	item.severityType.toString().toLowerCase().search(severityStr.toLowerCase()) != -1 && 
+         	item.esclastLogMessage.toString().toLowerCase().search(commuInfoStr.toLowerCase()) != -1)
+        {
+            isMatch = true
+        } 
+			//Alert.show(isMatch.toString());
+        return isMatch;              
+	}
+   
+    private function descriptionFilter():void
+    {	
+    	if(descriptionSearchBox.text.toString() != 'Description'){
+			adg.dataProvider.filterFunction = titleSearch;
+			adg.dataProvider.refresh();
+    	}
+   	}
+  	
+    private function siteFilter():void
+    {	
+    	if(siteSearchBox.text.toString() != 'Site Name'){
+			adg.dataProvider.filterFunction = titleSearch;
+			adg.dataProvider.refresh();
+    	}
+   	}
+   	
+   	private function ticketIdFilter():void
+    {	
+    	if(ticketIdSearchBox.text.toString() != 'Ticket Id'){
+    		adg.dataProvider.filterFunction = titleSearch;
+			adg.dataProvider.refresh();
+    	}
+   	}
+   	
+   	private function severityFilter():void
+    {	
+    	if(severitySearchBox.text.toString() !='Severity'){
+			adg.dataProvider.filterFunction = titleSearch;
+			adg.dataProvider.refresh();
+    	}
+   	}
+   	
+   	private function commuInfoFilter():void
+    {	
+    	if(commuInfoSearchBox.text.toString() != 'CommuInfo'){
+			adg.dataProvider.filterFunction = titleSearch;
+			adg.dataProvider.refresh();
+    	}
+   	}
+ 
+   	private function clearSearch():void {
+   		ticketIdSearchBox.text='';
+   		siteSearchBox.text=''; 
+   		descriptionSearchBox.text='';
+   		severitySearchBox.text='';
+   		commuInfoSearchBox.text=''; 
+
+   		if(adg.dataProvider!=null){
+           adg.dataProvider.filterFunction=null;
+           adg.dataProvider.refresh();
+         }
+   	}  
+   	
+   	private var isDuplicateTktCreation:Boolean = false;
+   	private	var duplicateTktArr:ArrayCollection = null;
+   	private function groupDuplicateTicket():void {
+   		var tempArr:ArrayCollection = adg.dataProvider as ArrayCollection;
+   		duplicateTktArr = new ArrayCollection();
+   		for(var i:int=0; i < tempArr.length; i++){
+   			if(tempArr.getItemAt(i).isSelected){
+   				duplicateTktArr.addItem(Number(tempArr.getItemAt(i).ticketId.toString()));
+   			}
+   		}
+   		if(duplicateTktArr.length >= 2){
+   			groupTicketPopup();
+   		}else{
+   			Alert.show("Please select at least two tickets.");
+   		}
+   	}
+   	public var groupTicket:GroupTicket;
+   	public function groupTicketPopup():void {
+   		groupTicket = new GroupTicket();
+ 	 	//groupTicket.districtlabel = labelNameForManual;
+ 	 	//groupTicket.districtLabelStatus = districtLabelStatus;
+ 	    groupTicket.cus_id = customerId;
+ 	 	//groupTicket.escalationMasterTypeList = escalationMasterList;
+ 	 	//groupTicket.ticketCategoryMasterTypeList = ticketCategoryMasterList;
+ 	 	//groupTicket.ticketTypeList = tktTypeList;
+ 	 	//groupTicket.ownerList = getTempOwnerArrColl(inchargeNameList);
+		//groupTicket.inchList = inchargeNameList;
+		groupTicket.ticketIds = duplicateTktArr;
+		groupTicket.userID = userID;
+		groupTicket.addEventListener("getLiveTickets", getLiveTickets);
+	 	PopUpManager.addPopUp(groupTicket, this, true);
+   		PopUpManager.centerPopUp(groupTicket);
+	 }
+	 
+	 public function getLiveTickets(event:Event):void {
+	 	PopUpManager.removePopUp(groupTicket);
+	 	manualRPCCall();
+	 }
+	 
+	 [Bindable]
+	 [Embed(source="images/attach.png")]
+	 public var attachIcon:Class;
+	 
+	 
+	 private var fileUploadAndDownload:FileUploadAndDownload =null;
+   	 public function fileUploadDownloadPopup(tktId:Number,uploadOrDowloadIndex:Number):void {
+		fileUploadAndDownload = new FileUploadAndDownload();
+		fileUploadAndDownload.ticketId = tktId;
+		fileUploadAndDownload.userId = userID;
+		fileUploadAndDownload.seleIndex = uploadOrDowloadIndex;
+	 	PopUpManager.addPopUp(fileUploadAndDownload, this, true);
+   		PopUpManager.centerPopUp(fileUploadAndDownload);
+	 }
+	//color="{outerDocument.labelColor(data.ticketType)}"
+	]]>     
+</mx:Script>
+
+<mx:Style>
+	.promptTextInput
+	{
+		font-style : normal;
+		color : #9D9D9D;
+	}
+</mx:Style>	
+
+<mx:ArrayCollection id="ticketTypeColl">
+  	<mx:Object label="All" data="ALL"/>
+    <mx:Object label="Auto" data="AUTO"/>
+    <mx:Object label="Schedule" data="SCHEDULE"/>
+    <mx:Object label="Manual" data="MANUAL"/>
+</mx:ArrayCollection>
+
+<mx:ArrayCollection id="ticketAgeColl">
+  	<mx:Object label="1" data="1"/>
+    <mx:Object label="2" data="2"/>
+    <mx:Object label="3" data="3"/>
+    <mx:Object label="4" data="4"/>
+    <mx:Object label="5" data="5"/>
+    <mx:Object label="6" data="6"/>
+    <mx:Object label="7" data="7"/>
+    <mx:Object label="ALL" data="0"/>
+</mx:ArrayCollection>
+      
+<mx:ArrayCollection id="ticketSeverityColl">
+  	<mx:Object label="All" data="ALL"/>
+  	<mx:Object label="Critical" data="Critical"/>
+  	<mx:Object label="Major" data="Major"/>
+    <mx:Object label="Minor" data="Minor"/>
+    <mx:Object label="Normal" data="Normal"/>
+   	<mx:Object label="Other" data="Other"/>
+</mx:ArrayCollection>
+<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD"/> 
+<mx:RemoteObject id="remoteObject" destination="escalationLiveService" result="resultHandler(event);" fault="faultHandler(event);"/> 
+	<mx:ViewStack id="ticketViewStack" width="100%" height="100%">
+		<mx:VBox width="100%" height="100%" id="liveTicketVBox">
+			<mx:HBox width="100%" height="4%">
+				<mx:Button toolTip="Home" id="homeButton" icon="@Embed(source='images/Home.png')"  click="forwardToHomePage()" width="28" height="24"/>
+				<mx:Button toolTip="Create Ticket" id="createTktButton" click="createNewTicketPopup()" icon="@Embed(source='images/Computer_File_052.gif')" width="28" height="24"/>
+		     	<!--mx:Label id="titleLabel" text="Total Open Tickets : {dataColl.length}" fontWeight="bold" fontSize="10" width="16%"/-->
+		     	
+		     	<!--mx:Button toolTip="Group Ticket" id="groupTktButton" 
+					click="groupDuplicateTicket()" icon="@Embed(source='images/ticket_group.jpg')" 
+					width="28" height="24"/-->
+		     	<mx:ComboBox id="ticketAge" fontFamily="Verdana" 
+	 					fontSize="10" selectedIndex="1" 
+	 					toolTip="Ticket age in days" 
+	 					cornerRadius="0" width="5%" dataProvider="{ticketAgeColl}"/>
+		     	<mx:ComboBox id="displayTower" fontFamily="Verdana" fontSize="10" selectedIndex="0" cornerRadius="0" width="1%">
+		  			<mx:ArrayCollection>
+		  				<mx:Object label="All Sites" data="AllTower"/>
+		  			    <mx:Object label="Configured Site" data="UserTower"/>
+		  			</mx:ArrayCollection>
+		  		</mx:ComboBox>
+		 		<mx:ComboBox id="ticketType" fontFamily="Verdana" 
+		 					fontSize="10" selectedIndex="1" 
+		 					toolTip="Ticket view" 
+		 					cornerRadius="0" width="5%" dataProvider="{ticketTypeColl}"/>
+		 		<mx:ComboBox id="refereshTime" fontFamily="Verdana" 
+		 					fontSize="10" selectedIndex="0" 
+		 					toolTip="Auto refresh in mins" 
+		 					cornerRadius="0" width="5%">
+		 			<mx:ArrayCollection>
+		 		       <mx:Object label="-" data="select"/>
+		 		       <mx:Object label="2" data="120000"/>
+		 		       <mx:Object label="5" data="300000"/>
+		 		       <mx:Object label="10" data="600000"/>
+		 		       <mx:Object label="15" data="900000"/>
+		 			</mx:ArrayCollection>
+		 		</mx:ComboBox>
+		 		<mx:Button toolTip="Enable Auto Refresh" id="playAndStopButton" icon="{playIcon}"  click="setIntervalForGettingLiveData()" width="28" height="24"/>
+				<!--mx:Button toolTip="Disable Auto Refresh" id="stopButton" icon="@Embed(source='images/Stop.png')" click="setIntervalForGettingLiveData('stop')" width="2%"/>
+		 		<mx:Button toolTip="Enable Auto Refresh" id="playButton" icon="@Embed(source='images/Play.png')"  click="setIntervalForGettingLiveData('start')" width="2%"/-->
+		  		<mx:Button toolTip="Refresh" id="refreshButton" click="manualRPCCall()" icon="@Embed(source='images/Refresh.png')" width="28" height="24"/>
+		 		<mx:ComboBox id="escalationMasterInfoId" fontFamily="Verdana" fontSize="10" selectedIndex="1" visible="{escalationEditOption}" cornerRadius="0" width="15%"/>
+		  		<mx:Button toolTip="Escalation Details" 
+		  			id="escalationButton" click="editEscalationLevel()" 
+		  			icon="@Embed(source='images/editIcon.gif')" 
+		  			visible="{escalationEditOption}" 
+		  			width="28" height="24"/>
+		  		
+				<mx:Button id="expToExlOpenTkt" 
+			            	icon="@Embed('assets/excel.gif')"  
+			            	fillAlphas="[1.0, 1.0]" fillColors="[#E2E2E2, #E2E2E2]" 
+			            	click="Exporter.loadDGInExcel(adg,'OpenTickets','OpenTickets')" 
+			            	toolTip="Export Data"
+			            	width="28"/>
+			            	
+				<mx:Button click="changeTicketState('ClosedTicketVBox')"
+							icon="@Embed('images/Closed.png')"  
+			            	fillAlphas="[1.0, 1.0]" fillColors="[#E2E2E2, #E2E2E2]"
+			            	toolTip="Closed Ticket"
+			            	width="28"/>
+			</mx:HBox>
+			<mx:HBox width="100%" height="3%">
+				<mx:HBox width="40%" height="3%">
+					<tInput:PromptIgnoreTextInput width="15%" id="ticketIdSearchBox"
+								 promptStyleName="promptTextInput" 
+						 		 enablePrompt="true" text=""
+						 		 prompt="Ticket Id"
+						 		 change="ticketIdFilter()"
+						 		 ignoreText="" toolTip="Ticket Id"/>
+	
+					<tInput:PromptIgnoreTextInput width="15%" id="siteSearchBox"
+							 promptStyleName="promptTextInput" 
+					 		 enablePrompt="true" text=""
+					 		 prompt="Site Name"
+					 		 change="siteFilter()"
+					 		 ignoreText="" toolTip="Site Name"/>	 		 
+	
+					<tInput:PromptIgnoreTextInput width="20%" id="descriptionSearchBox"
+							 promptStyleName="promptTextInput" 
+					 		 enablePrompt="true" text=""
+					 		 prompt="Description"
+					 		 change="descriptionFilter()"
+					 		 ignoreText="" toolTip="Description"/>	 		 
+	
+					<tInput:PromptIgnoreTextInput width="15%" id="severitySearchBox"
+							 promptStyleName="promptTextInput" 
+					 		 enablePrompt="true" text=""
+					 		 prompt="Severity"
+					 		 change="severityFilter()"
+					 		 ignoreText="" toolTip="Severity"/>	 		 
+	
+					<tInput:PromptIgnoreTextInput width="20%" id="commuInfoSearchBox"
+							 promptStyleName="promptTextInput" 
+					 		 enablePrompt="true" text=""
+					 		 prompt="CommuInfo"
+					 		 change="commuInfoFilter()"
+					 		 ignoreText="" toolTip="Communication Info"/>	
+	
+					<mx:Button toolTip="Clear Search" id="clearButton" 
+							click="clearSearch()" 
+							icon="@Embed(source='images/eraser.png')" width="24" height="24"/>	 		 		 	 		 	 		 
+				</mx:HBox>
+				<mx:HBox width="35%">
+					<mx:VBox horizontalAlign="right">
+						<mx:Label text="Serverity" width="25%" fontSize="10" fontWeight="bold"/>
+					</mx:VBox>
+					<mx:VBox backgroundColor="red">
+						<mx:LinkButton width="10%" fontSize="10" click="getSeverityTkt('Critical')"
+							id="criticalCountId" fontWeight="bold" toolTip="Critical" 
+							textAlign="center" rollOverColor="red" />
+					</mx:VBox>
+					<mx:VBox backgroundColor="#ab6a03">
+						<mx:LinkButton width="10%"  fontSize="10" click="getSeverityTkt('Major')"
+							id="majorCountId" fontWeight="bold" toolTip="Major" 
+							textAlign="center"/>
+					</mx:VBox>	
+					<mx:VBox backgroundColor="#ff7e00">
+						<mx:LinkButton width="10%"  fontSize="10" click="getSeverityTkt('Minor')"
+							id="minorCountId" fontWeight="bold" toolTip="Minor" 
+							textAlign="center"/>
+					</mx:VBox>	
+					<mx:VBox backgroundColor="#FFFFFF">		
+						<mx:LinkButton width="10%"  fontSize="10" click="getSeverityTkt('Other')"
+							id="otherCountId" fontWeight="bold" toolTip="Other" 
+							textAlign="center"/>
+					</mx:VBox>	
+					<mx:VBox backgroundColor="#FFFFFF">		
+						<mx:LinkButton width="10%"  fontSize="10" click="getSeverityTkt('Normal')"
+							id="normalCountId" fontWeight="bold" toolTip="Normal" 
+							textAlign="center"/>
+					</mx:VBox>	
+				</mx:HBox>
+				<mx:Spacer width="3%"/>
+				<mx:VBox width="15%">
+					<mx:Label id="titleLabel"  
+		     			fontWeight="bold" fontSize="10" width="16%"/>
+				</mx:VBox>
+			</mx:HBox>
+	    	<mx:HBox width="100%" height="96%">
+	     		<controls:MDataGrid  id="adg" 
+    						  designViewDataType="flat" 
+    						  width="100%" 
+    						  height="100%"  
+    						  textAlign="left" 
+    						  fontSize="11"
+    						  dataProvider="{dataColl}"
+    						  backgroundColor="#F7F7F7"
+    						  enabled="true"
+    						  sortExpertMode="false"
+    						  resizableColumns="true">
+	    	    	 	  
+		    	 	<controls:columns>
+		    	 		<!--mx:AdvancedDataGridColumn dataField="isSelected" width="35"  
+							headerText="" sortable="false">
+							<mx:itemRenderer>
+			                    <mx:Component>
+			                        <mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+					                    <mx:CheckBox click="data.isSelected=!data.isSelected"  selected="{data.isSelected}"/>
+									 </mx:HBox>
+			                    </mx:Component>
+			               </mx:itemRenderer>
+						</mx:AdvancedDataGridColumn>
+						<mx:AdvancedDataGridColumn dataField="fileHasAttached" width="35"  
+							headerText="" sortable="false">
+							<mx:headerRenderer>
+								<mx:Component>
+									 <mx:Image
+			                        	source="{outerDocument.attachIcon}" 
+										horizontalAlign="center" 
+										scaleContent="false"
+										maintainAspectRatio="true" width="18"/>
+								</mx:Component>	
+							</mx:headerRenderer>	
+							<mx:itemRenderer>
+			                    <mx:Component>
+			                        <mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+					                    <mx:Image
+				                        	mouseEnabled="{outerDocument.imgClickEnable}"  
+											source="{outerDocument.attachIcon}" 
+											horizontalAlign="right" 
+											visible="{data.fileHasAttached}"
+											scaleContent="false"
+											maintainAspectRatio="true"  
+											toolTip="Please click to download."
+											click="{outerDocument.fileUploadDownloadPopup(Number(data.ticketId),0)}" 
+											width="18"/>
+									 </mx:HBox>
+			                    </mx:Component>
+			               </mx:itemRenderer>
+						</mx:AdvancedDataGridColumn-->
+	 	    	    	<dataGridClasses:MDataGridColumn headerText="Ticket Id" id="ticketId" dataField="ticketId" width="90" sortable="false">
+	 	    	        	<dataGridClasses:itemRenderer> 
+		                        <mx:Component>
+		                        	<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+		                        
+		                        	<mx:Image
+		                        	mouseEnabled="{outerDocument.imgClickEnable}"  
+									source="{outerDocument.Message}" 
+									horizontalAlign="right" 
+									scaleContent="false"
+									maintainAspectRatio="true"  
+									click="{outerDocument.createPopUp(data.towerName,data.alarm,data.occuredTime)}" 
+									toolTip="Send Message" width="18"/>
+					            	
+					            	<mx:Image 
+					            	mouseEnabled="{outerDocument.imgClickEnable}" 
+									source="{outerDocument.ticketImage(data.ticketType)}" 
+									horizontalAlign="right" 
+									scaleContent="false"
+									maintainAspectRatio="true"  
+									click="{outerDocument.check(data.escalationId,data.liveDataId,data.ticketType,data.ticketId)}" 
+									toolTip="Update Escalation Info" width="18"/>
+					            	
+					            	<mx:Label id="labelTicketId" text="{data.ticketId}" width="64" 
+					            		 	  toolTip="{data.ticketId}"/>
+					            	</mx:HBox>
+	                             </mx:Component> 
+			              	</dataGridClasses:itemRenderer> 
+			            </dataGridClasses:MDataGridColumn>
+			            <dataGridClasses:MDataGridColumn headerText="Site ID" dataField="siteId" id="siteId" showDataTips="true" width="100"/>
+			            <dataGridClasses:MDataGridColumn headerText="SAP ID" dataField="sapId" id="sapId" showDataTips="true" width="100"/>
+		    	   	   	<dataGridClasses:MDataGridColumn headerText="Site Name" dataField="towerName" id="siteName" showDataTips="true" width="100">
+	    	       		  	<dataGridClasses:itemRenderer> 
+		                        <mx:Component>
+		                        	<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+	
+		                        	<mx:Image 
+		                        	mouseEnabled="{outerDocument.imgClickEnable}" 
+									source="{outerDocument.viewIcon}" 
+									horizontalAlign="right" 
+									scaleContent="false"
+									maintainAspectRatio="true"  
+									click="{outerDocument.createSiteDetailsPoppu(data.district,data.towerName,data.id)}" 
+									toolTip="Site Details" width="18"/>
+					            	
+					            	<mx:Label text="{data.towerName}" width="982" toolTip="{data.towerName}"/>
+					            	</mx:HBox>
+	                             </mx:Component> 
+	                		</dataGridClasses:itemRenderer> 
+						</dataGridClasses:MDataGridColumn>
+		    	       
+		    	       <dataGridClasses:MDataGridColumn headerText="Description" id="alarm" dataField="alarm"  showDataTips="true" width="150"
+		    	       		filterEditor="com.iwobanas.controls.dataGridClasses.filterEditors.MultipleChoiceFilterEditor">
+	    	       			<dataGridClasses:itemRenderer> 
+		                        <mx:Component>
+		                        	<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+		                        	<mx:Image 
+		                        	id="imgAlarm"
+		   							source="{outerDocument.reportIcon}" 
+									horizontalAlign="right" 
+									scaleContent="false"
+									maintainAspectRatio="true"  click="{outerDocument.getAlarmData(data.district,data.towerName,data.id,data.paramCode,data.alarm)}" 
+									toolTip="Alarm Details" width="18" 
+									alpha="{(data.ticketType=='AUTO')?1:.3}"
+									mouseEnabled="{(data.ticketType=='AUTO')?outerDocument.imgClickEnable:false}"/>
+					            	<mx:Label text="{data.alarm}" width="982" toolTip="{data.alarm}"/>
+					            	</mx:HBox>
+	                             </mx:Component> 
+	  	                	</dataGridClasses:itemRenderer> 
+		    	       </dataGridClasses:MDataGridColumn>
+		    	       
+		    	       <dataGridClasses:MDataGridColumn headerText="Severity" dataField="severityType" id="severity" showDataTips="true" width="50"
+		    	       		filterEditor="com.iwobanas.controls.dataGridClasses.filterEditors.MultipleChoiceFilterEditor"/> 
+		    	       
+		    	       <dataGridClasses:MDataGridColumn headerText="Occurred Time" dataField="occuredTime" id="occuredTime" showDataTips="true" width="110"/>
+		               <dataGridClasses:MDataGridColumn headerText="Age (HH:MM:SS)" dataField="age" id="age" showDataTips="true" width="75" sortable="false"
+		    	       		filterEditor="com.iwobanas.controls.dataGridClasses.filterEditors.SliderFilterEditor"/>
+	      			   
+	      			   <dataGridClasses:MDataGridColumn dataField="escalationLevel" headerText="Escalation Level" showDataTips="true" id="escalationLevel" width="50" sortable="false">
+		    	       		 <dataGridClasses:itemRenderer> 
+			                        <mx:Component>
+			                        	<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+	  					            	    <mx:Image
+	  					            	    mouseEnabled="{outerDocument.imgClickEnable}" 
+											source="{outerDocument.Table}" 
+											horizontalAlign="right" 
+											scaleContent="false"
+											maintainAspectRatio="true"  click="{outerDocument.createPopUpForEscalationInfoDisplay(data.escalationId,data.district,data.towerName,data.id)}" toolTip="Escalation Details" width="18"/>
+							            	<mx:Label text="{data.escalationLevel}" width="50" toolTip="{data.escalationLevel}"/>
+						            	</mx:HBox>
+		                             </mx:Component> 
+			                </dataGridClasses:itemRenderer> 
+		    	       </dataGridClasses:MDataGridColumn>
+		    	       
+		    	       <dataGridClasses:MDataGridColumn headerText="Communication Info" dataField="esclastLogMessage" id="communicationInfo" showDataTips="true" width="150"/>
+		    	       <dataGridClasses:MDataGridColumn headerText="Cluster" id="parentLocationName" dataField="parentLocationName"  showDataTips="true" width="75"/>
+		    	       <dataGridClasses:MDataGridColumn headerText="District" id="district" dataField="district"  showDataTips="true" width="75"/>
+		    	       
+		    	   	   <mx:AdvancedDataGridColumn headerText="paramCode"  dataField="paramCode" visible="false"/>
+		    	   	   <mx:AdvancedDataGridColumn headerText="liveDataId"  dataField="liveDataId" visible="false"/>
+		    	   </controls:columns>
+			    	<controls:rendererProviders>
+			      		<mx:AdvancedDataGridRendererProvider  dataField="severityType" columnIndex="5" renderer="slides.SummaryRenderer" />
+			     	</controls:rendererProviders>
+		     	</controls:MDataGrid>      
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%" id="closedTicketVBox">
+			
+			<mx:HBox width="100%" height="3%" cornerRadius="80" borderThickness="5">
+				<mx:VBox width="2%" height="100%" verticalAlign="bottom">
+					<mx:Button toolTip="Home" id="homeButtFromClosedTkt" 
+							icon="@Embed(source='images/Home.png')"  
+							click="forwardToHomePage()" width="28" height="24"/>
+				</mx:VBox>
+				
+				<mx:VBox width="80%" height="100%" cornerRadius="10" borderColor="red" borderThickness="2">
+					<!--mx:HBox  width="100%" height="50%" horizontalAlign="left" horizontalCenter="true">
+						<mx:Label text="Ticket Id" width="10%" fontWeight="bold"/>
+						<mx:Label text="Site Name" width="15%" fontWeight="bold"/>
+						<mx:Label text="Ticket Description" width="15%" fontWeight="bold"/>
+						<mx:Label text="Severity" width="15%" fontWeight="bold"/>
+						<mx:Label text="Ticket Type" width="15%" fontWeight="bold"/>
+						<mx:Label text="From Date" width="15%" fontWeight="bold"/>
+						<mx:Label text="To Date"  width="15%" fontWeight="bold"/>
+					</mx:HBox-->
+					<mx:HBox  width="100%" height="100%" verticalAlign="bottom">
+						<tInput:PromptIgnoreTextInput width="10%" id="txtClosedTktId"
+							 promptStyleName="promptTextInput" 
+					 		 enablePrompt="true" text=""
+					 		 prompt="Ticket Id"
+					 		 restrict="0-9" maxChars="10"
+					 		 ignoreText="" toolTip="Ticket Id"/>
+						<tInput:PromptIgnoreTextInput width="15%" id="txtClosedTktSiteName"
+							 promptStyleName="promptTextInput" 
+					 		 enablePrompt="true" text=""
+					 		 prompt="Site Name"
+					 		 ignoreText="Site Name" toolTip="Site Name"/>
+						<tInput:PromptIgnoreTextInput width="15%" id="txtClosedTktDescId"
+							 promptStyleName="promptTextInput" 
+					 		 enablePrompt="true" text=""
+					 		 prompt="Ticket Description"
+					 		 ignoreText="Ticket Description" toolTip="Ticket Description"/>
+						<mx:ComboBox width="15%" 
+							id="closedTicketSeverityCombo" 
+							dataProvider="{ticketSeverityColl}" 
+							toolTip="Severity" cornerRadius="0"/>
+						<mx:ComboBox id="closedTicketTypeCombo" 
+							width="15%" dataProvider="{ticketTypeColl}" 
+							toolTip="Ticket Type" cornerRadius="0"/>
+						<mx:DateField id="fromDateTkt" 
+							selectableRange="{{rangeEnd:new Date()}}" 
+							formatString="YYYY-MM-DD" selectedDate="{new Date()}" width="15%" toolTip="From Date"/>
+						<mx:DateField id="toDateTkt" 
+							selectableRange="{{rangeEnd:new Date()}}" 
+							formatString="YYYY-MM-DD" selectedDate="{new Date()}" width="15%" toolTip="To Date"/>
+
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox width="2%" height="100%" verticalAlign="bottom">
+					<mx:HBox>
+						<mx:Button toolTip="Search" 
+						icon="@Embed(source='images/View.png')"  
+						click="searchClosedTicket()" width="28" height="24"/>
+						<mx:Button id="expToExlClosedTkt" 
+				            	icon="@Embed('assets/excel.gif')"  
+				            	fillAlphas="[1.0, 1.0]" fillColors="[#E2E2E2, #E2E2E2]" 
+				            	click="Exporter.loadDGInExcel(closedTicketsDG,'ClosedTickets|FromDate-'+fromDateTkt.text+'|ToDate-'+toDateTkt.text,'ClosedTickets')" 
+				            	width="28" toolTip="Export Data"/>
+						<mx:Button width="28" 
+							id="liveTicketLabel" 
+							toolTip="Live Tickets"
+							icon="@Embed(source='images/Open.png')"  
+							fillAlphas="[1.0, 1.0]" fillColors="[#E2E2E2, #E2E2E2]" 
+							click="changeTicketState('LiveTicketVBox')" height="24"/>
+						<mx:Label id="titleLabel1" text="Closed Tickets : {closedTicketArrayColl.length}" toolTip="Closed tickets for selected Dates" fontWeight="bold" fontSize="10" width="16%"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+			</mx:HBox>
+			
+			<mx:HBox width="100%" height="97%">
+				<controls:MDataGrid  id="closedTicketsDG" 
+    						  designViewDataType="flat" 
+    						  width="100%" 
+    						  dataProvider="{closedTicketArrayColl}" 
+    						  height="100%"  
+    						  textAlign="left" 
+    						  fontWeight="bold"
+      						  fontSize="11"  
+    						  backgroundColor="#f9b562"
+    						  enabled="true"
+    						  resizableColumns="true">
+	    	    	 	  
+		    	 	<controls:columns>
+	 	    	    	<dataGridClasses:MDataGridColumn headerText="Ticket Id" dataField="ticketId" width="90" sortable="false">
+	 	    	        	<dataGridClasses:itemRenderer> 
+		                        <mx:Component>
+		                        	<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+		                        
+		                        	<mx:Image
+		                        	mouseEnabled="{outerDocument.imgClickEnable}"  
+									source="{outerDocument.Message}" 
+									horizontalAlign="right" 
+									scaleContent="false"
+									maintainAspectRatio="true"  click="{outerDocument.createPopUp(data.towerName,data.ticketDesc,data.occuredTime)}" toolTip="Send Message" width="18"/>
+					            	
+					            	<mx:Image 
+					            	mouseEnabled="{outerDocument.imgClickEnable}" 
+									source="{outerDocument.ticketImage(data.ticketType)}" 
+									horizontalAlign="right" 
+									scaleContent="false"
+									maintainAspectRatio="true"  
+									click="{outerDocument.check('0',0,'CLOSED',data.ticketId)}"
+									toolTip="Update Closed Ticket Info" width="18"/>
+					            	
+					            	<mx:Label id="labelTicketId" text="{data.ticketId}" width="64" 
+					            		 	  toolTip="{data.ticketId}"/>
+					            	</mx:HBox>
+	                             </mx:Component> 
+			              	</dataGridClasses:itemRenderer> 
+			            </dataGridClasses:MDataGridColumn>
+			            <dataGridClasses:MDataGridColumn headerText="Site ID" dataField="siteId" showDataTips="true" width="100" />
+		   	            <dataGridClasses:MDataGridColumn headerText="SAP ID" dataField="sapId" showDataTips="true" width="100" />
+		    	   	    <dataGridClasses:MDataGridColumn headerText="Site Name" dataField="towerName" showDataTips="true" width="100">
+	    	       		  	<dataGridClasses:itemRenderer> 
+		                        <mx:Component>
+		                        	<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+	
+		                        	<mx:Image 
+		                        	mouseEnabled="{outerDocument.imgClickEnable}" 
+									source="{outerDocument.viewIcon}" 
+									horizontalAlign="right" 
+									scaleContent="false"
+									maintainAspectRatio="true"  
+									click="{outerDocument.createSiteDetailsPoppu(data.district,data.towerName,data.id)}" 
+									toolTip="Site Details" width="18"/>
+					            	
+					            	<mx:Label text="{data.towerName}" width="982" toolTip="{data.towerName}"/>
+					            	</mx:HBox>
+	                             </mx:Component> 
+	                		</dataGridClasses:itemRenderer> 
+					   </dataGridClasses:MDataGridColumn>
+		    	       <dataGridClasses:MDataGridColumn headerText="Description" dataField="ticketDesc" showDataTips="true" width="150"
+		    	       		filterEditor="com.iwobanas.controls.dataGridClasses.filterEditors.MultipleChoiceFilterEditor"/>
+		    	       <dataGridClasses:MDataGridColumn headerText="Severity" dataField="severityType" showDataTips="true" width="50"
+		    	       		filterEditor="com.iwobanas.controls.dataGridClasses.filterEditors.MultipleChoiceFilterEditor"/>
+		    	       <dataGridClasses:MDataGridColumn headerText="Occurred Time" dataField="occuredTime" showDataTips="true" width="110"/>
+	      			   <dataGridClasses:MDataGridColumn headerText="Cleard Time" dataField="cleardTime" showDataTips="true" width="110"/>
+	      			   <dataGridClasses:MDataGridColumn headerText="Age (HH:MM:SS)" dataField="age" showDataTips="true" width="75" sortable="false"
+		    	       		filterEditor="com.iwobanas.controls.dataGridClasses.filterEditors.SliderFilterEditor"/>
+		    	       <dataGridClasses:MDataGridColumn headerText="Communication Info" dataField="esclastLogMessage" showDataTips="true" width="150"/>
+		    	   	   <dataGridClasses:MDataGridColumn headerText="Cluster" dataField="parentLocationName"  showDataTips="true" width="75"/>
+		    	       <dataGridClasses:MDataGridColumn headerText="District" dataField="district"  
+		    	       		filterEditor="com.iwobanas.controls.dataGridClasses.filterEditors.MultipleChoiceFilterEditor" 
+		    	       		showDataTips="true" width="75"/>
+
+		    	   </controls:columns>
+			    	<controls:rendererProviders>
+			      		<mx:AdvancedDataGridRendererProvider  dataField="severityType" columnIndex="5" renderer="slides.SummaryRenderer" />
+			     	</controls:rendererProviders>
+		     	</controls:MDataGrid>
+			</mx:HBox>
+			
+		</mx:VBox>
+	</mx:ViewStack>
+</mx:Application>

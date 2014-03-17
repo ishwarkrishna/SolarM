@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIPanel xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:meter="com.brightPoint.controls.*"
+	xmlns:nui="com.machine.ui.*"
+	width="364" height="400"
+	title="Solar Power Summary" layout="absolute" creationComplete="creationCompleteHAndler()">
+	<mx:Style>
+		.filled{
+			border-style: solid;
+            border-thickness: 0;
+            border-skin: ClassReference("border.SimpleGradientBorder");
+            fill-colors: #9999CC, #FFFFFF;
+            corner-radius: 3;
+		}
+	</mx:Style>
+	
+	<mx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent;
+		import mx.rpc.events.FaultEvent;
+		import mx.collections.XMLListCollection;	
+		import mx.core.UIComponent; 
+		
+		[Bindable] public static var machineId:String = null;
+		[Bindable] public static var serverIpAndPort:String = "localhost";			
+		//[Bindable] public var  meterPower:String = null;
+		//[Bindable] public var meterUtility:String = null;
+		//[Bindable] public var meterInverter:String = null;
+		  
+		[Bindable]
+        private var paramData:XMLListCollection = null;
+        private var timer:Timer = new Timer(5000, 1);    
+		private var timerGrid:Timer = new Timer(3000, 1);
+		
+		protected function creationCompleteHAndler():void
+		{
+			timerGrid.stop();
+			meterHboxId.visible = true;
+			dasgBoardImgId.enabled = false;
+			dasgBoardImgId.alpha = 0.2;
+			gridHboxId.visible = false;
+			gridImgid.enabled = true;
+			gridImgid.alpha = 1;
+	        timer.addEventListener(TimerEvent.TIMER_COMPLETE, callService);
+		}
+		
+	    private function callService(e:TimerEvent):void
+	    {
+		   timer.reset();
+		   timerGrid.stop();
+		   if (machineId != null && machineId != "")
+		   {
+		   		paramSrv.send();
+		  		paramSrvReport.send();
+		   }
+	    }
+
+        private function tempResultHandler(event:ResultEvent):void
+		{
+			timerGrid.stop();
+			timer.start();
+			//var xmlList:XMLList = XML(event.result).children();
+			//paramData =  new XMLListCollection(xmlList);
+			var xmlListSolarVol:XMLList = XML(event.result).data1;
+			var xmlListSolarCur:XMLList = XML(event.result).data5;
+			var xmlListSolarPow:XMLList = XML(event.result).data8;
+			var xmlListInvVol:XMLList = XML(event.result).data4;
+			var xmlListInvCur:XMLList = XML(event.result).data7;
+			var xmlListInvPow:XMLList = XML(event.result).data10;
+			var xmlListUtilVol:XMLList = XML(event.result).data3;
+			var xmlListUtilCur:XMLList = XML(event.result).data6;
+			var xmlListUtilPow:XMLList = XML(event.result).data9;
+			var xmlListBattery:XMLList = XML(event.result).data2;
+			
+			solarPower1.value = xmlListSolarVol.toString();
+			solarPower2.value = xmlListSolarCur.toString();
+			solarPower3.value = xmlListSolarPow.toString();
+			loadPower1.value = xmlListInvVol.toString();
+			loadPower2.value = xmlListInvCur.toString();
+			loadPower3.value = xmlListInvPow.toString();
+			utilityPower1.value = xmlListUtilVol.toString();
+			utilityPower2.value = xmlListUtilCur.toString();
+			utilityPower3.value = xmlListUtilPow.toString();
+			battery.value = xmlListBattery.toString();
+		}
+			
+		public function httpFault(event:FaultEvent):void {
+			timerGrid.stop();
+			timer.start();
+            var faultstring:String = event.fault.faultString;
+        }
+             		
+		public function onchangeMachineId(mId:String):String{
+			if(meterHboxId.visible){
+				 if (machineId != null && machineId != "")				
+				  {
+				  	timerGrid.stop();
+				  	timer.start();
+				    paramSrv.send();
+				   paramSrvReport.send();
+				  }
+			}
+			return mId;
+		}
+
+		[Bindable] var reportData:XMLListCollection = null;
+		private function resultHandlerReport(event:ResultEvent):void
+		{
+			var xmlListYear:XMLList = XML(event.result).@yearly;
+			var xmlListWeek:XMLList = XML(event.result).@weekly;
+			var xmlListMonth:XMLList = XML(event.result).@monthly;
+			yesterDayId.text = "YesterDay :";
+			weekId.text = "Weekly      : "+xmlListWeek +" , ";
+			monthId.text ="Monthly     : "+xmlListMonth +" , ";
+			yearId.text = "Yearly        : "+xmlListYear+" , ";
+			
+		}	
+		
+		
+		[Bindable]
+        private var paramDataGrid:XMLListCollection = null;
+      	private function getGridReport():void{
+			timer.stop();
+			meterHboxId.visible = false;
+			dasgBoardImgId.enabled = true;
+			dasgBoardImgId.alpha = 1;
+			gridHboxId.visible = true;
+			gridImgid.enabled = false;
+			gridImgid.alpha = 0.2;
+			timerGrid.addEventListener(TimerEvent.TIMER_COMPLETE, callServiceGrid);
+		}
+		private function callServiceGrid(e:TimerEvent):void{
+			timer.stop();
+			timerGrid.reset();
+			if (machineId != null && machineId != "")	
+			   		paramSrvGrid.send();
+		}
+		private function tempResultHandlerGrid(event:ResultEvent):void{
+			timer.stop();
+			timerGrid.start();
+			var xmlList:XMLList = XML(event.result).children();
+			paramDataGrid =  new XMLListCollection(xmlList);
+		}
+		
+		public function httpFaultGrid(event:FaultEvent):void {
+			timer.stop();
+			timerGrid.start();
+            var faultstring:String = event.fault.faultString;
+        }
+        public function onchangeMachineIdGrid(mId:String):String{
+				//Alert.show("calling web erviers :"+machineId);
+				if(gridHboxId.visible){
+					if (machineId != null && machineId != "")
+						{
+					       timer.stop();
+					       timerGrid.start();
+						   paramSrvGrid.send();
+						}	
+				}
+				return mId;
+		}
+        
+		]]>
+	</mx:Script>
+	
+	<mx:HTTPService id="paramSrv" useProxy="false" method="GET" resultFormat="e4x" 
+		url="http://{serverIpAndPort}/SolarService/live/machines/row/{machineId}.xml"
+		result="tempResultHandler(event)" fault="httpFault(event)"/>
+	
+	<mx:HTTPService id="paramSrvReport" useProxy="false" method="GET" resultFormat="e4x" 
+		url="http://{serverIpAndPort}/SolarService/summary/machines/{machineId}.xml"
+		result="resultHandlerReport(event)" fault="httpFault(event)"/>
+		
+	<mx:HTTPService id="paramSrvGrid" useProxy="false" method="GET" resultFormat="e4x" 
+		url="http://{serverIpAndPort}/SolarService/live/machines/{machineId}.xml"
+		result="tempResultHandlerGrid(event)" fault="httpFaultGrid(event)"/>		 
+
+		 
+	<mx:HBox height="10%" width="100%" id="reportHboxId" styleName="filled">
+	<!-- 
+		<mx:Canvas height="100%" width="33%">
+			<mx:Label id="weekId"  horizontalCenter="0" verticalCenter="0" color="0xFF66FF" fontSize="14"/>
+		</mx:Canvas>
+		<mx:Canvas height="100%" width="34%">
+			<mx:Label id="monthId" horizontalCenter="0" verticalCenter="0" color="0xFFFF66" fontSize="14"/>
+		</mx:Canvas>
+		<mx:Canvas height="100%" width="33%">
+			<mx:Label id="yearId" horizontalCenter="0" verticalCenter="0" color="0x00FFCC" fontSize="14"/>
+		</mx:Canvas>
+	--> 
+	</mx:HBox>	
+
+	<mx:HBox height="100%" width="100%" visible="false" id="gridHboxId">
+		<mx:DataGrid dataProvider="{paramDataGrid}" width="100%" height="100%">
+	           <mx:columns>
+                	<mx:DataGridColumn id="paramname"
+                                   dataField="ParamName" 
+                                   headerText="Name" minWidth="200" />
+        			<mx:DataGridColumn id="value"
+                                   dataField="Value"
+                                   headerText="Value" minWidth="200" />
+               		 <mx:DataGridColumn id="timestamp"
+               		 			   dataField="TimeStamp"
+                                   headerText="Timestamp" />
+               		 <mx:DataGridColumn id="unit"
+                                   dataField="Unit"
+                                   headerText="Unit" />
+            </mx:columns>
+		</mx:DataGrid>
+   </mx:HBox>
+	
+   <mx:HBox width="100%" height="100%" id="meterHboxId" visible="true">
+   <mx:VBox height="100%" width="70%">
+   	
+	<mx:HBox height="33%" width="100%">
+	   <!--mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" -->
+	   <mx:VBox height="100%" width="33%">
+	   		<meter:Gauge minValue="0"  maxValue="500" showValue="true" 
+					diameter="100" id="solarPower1" verticalCenter="-113" horizontalCenter="0"
+					faceColor="0x000000" 
+			  		ticksColor="0xFFFFFF"
+			  		fontColor="0xFFFFFF"
+			  		pointerColor="0xFF0000" 
+			  		bezelColor="0x999999"
+					faceShadowColor="0x777777" />
+			<mx:Label text="SolarVoltage(V)" fontSize="10" horizontalCenter="30" verticalCenter="60" textAlign="right"/>
+	   </mx:VBox>
+	   <mx:VBox height="100%" width="34%">
+	    	<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+					diameter="100" id="solarPower2" verticalCenter="0" horizontalCenter="0"
+					faceColor="0x000000" 
+			  		ticksColor="0xFFFFFF"
+			  		fontColor="0xFFFFFF"
+			  		pointerColor="0xFF0000" 
+			  		bezelColor="0x999999"
+					faceShadowColor="0x777777" />
+			<mx:Label text="SolarCurrent(I)" fontSize="10" horizontalCenter="0" verticalCenter="-58"/>
+	   </mx:VBox>				
+	   <mx:VBox height="100%" width="33%">			
+				<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+					diameter="100" id="solarPower3" verticalCenter="118" horizontalCenter="0"
+					faceColor="0x000000" 
+			  		ticksColor="0xFFFFFF"
+			  		fontColor="0xFFFFFF"
+			  		pointerColor="0xFF0000" 
+			  		bezelColor="0x999999"
+					faceShadowColor="0x777777" />	
+				<mx:Label text="SolarPower(kW)" fontSize="10" horizontalCenter="0" verticalCenter="177"/>
+		</mx:VBox>			
+		<!--/mx:Canvas -->
+	</mx:HBox>
+	
+	<mx:HBox height="34%" width="100%">
+		 <!--mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off"-->
+		  <mx:VBox height="100%" width="33%">
+			<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+				diameter="100" id="loadPower1" verticalCenter="-113" horizontalCenter="0"
+				faceColor="0x000000" 
+		  		ticksColor="0xFFFFFF"
+		  		fontColor="0xFFFFFF"
+		  		pointerColor="0xFF0000" 
+		  		bezelColor="0x999999"
+				faceShadowColor="0x777777" />
+			<mx:Label text="LoadVoltage(V)" fontSize="10" horizontalCenter="0" verticalCenter="-58"/>	
+		</mx:VBox>
+		 <mx:VBox height="100%" width="33%">
+			<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+				diameter="100" id="loadPower2" verticalCenter="0" horizontalCenter="0"
+				faceColor="0x000000" 
+		  		ticksColor="0xFFFFFF"
+		  		fontColor="0xFFFFFF"
+		  		pointerColor="0xFF0000" 
+		  		bezelColor="0x999999"
+				faceShadowColor="0x777777" />
+			<mx:Label text="LoadCurrent(I)" fontSize="10" horizontalCenter="0" verticalCenter="60"/>
+		</mx:VBox>	
+		 <mx:VBox height="100%" width="33%">
+			<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+				diameter="100" id="loadPower3" verticalCenter="118" horizontalCenter="0"
+				faceColor="0x000000" 
+		  		ticksColor="0xFFFFFF"
+		  		fontColor="0xFFFFFF"
+		  		pointerColor="0xFF0000" 
+		  		bezelColor="0x999999"
+				faceShadowColor="0x777777" />
+			<mx:Label text="LoadPower(kw)" fontSize="10" horizontalCenter="0" verticalCenter="177"/>
+		</mx:VBox>	
+		<!--/mx:Canvas -->
+	</mx:HBox>
+	
+	<mx:HBox height="33%" width="100%">
+		 <!--mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off"-->
+		<mx:VBox height="100%" width="33%">
+			<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+				diameter="100" id="utilityPower1" verticalCenter="0" horizontalCenter="0"
+				faceColor="0x000000" 
+		  		ticksColor="0xFFFFFF"
+		  		fontColor="0xFFFFFF"
+		  		pointerColor="0xFF0000" 
+		  		bezelColor="0x999999"
+				faceShadowColor="0x777777" />
+			<mx:Label text="UtilityVoltage(V)" fontSize="10" horizontalCenter="0" verticalCenter="60"/>
+		</mx:VBox>		
+		<mx:VBox height="100%" width="34%">	
+			<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+				diameter="100" id="utilityPower2" verticalCenter="-113" horizontalCenter="0"
+				faceColor="0x000000" 
+		  		ticksColor="0xFFFFFF"
+		  		fontColor="0xFFFFFF"
+		  		pointerColor="0xFF0000" 
+		  		bezelColor="0x999999"
+				faceShadowColor="0x777777" />
+			<mx:Label text="UtilityCurrent(I)" fontSize="10" horizontalCenter="0" verticalCenter="-58"/>
+		</mx:VBox>		
+		<mx:VBox height="100%" width="33%">	
+			<meter:Gauge minValue="0"  maxValue="500" showValue="true"
+				diameter="100" id="utilityPower3" verticalCenter="118" horizontalCenter="0"
+				faceColor="0x000000" 
+		  		ticksColor="0xFFFFFF"
+		  		fontColor="0xFFFFFF"
+		  		pointerColor="0xFF0000" 
+		  		bezelColor="0x999999"
+				faceShadowColor="0x777777" />
+			<mx:Label text="UtilityPower(kw)" fontSize="10" horizontalCenter="0" verticalCenter="177"/>	
+		</mx:VBox>	
+		<!--/mx:Canvas -->
+	</mx:HBox>	
+	</mx:VBox>
+	   
+	<mx:VBox height="100%" width="30%">
+   
+	<!--mx:Canvas height="100%" width="30%" name="BATTER" horizontalScrollPolicy="off" verticalScrollPolicy="off"-->
+	<mx:HBox height="40%" width="100%">
+			<!--mx:DataGrid height="100%" width="100%" alternatingItemColors="[0xCCCCFF,0xFFFFFF]"
+				 backgroundAlpha="0.01" dataProvider="{reportArr}" id="reportGrid" borderColor="white" borderStyle="inset">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Days" dataField="count" />
+					<mx:DataGridColumn headerText="Solar" dataField="solar"/>
+					<mx:DataGridColumn headerText="Load" dataField="load"/>
+				</mx:columns>
+			</mx:DataGrid-->
+			<mx:VBox height="100%" width="100%">
+				<mx:HBox height="15%" width="100%" >
+					<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+						<mx:Label  text="SOLAR , LOAD"  verticalCenter="0" color="0x993300" fontSize="14" x="50" bottom="0"/>
+					</mx:Canvas>
+				</mx:HBox>
+				<mx:HBox height="20%" width="100%">
+					<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+						<mx:Label id="yesterDayId"  verticalCenter="0" color="0x993300" fontSize="14"/>
+					</mx:Canvas>	
+				</mx:HBox>
+				<mx:HBox height="15%" width="100%">
+					<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+						<mx:Label id="weekId"  verticalCenter="0" bottom="0" color="0x336633" fontSize="14"/>
+					</mx:Canvas>	 
+				</mx:HBox>
+				<mx:HBox height="15%" width="100%">
+					<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+						<mx:Label id="monthId"  verticalCenter="0" color="0xCC0000" fontSize="14"/>
+					</mx:Canvas>	
+				</mx:HBox>
+				<mx:HBox height="15%" width="100%">
+					<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+						<mx:Label id="yearId"  verticalCenter="0" color="0x9933FF" fontSize="14"/>
+					</mx:Canvas>	
+				</mx:HBox>
+			</mx:VBox>
+			
+	</mx:HBox>
+	<mx:HBox height="60%" width="100%">
+		
+		<mx:VBox height="100%" width="50%" >
+			<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+				<nui:Battery id="battery"  bottom="0">
+				</nui:Battery>
+			</mx:Canvas>
+		</mx:VBox>
+		
+		<mx:VBox height="100%" width="50%">
+			<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+				<nui:TemperatureSensor id="Temperature" value="40">
+				</nui:TemperatureSensor>
+			</mx:Canvas>	
+		</mx:VBox>
+	</mx:HBox>
+		
+		
+		
+	<!--/mx:Canvas-->
+	
+	</mx:VBox>
+	<!--mx:Canvas height="100%" width="15%" name="TEMP" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+		<mx:VBox horizontalCenter="0" verticalCenter="0">
+			<nui:TemperatureSensor id="Temperature" value="0">
+			</nui:TemperatureSensor>
+		</mx:VBox>
+	</mx:Canvas-->
+	
+	
+   </mx:HBox>
+    
+    <mx:Form x="-244" y="26">
+       <mx:FormItem label="Open Event:" visible="false">
+           <mx:Label id="forOpen" width="150" text="{onchangeMachineId(machineId)}"/>            
+       </mx:FormItem>
+	</mx:Form>
+	 <mx:Form x="-244" y="26" id="gridForm">
+       <mx:FormItem label="Open Event:" visible="false">
+           <mx:Label id="forOpenGrid" width="150" text="{onchangeMachineIdGrid(machineId)}"/>            
+       </mx:FormItem>
+	</mx:Form>
+	
+	<mx:ControlBar   height="34" y="336">
+		<!--mx:Spacer width="50%"/-->
+			<mx:Button icon="@Embed('images/dashboard.jpg')" height="16" toolTip="DashBoard"  width="16" 
+				id="dasgBoardImgId" click="creationCompleteHAndler();" bottom="5" />
+			<mx:Button icon="@Embed('/images/Table.png')" height="16" toolTip="Report"  width="16" 
+				id="gridImgid" click="getGridReport();" bottom="7"/>
+	</mx:ControlBar>
+	
+</MDIPanel>

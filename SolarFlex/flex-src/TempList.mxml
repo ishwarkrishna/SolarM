@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIPanel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" width="310" height="300" creationComplete="tempSrv.send()"
+		icon="@Embed('assets/icon_watchlist.png')">
+		
+	<mx:Script>
+		<![CDATA[
+		
+			import mx.controls.Alert;
+
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ArrayUtil;
+			import mx.rpc.xml.SimpleXMLDecoder;
+			import mx.collections.ArrayCollection;
+
+			private var curTempList:ArrayCollection;		
+			private var tempMap:Object;
+			public static var OPEN_CHART:String = "openChart";
+			public static var OPEN_NEWS:String = "openNews";
+
+
+			private function tempResultHandler(event:ResultEvent):void
+			{
+				tempMap = new Object();
+				curTempList = new ArrayCollection();
+								
+				var list:ArrayCollection = event.result.MachineData.ParamData;
+				var tempDateCount:int = list.length;
+				//items.addItem(ArrayUtil.toArray( event.result.data.weather));
+ 				items = event.result.data.weather;
+			}
+			
+		]]>
+	</mx:Script>
+ 
+	<mx:HTTPService id="tempSrv" useProxy="false" 
+		url="http://localhost:8080/SolarService/live/machines/1.xml"
+		 result="tempResultHandler(event)"/>
+
+	
+	<mx:ArrayCollection id="items"/>
+	
+	<mx:DataGrid id="dg" dataProvider="{items}" width="100%" height="100%" doubleClickEnabled="true" 
+		allowMultipleSelection="true" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true"
+		doubleClick="dispatchEvent(new Event(OPEN_CHART));">
+		<!--mx:columns>
+			<mx:DataGridColumn headerText="Symbol" dataField="symbol" width="80">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:Canvas verticalScrollPolicy="off" horizontalScrollPolicy="off">
+							<mx:Image source="@Embed('assets/rss.gif')" width="16" height="16" 
+								mouseDown="event.stopPropagation();(parent.parent as mx.controls.DataGrid).selectedItem=data;parent.parent.parent.dispatchEvent(new Event(TempList.OPEN_NEWS));"/>
+							<mx:Label text="{data.symbol}" x="17"/>
+						</mx:Canvas>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="Open" dataField="open" labelFunction="formatNumber" textAlign="right" width="60"/>
+			<mx:DataGridColumn headerText="Last" dataField="last" itemRenderer="BackgroundColorRenderer" labelFunction="formatNumber" textAlign="right" width="60"/>
+			<mx:DataGridColumn headerText="Change" dataField="change" itemRenderer="ColorRenderer" labelFunction="formatNumber" textAlign="right" width="60"/>
+			<mx:DataGridColumn headerText="High" dataField="high" labelFunction="formatNumber" textAlign="right" width="60"/>
+			<mx:DataGridColumn headerText="Low" dataField="low" labelFunction="formatNumber" textAlign="right" width="60"/>
+		</mx:columns-->
+	</mx:DataGrid>
+
+</MDIPanel>

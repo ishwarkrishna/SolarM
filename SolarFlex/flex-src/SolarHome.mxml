@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" 
+	layout="absolute" creationComplete="initLoadPannel()" width="100%" height="100%">
+	 
+	<mx:Script>   
+		<![CDATA[
+			import mx.managers.PopUpManager; 
+			import mx.controls.Alert;
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.*; 
+
+			[Bindable] public  var serverIpAndPort:String = "localhost";		
+			[Bindable] public  var userId:String = "";		
+			[Bindable] public  var isAdmin:Boolean = false;		
+
+			
+			[Bindable] public static var machineId:String = null;		
+			[Bindable] public static var machineName:String = null;
+				
+			private var snWidth:Number = (Capabilities.screenResolutionX / 3)-150;//3			
+			private var snHeight:Number = (Capabilities.screenResolutionY/ 2); 
+			private var snX:int = 3;
+			private var snY:int = 5;
+			
+			private var spsWidth:Number = (Capabilities.screenResolutionX / 1.5)+50; 
+			private var spsHeight:Number = (Capabilities.screenResolutionY / 2)+3;//snHeight/2;
+			private var spsX:Number = snWidth+5; 
+			private var spsY:Number = 5;
+			
+			private var smdWidth:Number = snWidth ; 
+			private var smdHeight:Number = (Capabilities.screenResolutionY / 3.27);;
+			private var smdX:Number = 3; 
+			private var smdY:Number = snHeight+10;
+			
+			private var ptWidth:Number = snWidth + spsWidth + 3;//(Capabilities.screenResolutionX)-150; //1005 +18 43
+			private var ptHeight:Number = (Capabilities.screenResolutionY / 3.27); //150
+			private var ptX:Number = 3;
+			private var ptY:Number = snHeight+13;
+			//--------------------------------------------------------------------------------
+			private var ldvWidth:Number = (Capabilities.screenResolutionX / 3)+125; 
+			private var ldvHeight:Number = snHeight/2; 
+			private var ldvX:Number = snWidth+5; 
+			private var ldvY:Number = snHeight/2+8;
+			
+			
+			private var lpdWidth:Number = (Capabilities.screenResolutionX / 3)-72; //data list 300 3.65 22
+			private var lpdHeight:Number = snHeight/2; // 200
+			private var lpdX:Number = (Capabilities.screenResolutionX ) -(Capabilities.screenResolutionX / 3)+7; //snWidth+500+12  7
+			private var lpdY:Number = snHeight/2+8; //200 - 12;
+			
+			
+			
+		  	public function initLoadPannel():void{
+		  		
+				siteNavigation();
+				lastNMachineData();
+				solarPowerSummary();
+				//siteMasterDetails(); //for report
+				//liveDiagramView();
+				//liveParamData();
+				//openLineChart();
+				
+				serverIpAndPort=Application.application.parameters.serverIpAndPort.toString();
+				userId=Application.application.parameters.userId.toString();
+				if (userId.lastIndexOf("admin") != -1)
+				{
+					isAdmin = true;
+				}
+
+				//SiteMasterDetails.serverIpAndPort = serverIpAndPort;
+				LiveParamData.serverIpAndPort = serverIpAndPort;
+	      	    LastNMachineData.serverIpAndPort = serverIpAndPort;
+	      	    SolarPowerSummary.serverIpAndPort = serverIpAndPort;
+	      	    SiteNavigation.serverIpAndPort = serverIpAndPort;	
+	      	    SiteNavigation.loginUser =  userId;
+	      	    LiveDiagramView.serverIpAndPort = serverIpAndPort;
+	      	    SiteManagement.serverIpAndPort = serverIpAndPort;
+	      	    CustomerManagement.serverIpAndPort = serverIpAndPort;
+	      	    UserManagement.serverIpAndPort = serverIpAndPort;
+	      	    
+		  	}    
+   
+		  	[Bindable] private var line:LineAreaSeriesExample = null;
+			public function openLineChart():void{
+				line  = new LineAreaSeriesExample();
+			} 
+			[Bindable] private var sn:SiteNavigation = new SiteNavigation;
+			public function siteNavigation():void{
+				sn = mdiFrame.openPanel(SiteNavigation) as SiteNavigation;
+				sn.title = "Site Navigation";
+				sn.x = snX;
+				sn.y = snY;
+				sn.width = snWidth;
+				sn.height = snHeight+3;
+			}
+		
+			[Bindable] private var sph:SolarPowerSummary = new SolarPowerSummary;
+			public function solarPowerSummary():void{
+				sph = mdiFrame.openPanel(SolarPowerSummary) as SolarPowerSummary;
+				sph.title = "Solar Power Summary";
+				sph.x = spsX;
+				sph.y = spsY;
+				sph.width = spsWidth;
+				sph.height = spsHeight;
+			}
+			
+			[Bindable] private var ldv:LiveDiagramView = new LiveDiagramView;
+			public function liveDiagramView():void{
+				ldv = mdiFrame.openPanel(LiveDiagramView) as LiveDiagramView;
+				ldv.title = "Solar Diagram";
+				ldv.x = ldvX;
+				ldv.y = ldvY;
+				ldv.width = ldvWidth;
+				ldv.height = ldvHeight;	
+			}
+
+			[Bindable] private var smd:SiteMasterDetails = new SiteMasterDetails;
+			public function siteMasterDetails():void{
+				smd = mdiFrame.openPanel(SiteMasterDetails) as SiteMasterDetails;
+				smd.title = "Site Details";
+				smd.x = smdX;
+				smd.y = smdY;
+				smd.width = smdWidth;
+				smd.height = smdHeight;
+			}
+			
+			[Bindable] private var lpd:LiveParamData = new LiveParamData;
+			public function liveParamData():void{
+				lpd = mdiFrame.openPanel(LiveParamData) as LiveParamData;
+				lpd.title = "Data Values";
+				lpd.x = smdX-25;
+				lpd.y = smdY;
+				lpd.width = lpdWidth;
+				lpd.height = snHeight+3;
+			}
+			
+			[Bindable] private var lmd:LastNMachineData = new LastNMachineData;
+			public function lastNMachineData():void{
+				 lmd = mdiFrame.openPanel(LastNMachineData) as LastNMachineData;
+				lmd.title = "Data Trend";
+				lmd.x = ptX;
+				lmd.y = ptY;
+				lmd.width = ptWidth;
+				lmd.height = ptHeight;
+			}
+			
+ 
+			// declare a variable for the reusable custom popup window
+            private var popupForSiteManagement:SiteManagement; 
+			public function clickSites():void{
+				popupForSiteManagement = PopUpManager.createPopUp(this,SiteManagement,true) as SiteManagement;
+    			 // center the popup window
+                PopUpManager.centerPopUp(popupForSiteManagement);
+			}
+			
+			private var popupForCustomerManagement:CustomerManagement;
+			public function clickCustomers():void{
+				popupForCustomerManagement = PopUpManager.createPopUp(this,CustomerManagement,true) as CustomerManagement;
+    			 // center the popup window
+                PopUpManager.centerPopUp(popupForCustomerManagement);
+			}
+			
+			private var popupForUserManagement:UserManagement;			
+			public function clickUsers():void{
+				popupForUserManagement = PopUpManager.createPopUp(this,UserManagement,true) as UserManagement;
+    			 // center the popup window
+                PopUpManager.centerPopUp(popupForUserManagement);
+			} //click="mdiFrame.tilePanels()"
+			public function restore():void{
+				sn.x = snX;
+				sn.y = snY;
+				sn.width = snWidth;
+				sn.height = snHeight+3;
+				
+				sph.x = spsX;
+				sph.y = spsY;
+				sph.width = spsWidth;
+				sph.height = spsHeight;
+				
+				ldv.x = ldvX;
+				ldv.y = ldvY;
+				ldv.width = ldvWidth;
+				ldv.height = ldvHeight;	
+				
+				smd.x = smdX;
+				smd.y = smdY;
+				smd.width = smdWidth;
+				smd.height = smdHeight;
+				
+				lpd.x = smdX-25;
+				lpd.y = smdY;
+				lpd.width = smdWidth;
+				lpd.height = snHeight+3;
+				
+				lmd.x = ptX;
+				lmd.y = ptY;
+				lmd.width = ptWidth;
+				lmd.height = ptHeight;
+				
+				
+			}
+		]]>
+	</mx:Script> 
+	 
+	<mx:Style source="main.css"/>  
+	 
+	<mx:ApplicationControlBar width="100%">
+		<mx:Button icon="@Embed('assets/icon_addlist.gif')" toolTip="Sites" click="clickSites();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>
+		<mx:Button icon="@Embed('assets/icon_tile.png')" toolTip="Customers" click="clickCustomers();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>
+		<mx:Button icon="@Embed('assets/AddUsericon.png')" toolTip="Users" click="clickUsers();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>		
+		<mx:Button icon="@Embed('assets/icon_chat.png')" toolTip="Arrange Pannels" click="restore();" upSkin="{null}" styleName="menuBarButton" width="50" height="40" visible="{isAdmin}"/>
+		<mx:Spacer width="50%"/>
+		<mx:Label color="white" text="{machineName}" />
+		<mx:Spacer width="50%"/>
+		<mx:Label color="white" text="Solar Monitoring System - PowerOne" fontWeight="bold" fontSize="12"/>
+	</mx:ApplicationControlBar>
+	
+	<MDIFrame id="mdiFrame" width="100%" height="100%" y="50"/>
+		
+</mx:Application>

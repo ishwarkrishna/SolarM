@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="826" height="410"
+	title="Customer Management" layout="absolute" creationComplete="creationCompleteHAndler()"
+	showCloseButton="true" close="closeHandler(event)">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.StringUtil;
+		
+			  import mx.events.CloseEvent;
+			  import mx.managers.PopUpManager;
+			  import mx.collections.XMLListCollection;
+			  import mx.rpc.events.FaultEvent;
+			  import mx.rpc.events.ResultEvent;
+			  import mx.events.DataGridEventReason;
+			  import mx.formatters.NumberFormatter;
+			  import mx.events.ListEvent;
+			  import mx.events.DataGridEvent;
+			  import mx.collections.ArrayCollection;
+			  import mx.controls.Alert;
+			  public var colINdexVal:Number = 0;
+			  public  var cellValue:String = null;
+			  private var colRowIndex :String = null;
+			  [Bindable] [Embed(source="images/editIcon.png")]
+			  public var editIcon:Class;
+			  [Bindable] public static var serverIpAndPort:String = "localhost:8080";	
+			  [Bindable] public static var cusIdEdit:int;
+			  [Bindable] public static var nameEdit:String = null;
+			  [Bindable] public static var address1Edit:String = null;
+			  [Bindable] public static var address2Edit:String = null;
+			  [Bindable] public static var cityEdit:String = null;
+			  [Bindable] public static var contactNo1Edit:String = null;
+			  [Bindable] public static var contactNo2Edit:String = null;
+			  [Bindable] public static var addResult:String = null;
+			  [Bindable] public var paramData:XMLListCollection = null;
+		      [Bindable] public static var addValue:String = null; 
+		      [Bindable] var addReturnList:XMLListCollection = null; 
+		      [Bindable] var updateReturnList:XMLListCollection = null; 
+		      [Bindable] var deleteReturnList:XMLListCollection = null; 
+			  public var statusGr:Boolean = false;
+			  [Bindable]var customerTempCollection : ArrayCollection = new ArrayCollection(); 
+          
+			  private function closeHandler(event:CloseEvent):void {
+					PopUpManager.removePopUp(this);
+			  }
+			  public function ItemClickEventEdit(event:Event):void {
+            	statusGr = true;
+            	cusIdEdit = editCusDetails.selectedItem.customerId.toString();
+            	conName.text = editCusDetails.selectedItem.name.toString();
+            	addValue = conName.text;
+                city.text = editCusDetails.selectedItem.city.toString();
+                address1.text = editCusDetails.selectedItem.address1.toString();
+            	address2.text = editCusDetails.selectedItem.address1.toString();
+            	phNUmber1.text = editCusDetails.selectedItem.contactNo1.toString();
+            	phNUmber2.text = editCusDetails.selectedItem.contactNo2.toString();
+            	openEditPort();
+        	  }
+        	  public function openEditPort():void{
+         		myViewStack.selectedChild = customerEntryCanvas;
+         		addImgId.enabled = false;
+            	addImgId.alpha = 0.2;
+            	editImgId.enabled = true;
+            	editImgId.alpha = 1;
+             }
+              public function getCusId():void{
+        		cusIdEdit = editCusDetails.selectedItem.customerId.toString();
+        	  }
+              private function deleteItem():void {
+            	cursorManager.setBusyCursor();
+                deleteParamVal.send(); 
+              //  paramSrv.send();
+              }
+              public function seveEditList(event:Event):void{
+         		addValue = cusIdEdit+","+conName.text+","+address1.text+","
+         							+address2.text+","+city.text
+         						    +","+phNUmber1.text+","+phNUmber2.text;
+           		statusGr = false;
+         		cursorManager.setBusyCursor();
+         		paramSrvUpdate.cancel();
+         		paramSrvUpdate.send();
+         		paramSrv.cancel();
+         		paramSrv.send();
+         		openEditSite();
+         		//paramSrv.send();   
+         	  }
+         	  public function saveAddList(event:Event):void{
+         		if(conName.text != "" && address1.text != "" && address2.text != "" && city.text != ""
+         			&& phNUmber1.text != "" && phNUmber2.text != ""){
+         				addValue = conName.text+","+address1.text+","+address2.text+","+city.text
+         						   +","+phNUmber1.text+","+phNUmber2.text;
+         				if(statusGr == false){
+         					cursorManager.setBusyCursor();
+         					paramSrvAdd.send();
+         					clearData();
+         				}else{
+         					seveEditList(event);
+         				}
+         		}else{
+         			Alert.show("Please fill all the field.");
+         		}
+         	  }
+         	  public function clearData():void{
+         		conName.text="";
+         		address1.text="";
+         		address2.text="";
+         		city.text="";
+         		phNUmber1.text="";
+         		phNUmber2.text="";
+         	  }
+         	  protected function creationCompleteHAndler():void{
+         	  	myViewStack.selectedChild = customerDetailsCanvas;
+         		addImgId.enabled = true;
+				addImgId.alpha = 1;
+				editImgId.enabled = false;
+				editImgId.alpha = 0.2;
+				cursorManager.setBusyCursor();
+		        paramSrv.send();
+		        txtFilter.addEventListener(Event.CHANGE, filterCustomerGrid);
+			  }
+         	  private function tempResultHandler(event:ResultEvent):void{
+				var xmlList:XMLList = XML(event.result).children();
+				//paramData =  new XMLListCollection(xmlList);
+				 for each(var prop:XML in xmlList){ 
+			        customerTempCollection.addItem({customerId : prop.customerId, name : prop.name, address1 : prop.address1,
+			        	address2 : prop.address2 , city : prop.city , contactNo1 : prop.contactNo1 , contactNo2 :prop.contactNo2});	
+			     }
+				cursorManager.removeBusyCursor();
+			  }
+			  private function tempResultHandlerAdd(event:ResultEvent):void{
+				var xmlList:XMLList = XML(event.result).children();
+				addReturnList =  new XMLListCollection(xmlList);
+				cursorManager.removeBusyCursor();
+				Alert.show(addReturnList.getItemAt(0).toString()); 
+				addReturnList.removeAll();
+			  }	
+			  private function tempResultHandlerUpdate(event:ResultEvent):void{
+				var xmlList:XMLList = XML(event.result).children();
+				updateReturnList =  new XMLListCollection(xmlList);
+				cursorManager.removeBusyCursor();
+				Alert.show(updateReturnList.getItemAt(0).toString()); 
+				updateReturnList.removeAll();
+			  }
+			  private function tempResultHandlerDelete(event:ResultEvent):void{
+				var xmlList:XMLList = XML(event.result).children();
+				deleteReturnList =  new XMLListCollection(xmlList);
+				cursorManager.removeBusyCursor();
+				Alert.show(deleteReturnList.getItemAt(0).toString()); 
+			  }		
+			 
+			  public function httpFault(event:FaultEvent):void {
+				var faultstring:String = event.fault.faultString;
+				cursorManager.removeBusyCursor();
+				Alert.show(faultstring);
+				addReturnList.removeAll();
+              }
+              public function openAddSite():void{
+              	myViewStack.selectedChild = customerEntryCanvas;
+            	statusGr = false;
+            	addImgId.enabled = false;
+            	addImgId.alpha = 0.2;
+            	editImgId.enabled = true;
+            	editImgId.alpha = 1;
+               }
+              public function openEditSite():void{
+            	clearData();
+            	myViewStack.selectedChild = customerDetailsCanvas;
+            	addImgId.enabled = true;
+            	addImgId.alpha = 1;
+            	editImgId.enabled = false;
+            	editImgId.alpha = 0.2;
+              }
+              
+              private function filterCustomerGrid(event:Event):void{
+					var filterText:String = StringUtil.trim(txtFilter.text.toLowerCase());
+					var columnArray:Array = ['name','address1','address2','city','contactNo1','contactNo2'];
+					var gridDataProvider:ArrayCollection = this.customerTempCollection as ArrayCollection;
+					var dataGridName:String = 'editCusDetails';
+					var filteredData:Array = [];
+					var added:Boolean=false;
+					var i:int;
+					var j:int;
+					for(i=0; i < gridDataProvider.length; i++){	
+						added = false;
+						for(j=0; j<columnArray.length; j++){			
+							if(gridDataProvider[i][columnArray[j]]!=null){
+								var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+								if(!added){      
+									if(filterString.indexOf(filterText) != -1){
+									   filteredData.push(gridDataProvider[i]);
+									   added = true;
+									} 
+								}else{
+									break;
+								}
+							}	
+						}
+					}
+					if(filterText.length == 0){
+						this[dataGridName].dataProvider = gridDataProvider;
+					}else{
+						this[dataGridName].dataProvider = filteredData;
+					}
+				}
+           	
+		]]>
+	</mx:Script>
+	
+	<mx:HTTPService id="paramSrv" useProxy="false" method="GET" resultFormat="e4x" 
+		 url="http://{serverIpAndPort}/SolarService/masters/customers.xml"
+		 result="tempResultHandler(event)" fault="httpFault(event)"/>
+		 
+    <mx:HTTPService id="paramSrvAdd"  method="POST" resultFormat="e4x" useProxy="false"
+		 url="http://{serverIpAndPort}/SolarService/registration/addCustomerDetails/add/{addValue}.xml"
+		 result="tempResultHandlerAdd(event)" fault="httpFault(event)"/> 
+	 
+	<mx:HTTPService id="paramSrvUpdate" useProxy="false" method="GET" resultFormat="e4x" 
+		 url="http://{serverIpAndPort}/SolarService/registration/addCustomerDetails/updateSite/{addValue}.xml"
+		 result="tempResultHandlerUpdate(event)" fault="httpFault(event)"/>	 
+    	 	
+    <mx:HTTPService id="deleteParamVal" useProxy="false" method="POST" resultFormat="e4x" 
+		 url="http://{serverIpAndPort}/SolarService/registration/addCustomerDetails/delete/{cusIdEdit}.xml"
+		 result="tempResultHandlerDelete(event)" fault="httpFault(event)"/>	
+	
+	<mx:ViewStack width="100%" height="100%" id="myViewStack" creationPolicy="all">
+		<mx:Canvas id="customerDetailsCanvas">
+    			<mx:HBox height="100%" width="100%">
+    				<mx:VBox height="100%" width="100%">
+    					<mx:HBox width="100%">
+    						<mx:Label text="Search : " height="25" fontSize="13" fontWeight="bold"/>
+			    			<mx:TextInput id="txtFilter" width="290" height="25" fontSize="12" />
+						</mx:HBox>
+    					<mx:HBox width="100%" height="100%">
+    						<mx:DataGrid width="100%" height="100%" id="editCusDetails" dataProvider="{customerTempCollection}" itemClick="getCusId();">
+								<mx:columns>
+									<mx:DataGridColumn headerText="Customer Id" id="editCusID" dataField="customerId" visible="false"/>
+					    			<mx:DataGridColumn headerText="Name" id="editName" dataField="name"/>
+					    			<mx:DataGridColumn headerText="Address1"  id="address1GR" dataField="address1"/>
+					    			<mx:DataGridColumn headerText="Address2" id="address2GR" dataField="address2"/>
+					    			<mx:DataGridColumn headerText="City" id="cityGR" dataField="city"/>   
+					    			<mx:DataGridColumn headerText="Contact_No1" id="ContactNo1" dataField="contactNo1"/> 
+					    			<mx:DataGridColumn headerText="Contact_No2" id="Contact_No2" dataField="contactNo2"/>
+					    			<mx:DataGridColumn headerText="Edit" dataField="Edit" width="30">
+										<mx:itemRenderer>
+											<mx:Component>
+												<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+													<mx:Image 
+														source="{outerDocument.editIcon}" horizontalAlign="right" scaleContent="false"
+														maintainAspectRatio="true" toolTip=" Edit service" width="18"
+														useHandCursor="true" buttonMode="true" mouseChildren="false" 
+														click="{outerDocument.ItemClickEventEdit(event)}" />
+												</mx:HBox>
+											</mx:Component>
+										</mx:itemRenderer>
+									</mx:DataGridColumn>	
+					    		</mx:columns>
+    						</mx:DataGrid>
+    					</mx:HBox>
+    				</mx:VBox>
+    				
+							
+		      	</mx:HBox>
+    	</mx:Canvas>
+    	<mx:Canvas id="customerEntryCanvas">
+    			<mx:VBox height="100%" width="100%">
+    				<mx:HBox height="5%" width="100%">
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Name :" textAlign="right" fontWeight="bold"/>
+				 		<mx:TextInput id="conName"/>
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Address1 :" textAlign="right" fontWeight="bold"/>
+				 		<mx:TextArea id="address1"/>
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Address2 :" textAlign="right" fontWeight="bold"/>
+				 		<mx:TextArea id="address2"/>
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="City :" textAlign="right" fontWeight="bold"/>
+				 		<mx:TextInput id="city"/>
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Contact-No1 :" textAlign="right" fontWeight="bold"/>
+				        <mx:TextInput id="phNUmber1" restrict="0-9+ \\-"/>
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Contact-No2 :" textAlign="right" fontWeight="bold"/>
+				        <mx:TextInput id="phNUmber2" restrict="0-9+ \\-"/>
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    				</mx:HBox>
+    				<mx:HBox width="100%" height="8%" horizontalAlign="center">
+				 	<mx:VBox width="30%">
+				 	</mx:VBox>
+    			 	<mx:VBox width="60%" height="100%" horizontalAlign="left">
+    			 		<mx:HBox width="100%">
+    			 			 <mx:Image toolTip="save" id="saveButton" 
+									source="@Embed(source='images/Save.png')" useHandCursor="true" buttonMode="true" mouseChildren="false"
+									width="17" height="20" x="201" y="284" click="saveAddList(event);"/>
+							<mx:Image toolTip="cancel" id="cancelId2" useHandCursor="true" buttonMode="true" mouseChildren="false" 
+							 		source="@Embed(source='images/Cancel.png')" 
+									width="17" height="20" x="241.5" y="284" click="clearData();"/>  
+    			 		</mx:HBox>    			 		
+    			 	</mx:VBox>
+    			 </mx:HBox>
+    			</mx:VBox>
+    	</mx:Canvas>    	 
+	</mx:ViewStack>    	
+	<mx:ControlBar   height="34" y="336">
+		<!--mx:Spacer width="50%"/-->
+		<mx:Button icon="@Embed('images/Create.png')" toolTip="Add Site" useHandCursor="true" buttonMode="true"  
+				id="addImgId" click="openAddSite();" width="25" mouseChildren="false" />
+		<mx:Button icon="@Embed('images/Table.png')" toolTip="Edit Site" useHandCursor="true" buttonMode="true"  
+				id="editImgId" click="openEditSite();" width="25" mouseChildren="false" />
+	</mx:ControlBar>
+</mx:TitleWindow>

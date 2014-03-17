@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIPanel xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" width="364" height="400" 
+	title="Site Navigation" layout="absolute" creationComplete="navSrv.send()">
+	
+	<mx:Script> 
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.core.Application;
+			import mx.events.TreeEvent;
+			import mx.effects.easing.*;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.events.FaultEvent;
+					
+			[Bindable]
+	        [Embed(source="images/on.png")] 
+	        public var iconSymbol1:Class; 
+            
+	        [Bindable]
+	        [Embed(source="images/off.png")] 
+	        public var iconSymbol2:Class; 
+         
+          	[Bindable] public var treeSitId:String=null;
+          	[Bindable] public static var loginUser:String=null;
+			[Bindable] public static var serverIpAndPort:String = "localhost";          	
+	 
+		    [Bindable] public var LCT:String="";
+	 		[Bindable] public var varData1:String="";
+	 		[Bindable] public var machineArea:String="";
+	 		[Bindable] public var machineSim:String="";
+	 		[Bindable] public var machineIMEI:String="";
+ 		
+		    [Bindable]
+            private var treeNavData:XMLListCollection = null;
+               
+		    //[Bindable] private var lnMachineData:LastNMachineData = new LastNMachineData();
+	      	  
+	        private function changeEvt(event:Event):void {
+	          treeSitId = event.currentTarget.selectedItem.@machineId ;
+	          SolarHome.machineName = event.currentTarget.selectedItem.@name ;
+	
+	      	  SiteMasterDetails.machineId = treeSitId; 
+	      	  SolarHome.machineId = treeSitId;
+	      	  LiveParamData.machineId = treeSitId;
+	      	  LastNMachineData.machineId = treeSitId;
+	      	  SolarPowerSummary.machineId = treeSitId;
+	      	  LiveDiagramView.machineId = treeSitId;
+//lnMachineData.onchangeMachineId(treeSitId);
+			  LCT = event.currentTarget.selectedItem.@LCTime;
+			  varData1 = event.currentTarget.selectedItem.@varData1;
+			  machineArea = event.currentTarget.selectedItem.@area;
+			  machineSim = event.currentTarget.selectedItem.@simNo;
+			  machineIMEI = event.currentTarget.selectedItem.@machineId;
+			  
+			  SolarPowerSummary.protocolType = event.currentTarget.selectedItem.@protocolId;
+			  if (LCT != null && LCT != "") {
+			  	toolbarData.visible=true;
+			  }	
+	         }
+	         
+	        private function tempResultHandler(event:ResultEvent):void
+			{
+				var xmlList:XMLList = XML(event.result).children();
+				treeNavData =  new XMLListCollection(xmlList);
+			}
+			
+			public function httpFault(event:FaultEvent):void {
+                var faultstring:String = event.fault.faultString;
+            }
+
+
+          private function tree_iconFunc(item:Object):Class {
+                var iconClass:Class;
+                var itemType:String = item.@NCSince;
+                if(itemType){
+                	if(itemType == "0"){
+    	            	 iconClass = iconSymbol1;
+                	}
+               		 else {
+	                	 iconClass = iconSymbol2;
+                	}
+                }
+                return iconClass;
+            }	
+
+
+		]]>
+	</mx:Script>
+	<mx:HTTPService id="navSrv" useProxy="false" method="GET" resultFormat="e4x" 
+		url="http://{serverIpAndPort}/SolarService/masters/customers/machines/nav/users/{loginUser}.xml"
+		 result="tempResultHandler(event)" fault="httpFault(event)"/>
+		 
+	<mx:Tree id="myTree" height="100%" width="100%" dataProvider="{treeNavData}" itemRenderer="MyTreeItemRenderer" 
+         	labelField="@name" iconFunction="tree_iconFunc"
+         	showRoot="true" backgroundColor="#FFF8E0" openDuration="1000" openEasingFunction="Bounce.easeOut"
+         	change="changeEvt(event);" rowCount="3" rowHeight="30" backgroundAlpha="0.0">
+    </mx:Tree>	
+     
+    <mx:ControlBar id="controlbar1" verticalAlign="middle">
+		<mx:VBox id="toolbarData" visible="false">
+			<mx:Label text="Capacity:  {varData1} kVA"/>
+			<mx:Label text="Area:  {machineArea}"/> 
+			<mx:Label text="SIM:  {machineSim}"/>
+			<mx:Label text="Unique Id:  {machineIMEI}"/>
+		</mx:VBox>
+	</mx:ControlBar>
+    
+</MDIPanel>

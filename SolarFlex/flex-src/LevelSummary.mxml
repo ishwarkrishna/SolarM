@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIPanel xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:meter="com.brightPoint.controls.*"
+	xmlns:nui="com.machine.ui.*"
+	width="364" height="400" 
+	title="{panelTitle}" layout="absolute" creationComplete="init()">
+	<!--mx:Style>
+		.filled{
+			border-style: solid;
+            border-thickness: 0;
+            border-skin: ClassReference("border.SimpleGradientBorder");
+            fill-colors: #9999CC, #FFFFFF;
+            corner-radius: 3;
+		}
+	</mx:Style-->
+	
+	<mx:Style>
+		Panel { 
+		   borderStyle: outset;
+		   backgroundColor: #535fb4;
+		   headerHeight: 18;
+		   headerColors: #78d9eb, #d9d9d9;
+		   titleStyleName: "mypanelTitle";
+		}	
+		.mypanelTitle {
+   			color: #ffffff;
+		} 
+	</mx:Style>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent;
+		import mx.rpc.events.FaultEvent;
+		import mx.collections.XMLListCollection;	
+		import mx.core.UIComponent; 
+		
+		[Bindable] public static var machineId:String = null;
+		[Bindable] public static var serverIpAndPort:String = "180.179.36.118:8080";	
+		[Bindable] public static var protocolType:String = "3";		
+		//[Bindable] public var  meterPower:String = null;
+		//[Bindable] public var meterUtility:String = null;
+		//[Bindable] public var meterInverter:String = null;
+		[Bindable] private var panelTitle:String = "Solar Power Summary";  
+		[Bindable]
+        private var paramData:XMLListCollection = null;
+        private const TIMER_INTERVAL:Number = 1000*60;
+		private var timer:Timer;
+
+		[Bindable]
+        [Embed(source="images/open.png")] 
+        public var openDoor:Class; 
+        [Bindable]
+        [Embed(source="images/colsed.png")] 
+        public var closedDoor:Class; 
+	    public var colNameTem:String="data1";
+        public var paramNameTem:String="temp";
+        public var colNameD1:String="data2";
+        public var paramNameD1:String="door1";
+        public var colNameD2:String="data3";
+        public var paramNameD2:String="door2";
+        public var colNameD3:String="data4";
+        public var paramNameD3:String="door3";
+        public var colNameLV:String="data4";
+        public var paramNameLV:String="level";
+           
+		protected function init():void
+		{
+			door1.source = closedDoor;
+			door2.source = closedDoor;
+			door3.source = closedDoor;
+			//timerGrid.stop();
+			meterHboxId.visible = true;
+			dasgBoardImgId.enabled = false;
+			dasgBoardImgId.alpha = 0.2;
+			gridHboxId.visible = false;
+			gridImgid.enabled = true;
+			gridImgid.alpha = 1;
+	        timer = new Timer(TIMER_INTERVAL);
+    		timer.addEventListener(TimerEvent.TIMER, callService);
+    		startTimer();
+		}
+		
+	    private function callService(e:TimerEvent):void
+	    {
+		   onchangeMachineId(machineId);
+	    }
+
+        private function liveParamServiceRH(event:ResultEvent):void
+		{
+			var xmlTempVal:XMLList = XML(event.result).data1;
+			var xmlDoor1:XMLList = XML(event.result).data2;
+			var xmlDoor2:XMLList = XML(event.result).data3;
+			var xmlDoor3:XMLList = XML(event.result).data4;
+			var xmlLevelVal:XMLList = XML(event.result).data5;
+			
+			var xmlListSolarPow:XMLList = XML(event.result).data8;
+			var xmlListInvCur:XMLList = XML(event.result).data7;
+			var xmlListInvPow:XMLList = XML(event.result).data10;
+			var xmlListUtilCur:XMLList = XML(event.result).data6;
+			var xmlListUtilPow:XMLList = XML(event.result).data9;
+			var xmldataTimestamp:XMLList = XML(event.result).Timestamp;
+						
+			//solarPower1.value = xmlListSolarVol.toString();
+			levelId.value = xmlLevelVal.toString(); 
+			levelId.changeValue(xmlLevelVal.toString());
+			panelTitle = "Level Summary   LCT: "+xmldataTimestamp;
+			
+			temperatureId.value = xmlTempVal.toString();
+			temperatureId.changeValue(xmlTempVal.toString());
+			
+			if(xmlDoor1.toString() == "1"){
+				door1.source = openDoor;
+			}else{
+				door1.source = closedDoor;
+			}
+			if(xmlDoor2.toString() == "1"){
+				door2.source = openDoor;
+			}else{
+				door2.source = closedDoor;
+			}
+			if(xmlDoor3.toString() == "1"){
+				door3.source = openDoor;
+			}else{
+				door3.source = closedDoor;
+			}
+		}
+			 
+		public function httpFault(event:FaultEvent):void {
+            var faultstring:String = event.fault.faultString;
+        }
+             		
+		public function onchangeMachineId(mId:String):void{
+			machineId = mId;
+			if (machineId != null && machineId != "")				
+			{
+			 	if(meterHboxId.visible){
+			 		liveParamService.url="http://"+serverIpAndPort+"/SolarService/live/machines/row/"+mId+".xml"
+			 		machineSummaryRPTService.url="http://"+serverIpAndPort+"/SolarService/summary/machines/"+mId+".xml"
+			    	machineSummaryRPTService.send();	
+			    	liveParamService.send();			 				   	
+			 	}else{
+			 		liveParamGridService.url="http://"+serverIpAndPort+"/SolarService/live/machines/"+mId+".xml"
+			 		liveParamGridService.send();
+			 	}			    
+			}
+		}
+
+		private function machineSummaryRPTServiceRH(event:ResultEvent):void
+		{
+			var lifeTimeProductonXMLList:XMLList = XML(event.result).@lifeTimeProducton;
+			var yesterdayXMLList:XMLList = XML(event.result).@yesterday;
+			var loadXMLList:XMLList = XML(event.result).@load;
+			
+			/*yesterdaysNet.text = todaysNet+" kWh";
+			if(todaysNet > 0){
+				yesterdaysNet.setStyle("color","#00FF00");
+			}else{
+				yesterdaysNet.setStyle("color","#FF0000");
+			}*/
+		}	
+		
+		private function getGaugeReport():void{
+			meterHboxId.visible = true;
+			dasgBoardImgId.enabled = false;
+			dasgBoardImgId.alpha = 0.2;
+			gridHboxId.visible = false;
+			gridImgid.enabled = true;
+			gridImgid.alpha = 1;
+			onchangeMachineId(machineId);
+		}
+		
+		[Bindable]
+        private var paramDataGrid:XMLListCollection = null;
+      	private function getGridReport():void{
+			meterHboxId.visible = false;
+			dasgBoardImgId.enabled = true;
+			dasgBoardImgId.alpha = 1;
+			gridHboxId.visible = true;
+			gridImgid.enabled = false;
+			gridImgid.alpha = 0.2;
+			onchangeMachineId(machineId);
+		}
+
+		private function liveParamGridServiceRH(event:ResultEvent):void{
+			var xmlList:XMLList = XML(event.result).children();
+			paramDataGrid =  new XMLListCollection(xmlList);
+			panelTitle = "Level Power Summary";
+		}
+  
+        private function startTimer():void {
+    		timer.start();
+		}
+
+		private function stopTimer():void {
+    		timer.stop();
+		}
+		
+		public function showTrendReport(columnName:String,paramName:String):void {
+			//Alert.show("columnName........."+columnName);
+			var paramTrendRepoert:ParamTrendReport = new ParamTrendReport();
+			paramTrendRepoert.columnName = columnName;
+			paramTrendRepoert.paramNames = paramName;
+			paramTrendRepoert.machineId =machineId;
+			paramTrendRepoert.serverIpAndPort =serverIpAndPort;
+			PopUpManager.addPopUp(paramTrendRepoert, this, true);
+            PopUpManager.centerPopUp(paramTrendRepoert);
+        }
+        public function showReport(paramName:String, columnName:String){
+        	var paramTrendRepoert:ParamTrendReport = new ParamTrendReport();
+        	paramTrendRepoert.height = 450;
+        	paramTrendRepoert.width = 750;
+        	paramTrendRepoert.horizontalScrollPolicy = "off";
+        	paramTrendRepoert.verticalScrollPolicy = "off";
+			paramTrendRepoert.columnName = columnName;
+			paramTrendRepoert.paramNames = paramName;
+			paramTrendRepoert.machineId =machineId;
+			paramTrendRepoert.serverIpAndPort =serverIpAndPort;
+			PopUpManager.addPopUp(paramTrendRepoert, this, true);
+            PopUpManager.centerPopUp(paramTrendRepoert);
+        }
+        
+        
+		]]>
+	</mx:Script>
+	
+	<mx:HTTPService id="liveParamService" useProxy="false" method="GET" resultFormat="e4x" 
+		result="liveParamServiceRH(event)" fault="httpFault(event)"/>
+	
+	<mx:HTTPService id="machineSummaryRPTService" useProxy="false" method="GET" resultFormat="e4x" 
+		result="machineSummaryRPTServiceRH(event)" fault="httpFault(event)"/>
+		
+	<mx:HTTPService id="liveParamGridService" useProxy="false" method="GET" resultFormat="e4x" 
+		result="liveParamGridServiceRH(event)" fault="httpFault(event)"/>		 
+
+		 
+	<mx:HBox height="10%" width="100%" id="reportHboxId" styleName="filled">
+	</mx:HBox>	
+
+	<mx:HBox height="100%" width="100%" visible="false" id="gridHboxId">
+		<mx:DataGrid dataProvider="{paramDataGrid}" width="100%" height="100%">
+	           <mx:columns>
+	           		<mx:DataGridColumn dataField="image" headerText="" editable="false" width="40"> 
+		                <mx:itemRenderer> 
+		                    <mx:Component> 
+			                    <mx:HBox height="30" horizontalAlign="center"> 
+			                        <mx:Image source="@Embed('assets/LineChart.png')" click="outerDocument.showTrendReport(data.ColumnName,data.ParamName)"/> 
+			                    </mx:HBox> 
+		                    </mx:Component> 
+		                </mx:itemRenderer> 
+					</mx:DataGridColumn>
+                	<mx:DataGridColumn id="ParamName"
+                                   dataField="ParamName" 
+                                   headerText="Name" minWidth="150" />
+        			<mx:DataGridColumn id="value"
+                                   dataField="Value"
+                                   headerText="Value" minWidth="80" />
+               		 <mx:DataGridColumn id="timestamp"
+               		 			   dataField="TimeStamp"
+                                   headerText="Timestamp" minWidth="150" />
+               		 <mx:DataGridColumn id="unit"
+                                   dataField="Unit"
+                                   headerText="Unit" visible="false"/>
+                     <mx:DataGridColumn id="ColumnName"
+			                       dataField="ColumnName"
+			                       headerText="ColumnName" visible="false"/>
+            </mx:columns>
+		</mx:DataGrid>
+   </mx:HBox>
+	
+   <mx:HBox width="100%" height="100%" id="meterHboxId" visible="true">
+   
+   <!--mx:VBox height="100%" width="35%" horizontalAlign="center">
+		<mx:HBox height="100%" width="100%">
+			<mx:VBox height="100%" width="100%">
+				<mx:Panel title="Level" height="300">
+					<meter:Gauge minValue="0"  maxValue="400" showValue="true" 
+						diameter="100" id="solarPower1" verticalCenter="0" horizontalCenter="0"
+						faceColor="0x000000" 
+				  		ticksColor="0xFFFFFF"
+				  		fontColor="0xFFFFFF"
+				  		pointerColor="0xFF0000" 
+				  		bezelColor="0x999999" height="100%" width="100%"
+						faceShadowColor="0x777777" toolTip="Level" />
+				</mx:Panel>
+			</mx:VBox>
+		</mx:HBox>
+	</mx:VBox-->
+	
+	<mx:VBox height="100%" width="30%" verticalAlign="middle" horizontalAlign="center">
+				<mx:Panel title="Temperature" height="350" width="150">
+					<mx:VBox height="100%" width="100%" horizontalCenter="true" verticalCenter="true" 
+				 		verticalAlign="middle" horizontalAlign="center">
+				 		
+						<nui:TemperatureSensor id="temperatureId" value="0" click="showReport(paramNameTem , colNameTem);"/>
+					</mx:VBox>
+				</mx:Panel>
+	</mx:VBox>	
+	
+	<mx:VBox height="100%" width="30%" verticalAlign="middle" horizontalAlign="center">
+				<mx:Panel title="Level" height="350" width="150">
+					<mx:VBox height="100%" width="100%" horizontalCenter="true" verticalCenter="true" 
+				 		verticalAlign="middle" horizontalAlign="center">
+     					<nui:LevelTank id="levelId" value="0" click="showReport(paramNameLV , colNameLV);">
+						</nui:LevelTank>
+					</mx:VBox>
+				</mx:Panel>
+	</mx:VBox>
+	 <mx:VBox height="100%" width="30%" verticalAlign="middle" horizontalAlign="center">
+			<mx:VBox height="100%" width="100%" verticalAlign="middle">
+				<mx:Panel title="Door status" height="350" width="230">
+				 <mx:HBox height="100%" width="100%" horizontalCenter="true" verticalCenter="true" 
+				 	verticalAlign="middle">
+				 	<mx:Image y="10" toolTip="Door 1" 
+							id="door1" click="showReport(paramNameD1 , colNameD1);" />
+					<mx:Image y="10" toolTip="Door 2" 
+							id="door2" click="showReport(paramNameD2 , colNameD2);" />	
+					<mx:Image y="10" toolTip="Door 3" 
+							id="door3" click="showReport(paramNameD3 , colNameD3);" />	
+				 </mx:HBox>
+				</mx:Panel>
+			</mx:VBox>
+	</mx:VBox>
+	
+   </mx:HBox>
+    
+     <mx:Form x="-244" y="26" visible="false">
+       <mx:FormItem label="Open Event:" >
+           <mx:Label id="forOpen" width="150" text="{onchangeMachineId(machineId)}"/>            
+       </mx:FormItem>
+	</mx:Form>
+	 
+	<mx:ControlBar   height="34" y="336">
+			<mx:Button icon="@Embed('images/dashboard.jpg')" height="16" toolTip="DashBoard"  width="16" 
+				id="dasgBoardImgId" click="getGaugeReport();" bottom="5" />
+			<mx:Button icon="@Embed('/images/Table.png')" height="16" toolTip="Report"  width="16" 
+				id="gridImgid" click="getGridReport();" bottom="7"/>
+	</mx:ControlBar>
+</MDIPanel>

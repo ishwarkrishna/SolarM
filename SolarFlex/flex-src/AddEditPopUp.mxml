@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	    title="select"
+        showCloseButton="true"
+       
+        color="#080808" borderColor="#FFF8E0" 
+        backgroundColor="white" width="50%" height="60%">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+		[Bindable]
+	     public var deviceVal:ArrayCollection = new ArrayCollection([
+	        {name:"2013-03-16 00:21:01", deviceName:21.3,Number:27,Address:10},
+	        {name:"2013-03-16 01:10:00", deviceName:22.5,Number:27,Address:10},
+	        {name:"2013-03-16 02:30:10", deviceName:22.3,Number:27,Address:10},
+	        {name:"2013-03-16 03:46:56", deviceName:21.4,Number:27,Address:10},
+	        {name:"2013-03-16 04:28:33", deviceName:23.1,Number:27,Address:10},
+	        {name:"2013-03-16 05:15:25", deviceName:22.8,Number:27,Address:10},
+	        {name:"2013-03-16 06:35:00", deviceName:30.1,Number:27,Address:10},
+		]);
+// close="close(event);"  creationComplete="init(event)"
+	//	public function init(event):void{
+	//		locDetails.dataProvider = deviceVal;
+	//	}
+		]]>
+	</mx:Script>
+	<mx:ApplicationControlBar width="100%" height="10%">
+		<mx:Image toolTip="Add" id="addlocButton" 
+				source="@Embed(source='images/AddUsericon.png')" 
+						width="24" height="20"/>
+		<mx:Image toolTip="Edit" id="editButton" 
+				source="@Embed(source='images/editIcon.png')" 
+						width="24" height="20"/>
+		<mx:Image toolTip="Delete" id="deleteButton" 
+				source="@Embed(source='images/clear.png')" 
+						width="24" height="20"/>
+	</mx:ApplicationControlBar>
+	<mx:HBox height="90%" width="100%" y="50" id="addVBox" visible="false">
+		<mx:Canvas height="100%" width="100%" id="canvasId">
+			<mx:Label text="Name :" x="71" y="33"/>
+			 <mx:TextInput id="conName"  x="193" y="31"/>
+			 <mx:Label text="DeviceName :"  x="71" y="73"/>
+			 <mx:TextInput id="deviName" x="193" y="71"/>
+			 <mx:Label text="PhNumber :" x="71" y="117"/>
+			 <mx:TextInput id="phNUmber" x="193" y="115"/>
+			 
+			 <mx:Image toolTip="save" id="saveButton" 
+				source="@Embed(source='images/Save.png')" 
+						width="24" height="20" x="234" y="190"/>
+		</mx:Canvas>
+	</mx:HBox>
+	<mx:HBox height="90%" width="100%" y="50" id="editVBox" visible="true">
+		<mx:DataGrid width="100%" height="95%" id="locDetails">
+			<mx:columns>
+	    			<mx:DataGridColumn headerText="Name" id="editName" dataField="name"/>
+	    			<mx:DataGridColumn headerText="DeviceName"  id="editDeviceName" dataField="deviceName"/>
+	    			<mx:DataGridColumn headerText="PH Number" id="editPh" dataField="Number"/>
+	    			<mx:DataGridColumn headerText="Address" id="editAddress" dataField="Address" width="50" />   
+	    	</mx:columns>
+    	</mx:DataGrid>
+	</mx:HBox>
+</mx:TitleWindow>

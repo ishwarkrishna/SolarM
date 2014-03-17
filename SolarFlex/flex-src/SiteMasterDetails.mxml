@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIPanel xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" width="364" height="400"
+	title="Site Management" layout="absolute" >
+	
+	
+	<mx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		[Bindable] public static var machineId:String = null;
+		import mx.controls.Alert;
+		[Bindable]
+        private var report:ArrayCollection = new ArrayCollection([
+            {solar:'120.2', load:'230.12', count:'yesterday'},
+            {solar:'123.5', load:'103.2', count:'week'}
+        ]);
+        
+		public function onchangeMachineId(mId:String):void{
+			//Alert.show("selected machine="+mId);
+		}
+
+		]]>
+	</mx:Script>
+	<mx:DataGrid dataProvider="{report}" height="100%" width="100%">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Days" dataField="count"/>
+			<mx:DataGridColumn headerText="Solar" dataField="solar"/>
+			<mx:DataGridColumn headerText="Load" dataField="load"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Form x="10" y="267" visible="false">
+        <mx:FormItem label="Change Event:">
+            <mx:Label id="forChange" width="150" text="{onchangeMachineId(machineId)}"/>          
+        </mx:FormItem>
+        <mx:FormItem label="Open Event:">
+            <mx:Label id="forOpen" width="150" text="{machineId}"/>            
+        </mx:FormItem>
+    </mx:Form>
+
+</MDIPanel>

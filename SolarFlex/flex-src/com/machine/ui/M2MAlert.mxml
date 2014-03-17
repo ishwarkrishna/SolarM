@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" initialize="init()" backgroundImage="{currentAlertState}" backgroundColor="#535fb4" width="49" height="65" borderStyle="none">
+<!--mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" initialize="init()" backgroundColor="#535fb4"  
+	   height="80" width="100"-->
+<!--mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"/-->
+    <mx:Script>
+        <![CDATA[
+            import mx.core.UIComponent;
+              
+			[Bindable] public var alertName:String="ALERT";
+			[Bindable] public var alertFullName:String="Alert Full Name";
+			
+            [Embed(source="assets/images/alarm_Off.png")]
+    	    [Bindable]
+        	public var alartOFF:Class;
+
+            [Embed(source="assets/images/alarm_On.png")]
+    	    [Bindable]
+        	public var alartON:Class;
+
+    	    [Bindable] public var currentAlertState:Class=alartOFF;
+        
+            private function init():void
+            { 
+            }
+            
+	    	
+            /*private function created():void
+            {
+				//currentAlertState=alertStatus("OFF");
+				//alertNameId.text=alertName;
+				alertNameId.x=alertNameId.x-alertName.length;
+            }*/
+
+            public function set setStatus(val:String):void
+            {
+	    	  if("ON" == val ){
+	 		  	currentAlertState=alartON;
+	 		  }else{
+	 		  	currentAlertState=alartOFF;
+	 		  }
+            } 
+
+            public function set setName(val:String):void
+            {
+            	alertName = val.toUpperCase();
+            } 
+            public function set setFullName(val:String):void
+            {
+            	alertFullName = val;
+            } 
+
+        ]]> 
+    </mx:Script>
+    			<!--mx:Canvas id="alert" backgroundImage="{currentAlertState}" width="60" height="80" borderStyle="none" >
+    				<mx:Label id="alertNameId" text="{alertName}" textAlign="center" toolTip="{alertFullName}" color="#A40426" fontFamily="Verdana" fontSize="10" x="10" y="10"/>
+                </mx:Canvas-->
+   				<mx:Label id="alertNameId" text="{alertName}" textAlign="center" toolTip="{alertFullName}" color="#A40426" fontFamily="Verdana" fontSize="10" x="6" y="6"/>
+	
+</mx:Canvas>
+<!--/mx:Application-->

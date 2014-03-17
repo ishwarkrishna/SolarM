@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIPanel xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" width="364" height="400"
+	 layout="absolute" >
+	
+	<mx:Script>
+		<![CDATA[
+		
+		import mx.controls.Alert;
+		import mx.collections.*; 
+		[Bindable] public var paramTable:ArrayCollection = null;
+			
+ 
+		]]>
+	</mx:Script>
+	<mx:DataGrid id="paramData" dataProvider="{paramTable}" x="10" y="27">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Column 1" dataField="label"/>
+			<mx:DataGridColumn headerText="Column 2" dataField="data"/>
+		</mx:columns>
+	</mx:DataGrid>
+
+</MDIPanel>

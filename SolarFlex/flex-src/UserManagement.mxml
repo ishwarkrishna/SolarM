@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" width="744" height="410"
+	title="Site Management" layout="absolute" 
+	creationComplete="creationCompleteHAndler();" showCloseButton="true" close="closeHandler(event)">	
+		<mx:Script>
+	        <![CDATA[
+	        	import mx.utils.ArrayUtil;
+	        	import mx.events.CloseEvent;
+	        	import mx.managers.PopUpManager;
+	        	import mx.collections.XMLListCollection;
+		    	import mx.rpc.events.FaultEvent;
+		    	import mx.rpc.events.ResultEvent;
+		    	import mx.events.DataGridEventReason;
+		    	import mx.formatters.NumberFormatter;
+		    	import mx.events.DataGridEvent;
+		    	import mx.events.ListEvent;
+		        import mx.collections.ArrayCollection;
+				import mx.controls.Alert;
+				import mx.utils.StringUtil;
+				[Bindable] var addValue:String = null;
+				[Bindable] var cusIdEdit:String = null;
+				[Bindable] var cusNameEdit:String = null;
+				[Bindable] var editUserName:String = null;
+				[Bindable] public static var addResult:String = null;
+				[Bindable] private var paramData:XMLListCollection = null;
+				[Bindable] public static var serverIpAndPort:String = "localhost";
+				[Bindable] [Embed(source="images/editIcon.png")]
+				public var editIcon:Class;
+				[Bindable] private var selectCusName:String = null;
+		        [Bindable] private var userName:String = null;
+		        [Bindable] private var cusId:String = null;
+		        [Bindable]public var cusNameSelectedIndex:Number = 0; 
+		        [Bindable]public var userNameSelectedIndex:Number = 0; 
+		        [Bindable] var cusReturnList:XMLListCollection = null;
+		       	[Bindable] var cusIdReturnList:XMLListCollection = null;  
+		       	[Bindable]var tempCollection : ArrayCollection = new ArrayCollection(); 
+		       	[Bindable]var customerArryCollecion : ArrayCollection = new ArrayCollection(); 
+			    [Bindable]var tempArray : ArrayCollection = new ArrayCollection(); 
+				
+	        	private function closeHandler(event:CloseEvent):void {
+		    		PopUpManager.removePopUp(this);
+		    	}
+		    	protected function creationCompleteHAndler():void {
+		     		editImgId.enabled =false;
+		     		editImgId.alpha = 0.2;
+		     		hboxAdd.visible = false;
+		     		hboxEdit.visible = true;
+					cursorManager.setBusyCursor();
+			        paramSrv.send();
+			        allCustomerService.send();
+			        txtFilter.addEventListener(Event.CHANGE, filterUserGrid);
+				}
+				
+				public function ItemClickEventEdit(event:Event):void {
+		        	hboxEdit.visible = false;
+		        	hboxAdd.visible = true;
+		        	editImgId.enabled = true;
+		     		editImgId.alpha = 1;
+		        	selectCusName = editCusDetails.selectedItem.cusName.toString();
+		        	userName = editCusDetails.selectedItem.userName.toString();
+		            cusId = editCusDetails.selectedItem.customerId.toString();
+		        	var index1:String = userName;
+	         		for(var objIndex:int = 0; objIndex < tempCollection.length; objIndex++) {
+					  if(tempCollection.getItemAt(objIndex).userName.toString() == index1)
+					  {
+					     editUser.selectedIndex = objIndex;
+					     break;
+					  }
+					}
+				    var index:String = selectCusName; 
+				 	for(var objIndex:int = 0; objIndex < customerArryCollecion.length; objIndex++) {
+				 	  if(customerArryCollecion.getItemAt(objIndex).cusName.toString() == index)
+					  {
+					     editCusName.selectedIndex = objIndex;
+					     break;
+					  }
+					}
+		    	}
+    	
+		        public function saveAddList(event:Event):void {
+		        	cusIdEdit = editCusName.selectedItem.customerId.toString();
+		     		cusNameEdit = editCusName.selectedItem.cusName.toString();
+		    		editUserName = editUser.selectedItem.userName.toString();
+		    		addValue = 	editUserName+","+cusIdEdit;
+		    		addResult = addValue; 
+		    		paramUpdate.send();
+		    		creationCompleteHAndler();
+		     	}
+		     	
+		     	private function tempResultHandler(event:ResultEvent):void {
+					var xmlList:XMLList = XML(event.result).children();
+					paramData =  new XMLListCollection(xmlList);
+			        for each(var prop:XML in xmlList) 
+			        { 
+			        	tempCollection.addItem({cusName : prop.@customerName, customerId : prop.@customerId, userName : prop.@userName});	
+			        } 
+			    	//tempArray = getUniqueArray(tempCollection);
+				  	//editCusName.dataProvider = tempArray;
+					cursorManager.removeBusyCursor();
+				}
+				public function getUniqueArray(collection : ArrayCollection):ArrayCollection{
+					var unique:Object = {};
+						var value:String;
+						var array:Array = collection.toArray();
+						var result:Array = [];
+						var i:int = 0;
+						var n:int = array.length;
+						for (i; i < n; i++)	{
+						 value = array[i].cusName ;
+						 if (!unique[value]) {
+						  unique[value] = true;
+						  result.push(value);
+						 }
+						}
+					return new ArrayCollection(result);
+				}
+				private function getAllcustomerList(event:ResultEvent):void{
+					var xmlList:XMLList = XML(event.result).children();
+					 for each(var prop:XML in xmlList) 
+			        { 
+			        	customerArryCollecion.addItem({cusName : prop.name, customerId : prop.customerId});	
+			        } 
+			        editCusName.dataProvider = customerArryCollecion;
+					cursorManager.removeBusyCursor();
+				}
+				public function httpFault(event:FaultEvent):void {
+					var faultstring:String = event.fault.faultString;
+					cursorManager.removeBusyCursor();
+		            Alert.show(faultstring);
+		        } 
+        
+				private function cusTempResultHandler(event:ResultEvent):void {
+					var xmlList:XMLList = XML(event.result).children();
+					cusReturnList =  new XMLListCollection(xmlList);
+					cursorManager.removeBusyCursor();
+					Alert.show(cusReturnList.getItemAt(0).toString()); 
+				}
+		
+				public function openAddSite():void {
+		        	hboxEdit.visible =false;
+		        	hboxAdd.visible = true;
+		        }
+        
+		        public function openEditSite():void {
+		        	hboxAdd.visible = false;
+		        	hboxEdit.visible = true;
+		        	editImgId.enabled = false;
+		     		editImgId.alpha = 0.2;
+		        }
+     			
+     			private function filterUserGrid(event:Event):void{
+					var filterText:String = StringUtil.trim(txtFilter.text.toLowerCase());
+					var columnArray:Array = ['userName','cusName'];
+					var gridDataProvider:ArrayCollection = this.tempCollection as ArrayCollection;
+					var dataGridName:String = 'editCusDetails';
+					var filteredData:Array = [];
+					var added:Boolean=false;
+					var i:int;
+					var j:int;
+					for(i=0; i < gridDataProvider.length; i++){	
+						added = false;
+						for(j=0; j<columnArray.length; j++){			
+							if(gridDataProvider[i][columnArray[j]]!=null){
+								var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+								if(!added){      
+									if(filterString.indexOf(filterText) != -1){
+									   filteredData.push(gridDataProvider[i]);
+									   added = true;
+									} 
+								}else{
+									break;
+								}
+							}	
+						}
+					}
+					if(filterText.length == 0){
+						this[dataGridName].dataProvider = gridDataProvider;
+					}else{
+						this[dataGridName].dataProvider = filteredData;
+					}
+				}
+	        	
+	          ]]>
+    	</mx:Script>
+    		
+    	 <mx:HTTPService id="allCustomerService" useProxy="false" method="GET" resultFormat="e4x" 
+		 	url="http://{serverIpAndPort}/SolarService/masters/customers.xml"
+		 	result="getAllcustomerList(event)" fault="httpFault(event)"/>
+
+    	<mx:HTTPService id="paramSrv" useProxy="false" method="GET" resultFormat="e4x" 
+			url="http://{serverIpAndPort}/SolarService/masters/customers/user/allUserlist.xml"
+		 	result="tempResultHandler(event)" fault="httpFault(event)"/>
+		 	
+		<mx:HTTPService id="paramUpdate" useProxy="false" method="GET" resultFormat="e4x" 
+			url="http://{serverIpAndPort}/SolarService/registration/machines/user/{addValue}.xml"
+		 	result="cusTempResultHandler(event)" fault="httpFault(event)"/>
+    	
+    	<mx:HBox height="100%" width="100%" id="hboxAdd" visible="false" y="30">
+	    	<mx:Canvas height="100%" width="100%" horizontalCenter="0" verticalCenter="0">
+	    		<mx:VBox height="100%" width="100%">
+	    			<mx:HBox height="10%" width="100%"/>
+	    			<mx:HBox height="8%" width="100%">
+	    				<mx:Label width="25%" text="User Name :" textAlign="right" fontWeight="bold"/>
+				 		<mx:ComboBox id="editUser" labelField="userName" x="153" y="75" 
+	            			dataProvider="{tempCollection}"  width="160" /> 
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    					<mx:Label width="25%" text="Customer Name :" textAlign="right" fontWeight="bold"/>
+				 		<mx:ComboBox id="editCusName" labelField="cusName" x="153" y="31" 
+	            			  width="160" /> 
+    				</mx:HBox>
+    				<mx:HBox height="8%" width="100%">
+    				</mx:HBox>
+    				
+    				 <mx:HBox width="100%" height="8%" horizontalAlign="center">
+				 	<mx:VBox width="30%">
+				 	</mx:VBox>
+    			 	<mx:VBox width="60%" height="100%" horizontalAlign="left">
+    			 		<mx:HBox width="100%">
+	    			 		<mx:Image toolTip="save" id="saveButton" 
+									source="@Embed(source='images/Save.png')" useHandCursor="true" buttonMode="true" mouseChildren="false"
+									width="17" height="20" x="201" y="284" click="saveAddList(event);"/>
+    			 		</mx:HBox>    			 		
+    			 	</mx:VBox>
+    			 </mx:HBox>
+	    		</mx:VBox>
+	    	</mx:Canvas>
+    	</mx:HBox>
+    
+	    <mx:HBox height="100%" width="100%" id="hboxEdit" visible="true">
+	    	<mx:VBox height="100%" width="100%">
+	    		<mx:HBox  width="100%">
+	    			<mx:Label text="Search : " height="25" fontSize="13" fontWeight="bold"/>
+	    			<mx:TextInput id="txtFilter" width="290" height="25" fontSize="12" />
+				</mx:HBox>
+	    		<mx:HBox height="100%" width="100%">
+	    			<mx:DataGrid width="100%" height="100%" id="editCusDetails" dataProvider="{tempCollection}">
+						<mx:columns>
+							<mx:DataGridColumn headerText="User Name" id="editCusID" dataField="userName" />
+			    			<mx:DataGridColumn headerText="Customer Name" id="editName" dataField="cusName"/>
+			    			<mx:DataGridColumn headerText="Customer Id"  id="address1GR" dataField="customerId" visible="false"/>
+			    			<mx:DataGridColumn headerText="Edit" dataField="Edit" width="30">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:HBox width="100%" height="20" horizontalScrollPolicy="off">
+											<mx:Image 
+												source="{outerDocument.editIcon}" horizontalAlign="right" scaleContent="false"
+												maintainAspectRatio="true" toolTip=" Edit service" width="18"
+												useHandCursor="true" buttonMode="true" mouseChildren="false" 
+												click="{outerDocument.ItemClickEventEdit(event)}" />
+										</mx:HBox>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>	
+		    			</mx:columns>
+	    			</mx:DataGrid>
+	    		</mx:HBox>
+	    	</mx:VBox>
+	    	
+	    	
+	    </mx:HBox>
+	    
+		<mx:ControlBar   height="34" y="336">
+			<!--mx:Spacer width="50%"/-->
+			<mx:Button icon="@Embed('images/Table.png')" toolTip="Edit Site" useHandCursor="true" buttonMode="true"  
+				id="editImgId" click="openEditSite();" width="25" mouseChildren="false" />
+		</mx:ControlBar>
+</mx:TitleWindow>        

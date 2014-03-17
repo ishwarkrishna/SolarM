@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" 
+	layout="absolute" creationComplete="initLoadPannel()" width="100%" height="100%">
+	 
+	<mx:Script>   
+		<![CDATA[ 
+			import mx.controls.Alert;
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.*; 
+
+			[Bindable] public  var serverIpAndPort:String = "localhost:8080";		
+			[Bindable] public  var userId:String = "";		
+			[Bindable] public static var machineId:String = null;		
+			[Bindable] public static var machineName:String = null;
+				
+			private var snWidth:Number = (Capabilities.screenResolutionX / 3)-150;//200 3.65 -50			
+			private var snHeight:Number = (Capabilities.screenResolutionY/ 2); //404 2
+			private var snX:int = 3;
+			private var snY:int = 5;
+			
+			private var spsWidth:Number = (Capabilities.screenResolutionX /3)+125; //500 2.56 +50 150
+			private var spsHeight:Number = snHeight/2;//200
+			private var spsX:Number = snWidth+5; //8
+			private var spsY:Number = 5;
+			
+			private var ldvWidth:Number = (Capabilities.screenResolutionX / 3)+125; //500y  +50 150
+			private var ldvHeight:Number = snHeight/2; //200
+			private var ldvX:Number = snWidth+5; //8
+			private var ldvY:Number = snHeight/2+8;
+			
+			private var smdWidth:Number = (Capabilities.screenResolutionX / 3)-22 // site details 300 3.65
+			private var smdHeight:Number = snHeight/2;//200
+			private var smdX:Number = (Capabilities.screenResolutionX ) -(Capabilities.screenResolutionX / 3)+7; //snWidth+500+12
+			private var smdY:Number = 5;
+			
+			private var lpdWidth:Number = (Capabilities.screenResolutionX / 3)-72; //data list 300 3.65 22
+			private var lpdHeight:Number = snHeight/2; // 200
+			private var lpdX:Number = (Capabilities.screenResolutionX ) -(Capabilities.screenResolutionX / 3)+7; //snWidth+500+12  7
+			private var lpdY:Number = snHeight/2+8; //200 - 12;
+			
+			private var ptWidth:Number = Capabilities.screenResolutionX-93; //1005 +18 43
+			private var ptHeight:Number = (Capabilities.screenResolutionY / 3.27); //150
+			private var ptX:Number = 3;
+			private var ptY:Number = snHeight+12;
+			
+		  	public function initLoadPannel():void{
+		  		
+				siteNavigation();
+				solarPowerSummary();
+				liveDiagramView();
+				//siteMasterDetails();
+				liveParamData();
+				lastNMachineData();
+				openLineChart();
+				
+				serverIpAndPort=Application.application.parameters.serverIpAndPort.toString();
+				userId=Application.application.parameters.userId.toString();
+
+				//SiteMasterDetails.serverIpAndPort = serverIpAndPort;
+				LiveParamData.serverIpAndPort = serverIpAndPort;
+	      	    LastNMachineData.serverIpAndPort = serverIpAndPort;
+	      	    SolarPowerSummary.serverIpAndPort = serverIpAndPort;
+	      	    SiteNavigation.serverIpAndPort = serverIpAndPort;	
+	      	    LiveDiagramView.serverIpAndPort = serverIpAndPort;
+	      	    SiteManagement.serverIpAndPort = serverIpAndPort;
+	      	    
+		  	}    
+   
+		  	[Bindable] private var line:LineAreaSeriesExample = null;
+			public function openLineChart():void{
+				line  = new LineAreaSeriesExample();
+			} 
+			[Bindable] private var sn:SiteNavigation = new SiteNavigation;
+			public function siteNavigation():void{
+				sn = mdiFrame.openPanel(SiteNavigation) as SiteNavigation;
+				sn.title = "Site Navigation";
+				sn.x = snX;
+				sn.y = snY;
+			//	Alert.show("x.."+snWidth);
+				sn.width = snWidth;
+				sn.height = snHeight+3;
+				//machineId = sn.treeSitId;
+			}
+		
+			[Bindable] private var sph:SolarPowerSummary = new SolarPowerSummary;
+			public function solarPowerSummary():void{
+				 sph = mdiFrame.openPanel(SolarPowerSummary) as SolarPowerSummary;
+				sph.title = "Solar Power Summary";
+				sph.x = spsX;
+				sph.y = spsY;
+				sph.width = spsWidth;
+				sph.height = spsHeight;
+			}
+			
+			[Bindable] private var ldv:LiveDiagramView = new LiveDiagramView;
+			public function liveDiagramView():void{
+				 ldv = mdiFrame.openPanel(LiveDiagramView) as LiveDiagramView;
+				ldv.title = "Solar Diagram";
+				ldv.x = ldvX;
+				ldv.y = ldvY;
+				ldv.width = ldvWidth;
+				ldv.height = ldvHeight;	
+			}
+
+			[Bindable] private var smd:SiteMasterDetails = new SiteMasterDetails;
+			public function siteMasterDetails():void{
+				smd = mdiFrame.openPanel(SiteMasterDetails) as SiteMasterDetails;
+				smd.title = "Site Details";
+				smd.x = smdX;
+				smd.y = smdY;
+			//	setStyle('width',"30%");
+			//	setStyle('height',"20%");
+				smd.width = smdWidth;
+				smd.height = smdHeight;
+//				smd.treeSelect = machineId;
+			}
+			
+			[Bindable] private var lpd:LiveParamData = new LiveParamData;
+			public function liveParamData():void{
+				lpd = mdiFrame.openPanel(LiveParamData) as LiveParamData;
+				lpd.title = "Data Values";
+				//lpd.x = lpdX; old design
+				//lpd.y = lpdY;
+				//lpd.width = lpdWidth;
+				//lpd.height = lpdHeight;
+				lpd.x = smdX-25;
+				lpd.y = smdY;
+				lpd.width = lpdWidth;
+				lpd.height = snHeight+3;
+			}
+			
+			[Bindable] private var lmd:LastNMachineData = new LastNMachineData;
+			public function lastNMachineData():void{
+				 lmd = mdiFrame.openPanel(LastNMachineData) as LastNMachineData;
+				lmd.title = "Data Trend";
+				lmd.x = ptX;
+				lmd.y = ptY;
+				lmd.width = ptWidth;
+				lmd.height = ptHeight;
+				
+			}
+			
+ 
+		
+			public function clickSites():void{
+				var sm:SiteManagement = mdiFrame.openPanel(SiteManagement) as SiteManagement;
+				sm.title = "Site Management";
+				sm.x = 150;
+				sm.y = 100;
+			}
+			
+			public function clickCustomers():void{
+				var cm:CustomerManagement = mdiFrame.openPanel(CustomerManagement) as CustomerManagement;
+				cm.title = "Customer Management";
+				cm.x = 150;
+				cm.y = 100;
+			}
+			
+			public function clickUsers():void{
+				var um:UserManagement = mdiFrame.openPanel(UserManagement) as UserManagement;
+				um.title = "User Management";
+				um.x = 150;
+				um.y = 100;
+			} //click="mdiFrame.tilePanels()"
+			public function restore():void{
+				sn.x = snX;
+				sn.y = snY;
+				sn.width = snWidth;
+				sn.height = snHeight+3;
+				
+				sph.x = spsX;
+				sph.y = spsY;
+				sph.width = spsWidth;
+				sph.height = spsHeight;
+				
+				ldv.x = ldvX;
+				ldv.y = ldvY;
+				ldv.width = ldvWidth;
+				ldv.height = ldvHeight;	
+				
+				smd.x = smdX;
+				smd.y = smdY;
+				smd.width = smdWidth;
+				smd.height = smdHeight;
+				
+				lpd.x = smdX-25;
+				lpd.y = smdY;
+				lpd.width = smdWidth;
+				lpd.height = snHeight+3;
+				
+				lmd.x = ptX;
+				lmd.y = ptY;
+				lmd.width = ptWidth;
+				lmd.height = ptHeight;
+				
+				
+			}
+		]]>
+	</mx:Script> 
+	 
+	<mx:Style source="main.css"/>  
+	 
+	<mx:ApplicationControlBar width="100%">
+		<mx:Button icon="@Embed('assets/icon_addlist.gif')" toolTip="Sites" click="clickSites();" upSkin="{null}" styleName="menuBarButton" width="50" height="40"/>
+		<mx:Button icon="@Embed('assets/icon_tile.png')" toolTip="Customers" click="clickCustomers();" upSkin="{null}" styleName="menuBarButton" width="50" height="40"/>
+		<!--mx:Button icon="@Embed('assets/icon_chat.png')" toolTip="Users" click="clickUsers();" upSkin="{null}" styleName="menuBarButton" width="50" height="40"/-->
+		<mx:Button icon="@Embed('assets/icon_chat.png')" toolTip="Arrange Pannels" click="restore();" upSkin="{null}" styleName="menuBarButton" width="50" height="40"/>
+		<mx:Spacer width="50%"/>
+		<mx:Label color="white" text="{machineName}" />
+		<mx:Spacer width="50%"/>
+		<mx:Label color="white" text="Solar Monitoring System - iVetel" fontWeight="bold" fontSize="12"/>
+	</mx:ApplicationControlBar>
+	
+	<MDIFrame id="mdiFrame" width="100%" height="100%" y="50"/>
+		
+</mx:Application>

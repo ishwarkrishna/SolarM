@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="25" cornerRadius="7" creationComplete="created()">
+    <mx:Script>
+        <![CDATA[
+        	import mx.controls.Text;
+         	[Bindable] public var navigationValue:String = "";
+         	[Bindable] public var currentDateTime:String = "";
+			public var navigationText:Text=navId;
+         	
+         	
+     		public function created():void {
+				var date:Date = new Date; 
+            	currentDateTime=DateDisplay.format(date);
+
+			/*	navigationText = new Text();
+            	navigationText.width=200;
+				navigationText.htmlText=navigationValue;
+				
+            	breadCrumbBox.addChild(navigationText);*/
+       		}
+
+        ]]>
+    </mx:Script>
+	<mx:DateFormatter id="DateDisplay" formatString="EEEE,MMMM DD YYYY L:NN A"/>
+	<mx:HBox id="breadCrumbBox" width="100%"
+			borderThickness="2"
+			borderColor="#BDDFFC"
+			borderStyle="solid"
+			backgroundAlpha="2"
+			cornerRadius="4" >
+			<mx:Text id="navId" htmlText="{navigationValue}" width="80%">
+			</mx:Text>
+			<mx:Label text="{currentDateTime}" height="100%" width="20%" 
+				fontWeight="bold" fontThickness="2" textAlign="right"/>
+	</mx:HBox>
+</mx:Canvas>

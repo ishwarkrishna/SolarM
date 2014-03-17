@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+	
+	 <mx:Script>
+        <![CDATA[
+        	import mx.controls.Alert;
+            private function textInput_change(event:Event):void {
+            	Alert.show("cm");
+               Alert.show("val"+textInput.text);
+            }
+        ]]>
+    </mx:Script>
+
+   
+
+    <mx:ApplicationControlBar dock="true">
+        <mx:TextInput id="textInput"
+                restrict="0-9.+ \\-"/>
+        <mx:Button label="check" click="textInput_change(event);"/>       
+    </mx:ApplicationControlBar>
+
+</mx:Application>

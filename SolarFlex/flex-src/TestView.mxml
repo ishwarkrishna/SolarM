@@ -1,0 +1,810 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	backgroundAlpha="0" creationComplete="init()"
+	backgroundColor="#535fb4"  
+	width="100%" height="100%" layout="absolute"> 
+	<mx:RemoteObject id="remoteObject" destination="sitedetails" 
+		result="resultHandler(event);" fault="faultHandler(event);"/> 
+	<mx:Style>
+	TextInput { 
+		color :#000000;
+	}
+	Canvas {
+	   borderStyle: outset;
+	   backgroundColor: #535fb4;
+	   headerHeight: 18;
+	   headerColors: #78d9eb, #d9d9d9;
+	   titleStyleName: "mypanelTitle";
+	}	
+	.mypanelTitle {
+   		color: #ffffff;
+	}
+ </mx:Style>
+ <mx:Style>
+		Panel {
+		   borderStyle: outset;
+		   backgroundColor: #535fb4;
+		   headerHeight: 18;
+		   headerColors: #78d9eb, #d9d9d9;
+		   titleStyleName: "mypanelTitle";
+		}	
+		.mypanelTitle {
+   			color: #ffffff;
+		}
+	 </mx:Style>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.charts.CategoryAxis;
+			import mx.collections.ArrayCollection;       
+			import mx.rpc.events.FaultEvent;     
+			import mx.rpc.events.ResultEvent; 
+			import mx.validators.Validator;
+			import mx.events.ValidationResultEvent
+			import mx.validators.Validator;
+			import mx.events.ValidationResultEvent
+			[Bindable] public var channelUrl:String; 
+			import mx.messaging.channels.AMFChannel;
+			import mx.messaging.ChannelSet;	
+			import mx.messaging.messages.RemotingMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent; 
+			
+			[Bindable]
+			public var comboArrCol:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var comboArrColl:ArrayCollection = new ArrayCollection();
+			public var comboArrCollCity:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var comboArrColState:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var citycol:ArrayCollection = new ArrayCollection();
+			[Bindable] private var locName:String =""; 
+			public var status:Boolean=true;
+			private var customerId:int =0;
+			
+			[Bindable]
+			public var areaComboArrColl:ArrayCollection = null;
+			
+			[Bindable]
+			public var typeComboArrColl:ArrayCollection = null;
+		
+		
+		 
+		 private function resultHandler(event:ResultEvent):void {
+            	var message:RemotingMessage = event.token.message as RemotingMessage;
+            	switch(message.operation)
+				{					
+					case "getSiteDetails":
+							site.dataProvider = event.result as ArrayCollection;							
+							break;
+					case "getlocationDetails":
+							comboArrCol = event.result as ArrayCollection;						
+							break;	
+					/*case "getLastlevelBeforelocationDetails":
+							comboArrCollCity = event.result as ArrayCollection;						
+							break;
+					case "getStateLevellocationDetails":
+							comboArrCollState = event.result as ArrayCollection;						
+							break;	
+				
+					case "getCountryLevelDetails":
+							comboArrCollCountry = event.result as ArrayCollection;						
+							break;	*/
+							
+					case "getTypeList":
+							typeComboArrColl = new ArrayCollection();
+							typeComboArrColl = event.result as ArrayCollection;	
+							break;
+							
+					case "getAreaList":
+							areaComboArrColl = new ArrayCollection();
+							areaComboArrColl = event.result as ArrayCollection;	
+							break;	
+							
+					case "getStateDetails":
+							comboArrColState = event.result as ArrayCollection;						
+							break;	
+					case "getCityDetails":
+							citycol = event.result as ArrayCollection;						
+							break;	
+					
+					case "getBankDetails":
+							comboArrColl = event.result as ArrayCollection;						
+							break;		
+								
+					case "saveSiteDetails":	
+						var status:Boolean =  event.result as Boolean;
+							if(status == true){
+								Alert.show("Successfully Saved");
+							}else{
+								Alert.show("Failed to Save");
+							}	
+							remoteObject.getSiteDetails(customerId);				
+							break;
+					case "updateSiteDetails":
+						var statusUpdate:Boolean =  event.result as Boolean;
+							if(statusUpdate == true){
+								Alert.show("Successfully Updated");
+							}else{
+								Alert.show("Failed to updated");
+							}
+							remoteObject.getSiteDetails(customerId);						
+							break;			
+					case "deleteSiteDetails":
+						var statusDelete:Boolean =  event.result as Boolean;
+							if(statusDelete == true){
+								Alert.show("Successfully deleted");
+							}else{
+								Alert.show("Failed to delete");
+							}	
+							remoteObject.getSiteDetails(customerId);					
+								break;					
+					case "saveBankDetails":	
+						var statusBank:Boolean =  event.result as Boolean;
+							if(statusBank == true){
+								Alert.show("Successfully Saved");
+							}else{
+								Alert.show("Failed to Save");
+							}	
+							remoteObject.getBankDetails();				
+							break;
+					case "updateBankDetails":
+						var statusBankUpdate:Boolean =  event.result as Boolean;
+							if(statusBankUpdate == true){
+								Alert.show("Successfully Updated");
+							}else{
+								Alert.show("Failed to updated");
+							}
+							remoteObject.getBankDetails(customerId);					
+							break;			
+					case "deleteBankDetails":
+						var statusBankDelete:Boolean =  event.result as Boolean;
+							if(statusBankDelete == true){
+								Alert.show("Successfully deleted");
+							}else{
+								Alert.show("Failed to delete");
+							}	
+							remoteObject.getBankDetails(customerId);				
+							break;					
+					case "saveCityDetails":	
+						var statusCity:Boolean =  event.result as Boolean;
+							if(statusCity == true){
+								Alert.show("Successfully Saved");
+							}else{
+								Alert.show("Failed to Save");
+							}	
+							remoteObject.getCityDetails(customerId);				
+							break;
+					case "updateCityDetails":
+						var statusCityUpdate:Boolean =  event.result as Boolean;
+							if(statusCityUpdate == true){
+								Alert.show("Successfully Updated");
+							}else{
+								Alert.show("Failed to updated");
+							}
+							remoteObject.getCityDetails(customerId);					
+							break;			
+					case "deleteCityDetails":
+						var statusCityDelete:Boolean =  event.result as Boolean;
+							if(statusCityDelete == true){
+								Alert.show("Successfully deleted");
+							}else{
+								Alert.show("Failed to delete");
+							}	
+							remoteObject.getCityDetails(customerId);				
+							break;							
+							
+					default:
+							Alert.show("Not able to read operation from Java program : "+message);
+						  	break; 		
+				}
+                                        
+            }
+//***************************************************************************************************************************************//		   
+  
+            // Handle a message fault.
+         private function faultHandler(event:FaultEvent):void {    
+            	var message:RemotingMessage = event.token.message as RemotingMessage;        	
+               //Alert.show("Plaese Check Your Configuration Settings.........."); 
+         }
+		 private function saveNewRecord():void  {
+		 /*	if(site_id.text !=""|| sitename.text !=""||latitude.text !=""||longitude.text !=""||address.text !=""){
+				var siteDTO:SiteRegistrationBean = new SiteRegistrationBean();
+			 		siteDTO.siteID = site_id.text;
+			 		siteDTO.site_name = sitename.text;
+			 		siteDTO.lattitude = latitude.text;
+			 		siteDTO.longitude = longitude.text;
+			 		siteDTO.area = area_name.selectedItem.label;
+			 		siteDTO.address = address.text;
+			 		siteDTO.loc_id = location_name.selectedItem.loc_id;
+			 		siteDTO.type = type.selectedItem.label;
+			 		siteDTO.aoh_start_time =hours.value+":"+minutes.value+":"+seconds.value;
+			 		siteDTO.aoh_end_time = hours1e.value+":"+minutes1e.value+":"+seconds1e.value;
+			 		siteDTO.ipms_sno = ipmsno.text;
+			 		siteDTO.bank_name = atm_name.selectedItem.bankname;
+			 		siteDTO.sim_Number = simno.text;
+			 		siteDTO.imei_No = imeino.text;
+			 		siteDTO.ups_sno = ups_sno.text;
+			 		siteDTO.ups_rating = Number(ups_rating.text);
+			 		siteDTO.noOf_bbank = Number(ups_bbank.text);
+			 		siteDTO.ups_voltage = Number(ups_volt.text);
+			 		remoteObject.saveSiteDetails(siteDTO,customerId); */
+			 		userDetailsViewStack.selectedIndex = 0;		
+			/* }else {
+					Alert.show("Please Enter valid datas.");
+			}	*/		
+		 }  
+		 
+		 private function update():void  {   
+		 	
+		 /*	var siteDTO:SiteRegistrationBean = new SiteRegistrationBean();
+		 		siteDTO.site_id = siteId;
+		 		siteDTO.siteID = site_id1.text;
+		 		siteDTO.site_name = sitename1.text;
+		 		siteDTO.lattitude = latitude1.text;
+		 		siteDTO.longitude = longitude1.text;
+		 		siteDTO.area = area_name1.selectedItem.label;
+		 		siteDTO.address = address1.text;
+		 		siteDTO.loc_id = location_name1.selectedItem.loc_id;
+		 		siteDTO.type = type1.selectedItem.label;
+		 		siteDTO.aoh_start_time =hours1.value+":"+minutes1.value+":"+seconds1.value;
+		 		siteDTO.aoh_end_time = hours2e.value+":"+minutes2e.value+":"+seconds2e.value;
+		 		siteDTO.ipms_sno = ipmsno1.text;
+		 		siteDTO.bank_name = atm_name1.selectedItem.bankname;
+		 		siteDTO.sim_Number = simno1.text;
+		 		siteDTO.imei_No = imeino1.text;
+		 		siteDTO.ups_sno = ups_sno1.text;
+			 	siteDTO.ups_rating = Number(ups_rating1.text);
+			 	siteDTO.noOf_bbank = Number(ups_bbank1.text);
+			 	siteDTO.ups_voltage = Number(ups_volt1.text);
+			 	remoteObject.updateSiteDetails(siteDTO);*/
+		 		userDetailsViewStack.selectedIndex = 0;  
+		 }   
+		 
+		 private function deleteReg():void  {   
+		 	siteId = Number(site.selectedItem.site_id);
+		 	remoteObject.deleteSiteDetails(siteId);
+		 } 
+		 
+		 private function addNewRecord():void {
+		 	userDetailsViewStack.selectedIndex = 1; 
+		 	site_id.text="";
+		 	sitename.text="";
+		 	address.text="";
+		 	simno.text="91";
+		 	imeino.text="";
+		 }
+		 
+		 private var siteId:int = 0;
+		 private function editRegistration():void {
+		 	siteId = Number(site.selectedItem.site_id);
+		 	var tempValue:String = 	site.selectedItem.site_name;
+		 	if(site.selectedItem.site_id != ""){
+		 		 userDetailsViewStack.selectedIndex = 2;
+		 		sitename1.text = tempValue;
+		 		 site_id1.text= site.selectedItem.siteID;
+		 		 sitename1.text=site.selectedItem.site_name;
+		 		 latitude1.text=site.selectedItem.lattitude;
+		 		 longitude1.text=site.selectedItem.longitude;
+		 		 area_name1.text = site.selectedItem.area;
+		 		 address1.text = site.selectedItem.address;
+		 		 location_name1.text =site.selectedItem.location_name;
+		 		 type1.text = site.selectedItem.type;
+		 		 var aohst_time:String = site.selectedItem.aoh_start_time;
+		 		 var aohstart_time:Array = aohst_time.split(":");
+		 		 hours1.value = aohstart_time[0].toString()
+				 minutes1.value =aohstart_time[1].toString();
+				 seconds1.value =aohstart_time[2].toString();
+				 var aohet_time:String = site.selectedItem.aoh_end_time;
+				 var aohend_time:Array = aohet_time.split(":");
+		 		 hours2e.value = aohend_time[0].toString()
+				 minutes2e.value =aohend_time[1].toString();
+				 seconds2e.value =aohend_time[2].toString();
+		 		 ipmsno1.text=site.selectedItem.ipms_sno;
+		 		 atm_name1.text = site.selectedItem.bank_name;
+		 		 simno1.text = site.selectedItem.sim_Number;
+		 		 imeino1.text = site.selectedItem.imei_No;
+		 		 ups_sno1.text = site.selectedItem.ups_sno;
+			 	 ups_rating1.text = site.selectedItem.ups_rating;
+			 	 ups_bbank1.text = site.selectedItem.noOf_bbank;
+			 	 ups_volt1.text = site.selectedItem.ups_voltage;
+		 	}else{
+		 		Alert.show("Please select the site.");	
+		 	}
+		 }
+		 		 
+		 private function cancelReg():void{
+		 	userDetailsViewStack.selectedIndex = 0;
+		 }
+		 private function saveNewbankRecord():void  {
+		 	/*	var bankDTO:BankBean = new BankBean(); 		
+			 	bankDTO.bankname = bank_name.text;
+			 	remoteObject.saveBankDetails(bankDTO,customerId);
+			 	userDetailsViewStack.selectedIndex = 3;	*/		
+		 }  
+ 
+		 private var bank_id:int = 0;
+		 private function deleteBank():void  {   
+		 	bank_id = Number(bank.selectedItem.id);
+		 	remoteObject.deleteBankDetails(bank_id);
+		 } 
+		 
+		 private function addNewBank():void {
+		 	userDetailsViewStack.selectedIndex = 4; 
+		 	bank_name.text = "";
+		 }
+		 
+		
+		 private function editBank():void {
+		 	bank_id = Number(bank.selectedItem.id);
+		 	userDetailsViewStack.selectedIndex = 5;	
+		    bank_name_edit.text= bank.selectedItem.bankname;
+		 }
+		 private function updatebankRecord():void  {   
+		 	
+		 /*	var bankDTO:BankBean = new BankBean();
+		 		bankDTO.id = bank_id;
+			 	bankDTO.bankname = bank_name_edit.text;
+			 	remoteObject.updateBankDetails(bankDTO);
+		 		userDetailsViewStack.selectedIndex = 3; */
+		 }  	 
+		 private function cancelbankReg():void{
+		 	userDetailsViewStack.selectedIndex = 3;
+		 }
+		 private function cancelbank():void{
+		 	userDetailsViewStack.selectedIndex = 3;
+		 }
+		 private function saveNewCityRecord():void  {
+		 	/*	var cityDTO:CityBean = new CityBean(); 		
+			 	cityDTO.city_name = city_name.text;
+			 	cityDTO.parent_id = state_name.selectedItem.city_id;
+			 	cityDTO.lvl_id = 3;
+			 	remoteObject.saveCityDetails(cityDTO,customerId);
+			 	userDetailsViewStack.selectedIndex = 6;	
+			 	//remoteObject.getCityDetails(1); 	*/	
+		 }  
+ 
+		 private var city_id:int = 0;
+		 private function deleteCity():void  {   
+		 	city_id = Number(city.selectedItem.city_id);
+		 	remoteObject.deleteCityDetails(city_id);
+		 	userDetailsViewStack.selectedIndex = 6;
+		 	//remoteObject.getCityDetails(1);
+		 } 
+		 
+		 private function addNewCity():void {
+		 	userDetailsViewStack.selectedIndex = 7; 
+		 	city_name.text = "";
+		 }
+		 
+		 private function findState(value:int):String {
+		 	//Alert.show("stateid "+value);
+		 	  for each (var object:Object in comboArrColState) {
+                      if(object["city_id"]==value){
+		 	  //	Alert.show("state id :"+object["city_id"]+"state name:"+object["state_name"]);
+                            return object["state_name"];
+                      }
+                }
+  			  return "";
+		 } 
+		 
+		 private function editCity():void {
+		    city_id = Number(city.selectedItem.city_id);			 
+		 	userDetailsViewStack.selectedIndex = 8;	
+		    City_name_edit.text= city.selectedItem.city_name;
+		    //state_name_edit.text = city.selectedItem.state_name; 
+		    state_name_edit.text = findState(city.selectedItem.parent_id); 
+		 }
+		 private function updateCityRecord():void  {   
+		/* var cityDTO:CityBean = new CityBean();
+		 	cityDTO.city_id = city_id;
+			cityDTO.city_name = City_name_edit.text;
+			cityDTO.parent_id = state_name_edit.selectedItem.city_id;
+			remoteObject.updateCityDetails(cityDTO,customerId);
+		 	userDetailsViewStack.selectedIndex = 6;
+		 //	remoteObject.getCityDetails(1); */
+		 }  	 
+		 private function cancelCityReg():void{
+		 	userDetailsViewStack.selectedIndex = 6;
+		 }
+		 private function cancelCity():void{
+		 	userDetailsViewStack.selectedIndex = 6;
+		 }
+		 private function openPage(viewStackIndex:int):void  { 
+		 	remoteObject.getCityDetails(customerId);
+		 	remoteObject.getBankDetails(customerId);
+		 	remoteObject.getSiteDetails(customerId);		  
+		 	userDetailsViewStack.selectedIndex = viewStackIndex;
+		 } 
+
+		 ]]>
+		 </mx:Script>    
+		 <mx:VBox width="100%" height="100%">
+		 	<mx:HBox width="100%" height="6%" verticalAlign="middle">
+		 		<mx:Label text="Registration:" fontWeight="bold"/>
+		 		<mx:Button label="City" color="#000000" click="openPage(6)"/>
+		 		<mx:Button label="Bank" color="#000000" click="openPage(3)"/>
+		 		<mx:Button label="Site" color="#000000" click="openPage(0)"/>
+		 	</mx:HBox>
+		 	<mx:HBox width="100%" height="94%">
+		 		<mx:ViewStack  id="userDetailsViewStack" width="100%" height="100%">
+					 <mx:Canvas id="userRecordCanvas" width="100%" height="100%">
+						<mx:VBox width="100%" height="100%">
+							 <mx:HBox width="100%" height="6%">
+							 	<mx:ApplicationControlBar width="100%" height="100%">
+							 		<mx:LinkButton label="Add" click="addNewRecord()" />
+				 		 			<mx:LinkButton label="Edit" click="editRegistration()" />
+				 		 			<!--mx:LinkButton label="Delete" click="deleteReg()" /-->
+				 		 			<!--mx:LinkButton label="BankDetails" click="bankReg()" /-->
+				 				</mx:ApplicationControlBar>
+							 </mx:HBox>
+							 <mx:HBox width="100%" height="94%">
+							 	<mx:DataGrid id="site" width="100%" height="100%" >
+									 <mx:columns>
+									 	<mx:DataGridColumn dataField="site_id" headerText="Id" visible="false"/> 
+									 	<mx:DataGridColumn dataField="siteID" headerText="Site No."/> 
+									 	<mx:DataGridColumn dataField="site_name" headerText="Site Name"/>
+									 	<mx:DataGridColumn dataField="area" headerText="Area"/>      
+									 	<mx:DataGridColumn dataField="bank_name" headerText="Bank"/>      
+									 	<mx:DataGridColumn dataField="location_name" headerText="City"/>
+									 	<mx:DataGridColumn dataField="type" headerText="Type"/>      
+									 	<mx:DataGridColumn dataField="aoh_start_time" headerText="AOH ST"/>
+									 	<mx:DataGridColumn dataField="aoh_end_time" headerText="AOH ET"/>
+									 	<mx:DataGridColumn dataField="ups_sno" headerText="UPS S.No"/>
+									 	<mx:DataGridColumn dataField="ups_rating" headerText="UPS Rating"/>
+									 	<mx:DataGridColumn dataField="noOf_bbank" headerText="UPS BBanks"/>
+									 	<mx:DataGridColumn dataField="ups_voltage" headerText="UPS Voltage"/>
+									 	<mx:DataGridColumn dataField="ipms_sno" headerText="IPMS No"/>
+									 	<mx:DataGridColumn dataField="imei_No" headerText="IMEI Number"/>
+									 	<mx:DataGridColumn dataField="sim_Number" headerText="SIM No."/>
+									 	<mx:DataGridColumn dataField="address" headerText="Address"/>                    
+									 	<mx:DataGridColumn dataField="lattitude" headerText="Lattitude"/>    
+									 	<mx:DataGridColumn dataField="longitude" headerText="Langitude"/> 
+									 </mx:columns>   
+								</mx:DataGrid>
+							 </mx:HBox>
+						</mx:VBox>
+					 </mx:Canvas>
+					 
+					 <mx:Canvas id="userRegCanvas">
+					 	<mx:VBox width="100%" height="100%">
+							<mx:HBox width="100%" height="6%">
+								<mx:ApplicationControlBar width="100%" height="100%">
+									<mx:LinkButton label="Save" id="addButton" click="saveNewRecord()" />
+						 			<mx:LinkButton label="Cancel" click="cancelReg()" />
+						 		</mx:ApplicationControlBar>
+					 		</mx:HBox>
+					 		
+					 		<mx:HBox width="100%" height="94%">
+					 			<mx:VBox width="50%" height="100%">
+						 			<mx:Form width="100%" height="100%">
+					 					<mx:FormItem  label="Site No."  width="100%">
+					 						<mx:TextInput id="site_id" width="50%"/>
+					 					</mx:FormItem>
+					 					<mx:FormItem  label="Site Name "  width="100%">
+					 						<mx:TextInput id="sitename" width="50%" />
+					 					</mx:FormItem>
+					 					<mx:FormItem label="Area" width="100%">
+						 					<mx:ComboBox id="area_name" width="50%" dataProvider="{areaComboArrColl}">
+						 						<!--mx:ArrayCollection>
+					  								<mx:Object label="Rural" data="Rural"/>
+					  			    				<mx:Object label="Urban" data="Urban"/>
+					  			    				<mx:Object label="SemiUrban" data="SemiUrban"/>
+					  							</mx:ArrayCollection-->
+					  						</mx:ComboBox>
+					 					</mx:FormItem>
+					 					<mx:FormItem label="Type" width="100%">
+						 					<mx:ComboBox id="type" width="50%" dataProvider="{typeComboArrColl}">
+						 						<!--mx:ArrayCollection>
+					  								<mx:Object label="IN" data="IN"/>
+					  			    				<mx:Object label="OUT" data="OUT"/>
+					  							</mx:ArrayCollection-->
+					  						</mx:ComboBox>
+					 					</mx:FormItem>				 					
+					 					<mx:FormItem label="Bank" width="100%">
+					 						<mx:ComboBox id="atm_name" width="50%" labelField="bankname" 
+					 							dataProvider="{comboArrColl}">
+				  							</mx:ComboBox>
+					 					</mx:FormItem>				 					
+					 					<mx:FormItem label="City" width="100%">
+					 						<mx:ComboBox id="location_name" labelField="loc_name" 
+					 							width="50%" dataProvider="{comboArrCol}">
+					 						</mx:ComboBox>
+					 					</mx:FormItem>				 				
+					 					<mx:FormItem  label="Latitude"  width="100%">
+					 						<mx:TextInput id="latitude" width="50%"  />
+					 					</mx:FormItem>				 					
+					 					<mx:FormItem  label="Longitude"  width="100%">
+					 						<mx:TextInput id="longitude" width="50%"  />
+					 					</mx:FormItem>				 					
+					 					<mx:FormItem  label="Address"  width="100%">
+					 						<mx:TextArea id="address" width="50%" color="#000000"/>
+					 					</mx:FormItem>
+					 					<mx:FormItem  label="AOH Start Time"  width="100%">
+						 					<mx:HBox >
+							 					<mx:NumericStepper minimum="0" maximum="24" stepSize="1" width="40" id="hours" />    								
+							 					<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="minutes" />
+							 					<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="seconds" />
+		    								</mx:HBox>
+					 					</mx:FormItem>
+					 					<mx:FormItem  label="AOH End Time"  width="100%">
+					 						<mx:HBox >
+					 							<mx:NumericStepper minimum="0" maximum="24" stepSize="1" width="40" id="hours1e" />    								
+					 							<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="minutes1e" />
+					 							<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="seconds1e" />
+											</mx:HBox>
+					 					</mx:FormItem>				 									 										 					
+						 			</mx:Form>
+					 			</mx:VBox>
+					 			<mx:VRule strokeWidth="1"  height="100%" strokeColor="0x00000000"/>
+					 			<mx:VBox width="48%" height="100%">
+					 				<mx:Form width="100%" height="100%">				 				
+					 					<mx:FormItem  label="UPS S.No"  width="100%">
+					 						<mx:TextInput id="ups_sno" width="50%"  />
+					 					</mx:FormItem>
+					 					<mx:FormItem  label="UPS Rating"  width="100%">
+					 						<mx:HBox >
+					 							<mx:TextInput id="ups_rating" width="50"/>
+					 							<mx:Label text="(in KVA)  No.of Batteries"  />
+					 							<mx:TextInput id="ups_bbank" width="50" />
+											</mx:HBox>
+					 					</mx:FormItem>
+					 					<mx:FormItem  label="UPS Voltage"  width="100%">
+					 						<mx:TextInput id="ups_volt" width="50%"  />
+					 					</mx:FormItem>						 					
+				 						<mx:HRule width="100%" strokeWidth="1" strokeColor="0x00000000"/>				 					
+					 					<mx:HBox width="100%" height="20%">
+					 						<mx:Form width="100%" height="100%">
+					 							<mx:FormItem  label="IPMS SNO"  width="100%">
+					 								<mx:TextInput id="ipmsno" width="50%"  />
+					 							</mx:FormItem>	
+							 					<mx:FormItem  label="IMEI Number"  width="100%">
+					 								<mx:TextInput id="imeino" width="50%" restrict="0-9" />
+					 							</mx:FormItem>
+					 							<mx:FormItem  label="SIM Number"  width="100%">
+					 								<mx:TextInput id="simno" width="50%" text="91" restrict="0-9" />
+					 							</mx:FormItem>
+					 						</mx:Form>	
+					 				</mx:HBox>
+					 				</mx:Form>
+					 			</mx:VBox>
+					 		</mx:HBox>
+					 	</mx:VBox>
+		
+				 	 </mx:Canvas>
+				 	 <mx:Canvas id="userRegCanvas1" creationComplete="editRegistration()">
+					 	<mx:VBox width="100%" height="100%">
+							<mx:HBox width="100%" height="6%">
+								<mx:ApplicationControlBar width="100%" height="100%">
+										<mx:LinkButton label="Update" id="updateButton" 
+											 click="update()"/>
+										<mx:LinkButton label="Cancel" 
+											 click="cancelReg()"/>
+						 		</mx:ApplicationControlBar>
+					 		</mx:HBox>
+					 		
+					 		<mx:HBox width="100%" height="94%">
+					 			<mx:VBox width="50%" height="100%">
+						 			<mx:Form width="100%" height="100%">
+						 				<mx:FormItem  label="Site No"  width="100%">
+						 					<mx:TextInput id="site_id1" width="50%"/>
+						 				</mx:FormItem>
+						 				<mx:FormItem  label="Site Name "  width="100%">
+						 					<mx:TextInput id="sitename1" width="50%" />
+						 				</mx:FormItem>				 					
+						 				<mx:FormItem label="Area" width="100%">
+						 					<mx:ComboBox id="area_name1" width="50%" dataProvider="{areaComboArrColl}">
+						 						<!--mx:ArrayCollection>
+					  								<mx:Object label="Rural" data="Rural"/>
+					  			    				<mx:Object label="Urban" data="Urban"/>
+					  			    				<mx:Object label="SemiUrban" data="SemiUrban"/>
+					  							</mx:ArrayCollection-->
+					  						</mx:ComboBox>
+						 				</mx:FormItem>
+						 				<mx:FormItem label="Type" width="100%">
+							 					<mx:ComboBox id="type1" width="50%" dataProvider="{typeComboArrColl}">
+							 						<!--mx:ArrayCollection>
+						  								<mx:Object label="IN" data="IN"/>
+						  			    				<mx:Object label="OUT" data="OUT"/>
+						  							</mx:ArrayCollection-->
+						  						</mx:ComboBox>
+							 			</mx:FormItem>
+						 				<mx:FormItem label="Bank" width="100%">
+						 					<mx:ComboBox id="atm_name1" width="50%" labelField="bankname" 
+						 						dataProvider="{comboArrColl}">
+					  						</mx:ComboBox>
+						 				</mx:FormItem>	
+						 						 					
+						 				<mx:FormItem label="City" width="100%">			 				
+						 					<mx:ComboBox id="location_name1" labelField="loc_name" 
+						 						dataProvider="{comboArrCol}" width="50%">
+						 					</mx:ComboBox>
+						 				</mx:FormItem>
+						 				
+						 				<mx:FormItem  label="Latitude"  width="100%">
+						 					<mx:TextInput id="latitude1" width="50%"  />
+						 				</mx:FormItem>
+						 				<mx:FormItem  label="Longitude"  width="100%">
+						 					<mx:TextInput id="longitude1" width="50%"  />
+						 				</mx:FormItem>				 					
+						 				<mx:FormItem  label="Address"  width="100%">
+						 					<mx:TextArea id="address1" width="50%" height="64" color="#000000"/>
+						 				</mx:FormItem>
+						 				<mx:FormItem  label="AOH Start Time"  width="100%">
+							 					<mx:HBox >
+								 					<mx:NumericStepper minimum="0" maximum="23" stepSize="1" width="40" id="hours1" color="#000000"/>    								
+								 					<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="minutes1" color="#000000"/>
+								 					<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="seconds1" color="#000000"/>
+				    							</mx:HBox>
+							 			</mx:FormItem>
+							 			<mx:FormItem  label="AOH End Time"  width="100%">
+							 					<mx:HBox >
+							 						<mx:NumericStepper minimum="0" maximum="23" stepSize="1" width="40" id="hours2e" color="#000000"/> 
+							 						<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="minutes2e" color="#000000"/>   								
+			    									<mx:NumericStepper minimum="0" maximum="59" stepSize="1" width="40" id="seconds2e" color="#000000"/>
+			    								</mx:HBox>
+							 			</mx:FormItem>				 					
+						 			</mx:Form>
+						 		</mx:VBox>
+						 		<mx:VRule strokeWidth="1"  height="100%" strokeColor="0x00000000"/>
+					 			<mx:VBox width="48%" height="100%">
+					 				<mx:HBox width="100%" height="40%">
+					 					<mx:Form width="100%" height="100%">
+					 						<mx:FormItem  label="UPS S.No"  width="100%">
+					 							<mx:TextInput id="ups_sno1" width="50%"  />
+					 						</mx:FormItem>
+					 						<mx:FormItem  label="UPS Rating"  width="100%">
+					 						<mx:HBox >
+					 							<mx:TextInput id="ups_rating1" width="50"/>
+					 							<mx:Label text="(in KVA)  No.of Batteries"  />
+					 							<mx:TextInput id="ups_bbank1" width="50" />
+											</mx:HBox>
+					 					</mx:FormItem>
+					 						<mx:FormItem  label="UPS_Voltage"  width="100%">
+					 							<mx:TextInput id="ups_volt1" width="50%"  />
+					 						</mx:FormItem>				 								 					
+					 					</mx:Form>
+					 				</mx:HBox>
+					 				<mx:HRule width="100%" strokeWidth="1" strokeColor="0x00000000"/>
+					 				<mx:HBox width="100%" height="20%">
+					 					<mx:Form width="100%" height="100%">
+					 						<mx:FormItem  label="IPMS SNO"  width="100%">
+							 					<mx:TextInput id="ipmsno1" width="50%" restrict="0-9"  />
+							 				</mx:FormItem>	
+							 				<mx:FormItem  label="IMEI Number"  width="100%">
+							 					<mx:TextInput id="imeino1" width="50%"  />
+							 				</mx:FormItem>
+							 				<mx:FormItem  label="SIM Number"  width="100%">
+							 					<mx:TextInput id="simno1" width="50%" text="91" restrict="0-9" />
+							 				</mx:FormItem>
+							 				
+						 				</mx:Form>
+					 				</mx:HBox>
+					 			</mx:VBox>
+					 		</mx:HBox>
+					 	</mx:VBox>
+				 	 </mx:Canvas>
+ 
+				 	 <mx:Canvas id="bankCanvas">
+							<mx:VBox>
+								 <mx:HBox>
+								 	<mx:ApplicationControlBar  width="254">
+								 		<mx:LinkButton label="Add" click="addNewBank()" />
+					 		 			<mx:LinkButton label="Edit" click="editBank()" />
+					 		 			<!--mx:LinkButton label="Delete" click="deleteBank()" /-->
+					 				</mx:ApplicationControlBar>
+								 </mx:HBox>
+								 <mx:HBox  >
+								 	<mx:DataGrid id="bank" dataProvider="{comboArrColl}" width="254" height="192">
+									 <mx:columns>
+									 	<mx:DataGridColumn dataField="bankname" headerText="Bank Name"/>        
+									 </mx:columns>   
+								 </mx:DataGrid>
+								 </mx:HBox>
+							</mx:VBox>	
+						 </mx:Canvas>
+						 <mx:Canvas id="bankRegCanvas">
+						 	<mx:VBox >
+								<mx:HBox width="100%" height="6%">
+									<mx:ApplicationControlBar width="100%" height="100%">
+										<mx:LinkButton label="Save" id="bankButton" click="saveNewbankRecord()" />
+							 			<mx:LinkButton label="Cancel" click="cancelbankReg()" />
+							 		</mx:ApplicationControlBar>
+						 		</mx:HBox>
+							 			<mx:Form >
+						 					<mx:FormItem  label="Bank Name"  width="100%">
+						 						<mx:TextInput id="bank_name" width="158"/>
+						 					</mx:FormItem>
+						 				</mx:Form>
+							 </mx:VBox>
+						 </mx:Canvas>
+						 <mx:Canvas id="bankeditCanvas" creationComplete="editBank()">
+						 	<mx:VBox >
+								<mx:HBox width="100%" height="6%">
+									<mx:ApplicationControlBar width="100%" height="100%">
+										<mx:LinkButton label="Update" id="editButton" click="updatebankRecord()" />
+							 			<mx:LinkButton label="Cancel" click="cancelbank()" />
+							 		</mx:ApplicationControlBar>
+						 		</mx:HBox>
+							 			<mx:Form >
+						 					<mx:FormItem  label="Bank Name"  width="100%">
+						 						<mx:TextInput id="bank_name_edit" width="158"/>
+						 					</mx:FormItem>
+						 				</mx:Form>
+							 </mx:VBox>
+						 </mx:Canvas>
+						 <mx:Canvas id="cityCanvas">
+							<mx:VBox>
+								 <mx:HBox>
+								 	<mx:ApplicationControlBar  width="254">
+								 		<mx:LinkButton label="Add" click="addNewCity()" />
+					 		 			<mx:LinkButton label="Edit" click="editCity()" />
+					 		 			<!--mx:LinkButton label="Delete" click="deleteCity()" /-->
+					 				</mx:ApplicationControlBar>
+								 </mx:HBox>
+								 <mx:HBox  >
+								 	<mx:DataGrid id="city" dataProvider="{citycol}" width="254" height="192">
+									 <mx:columns>
+									 	<mx:DataGridColumn dataField="city_name" headerText="City"/> 
+									 	<mx:DataGridColumn dataField="city_id" headerText="loc_id" visible="false"/>
+										<!--mx:DataGridColumn dataField="state_name" headerText="State"/--> 
+									 	<mx:DataGridColumn dataField="parent_id" headerText="state_id" visible="false"/>       
+									 </mx:columns>   
+								 </mx:DataGrid>
+								 </mx:HBox>
+							</mx:VBox>	
+						 </mx:Canvas>
+						 <mx:Canvas id="cityRegCanvas">
+						 	<mx:VBox >
+								<mx:HBox width="100%" height="6%">
+									<mx:ApplicationControlBar width="100%" height="100%">
+										<mx:LinkButton label="Save"  click="saveNewCityRecord()" />
+							 			<mx:LinkButton label="Cancel" click="cancelCityReg()" />
+							 		</mx:ApplicationControlBar>
+						 		</mx:HBox>
+						 			<mx:Form >
+						 				<mx:FormItem label="State Name" width="100%">			 				
+						 					<mx:ComboBox id="state_name" labelField="state_name" 
+						 						dataProvider="{comboArrColState}" width="50%">
+						 					</mx:ComboBox>
+						 				</mx:FormItem>
+						 				<mx:FormItem  label="City Name"  width="100%">
+						 						<mx:TextInput id="city_name" width="158"/>
+						 					</mx:FormItem>
+						 				</mx:Form>
+							 </mx:VBox>
+						 </mx:Canvas>
+						 <mx:Canvas id="cityeditCanvas" creationComplete="editCity()">
+						 	<mx:VBox >
+								<mx:HBox width="100%" height="6%">
+									<mx:ApplicationControlBar width="100%" height="100%">
+										<mx:LinkButton label="Update" click="updateCityRecord()" />
+							 			<mx:LinkButton label="Cancel" click="cancelCity()" />
+							 		</mx:ApplicationControlBar>
+						 		</mx:HBox>
+							 		<mx:Form >
+						 				<mx:FormItem label="State Name" width="100%">			 				
+						 					<mx:ComboBox id="state_name_edit" labelField="state_name" 
+						 						dataProvider="{comboArrColState}" width="50%">
+						 					</mx:ComboBox>
+						 				</mx:FormItem>
+						 				<mx:FormItem  label="City Name"  width="100%">
+						 						<mx:TextInput id="City_name_edit" width="158"/>
+						 					</mx:FormItem>
+						 				</mx:Form>
+							 </mx:VBox>
+						 </mx:Canvas>
+				 
+				 </mx:ViewStack>
+		 	</mx:HBox>
+		 </mx:VBox>
+		  
+		 <mx:StringValidator id="imeiValidator" source="{imeino}" property="text" minLength="15" maxLength="15"/>
+		 <mx:StringValidator id="imeiValidatorEdit" source="{imeino1}" property="text" minLength="15" maxLength="15"/>
+
+		 <mx:StringValidator id="simValidator" source="{simno}" property="text" minLength="12" maxLength="12"/>
+		 <mx:StringValidator id="simValidatorEdit" source="{simno1}" property="text" minLength="12" maxLength="12"/>
+		 
+</mx:Application>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	showCloseButton="true" creationComplete="init()" 
+	xmlns:co="*" backgroundColor="#535fb4"  
+	title="In-charge Details" height="272" width="780">
+	<mx:RemoteObject id="remoteObject" destination="entryService" 
+		result="resultHandler(event);" fault="faultHandler(event);"/>
+	<mx:Metadata>
+    [Event(name="AssignIncharge")]
+  	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import assets.actionScript.InchargeDetailsDTO;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.utils.URLUtil;
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+			
+			import mx.messaging.channels.AMFChannel;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.messages.RemotingMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public var assignInchargeDetailsDTO:InchargeDetailsDTO = null;
+			public var levelIncId:int = 0;
+			public var customerId:int = 0;
+			private function init():void{
+				this.addEventListener(CloseEvent.CLOSE ,titleWindowClose);
+			    var channelUrl:String = "./messagebroker/amf";
+			    var cs:ChannelSet = new ChannelSet();
+				var customChannel:AMFChannel = new AMFChannel("my-amf",channelUrl);
+				cs.addChannel(customChannel);
+				remoteObject.channelSet = cs;
+				inchargeViewStackId.selectedIndex = 0;
+				//Alert.show("customerId....."+customerId);
+				remoteObject.getInchargeDetailsList(customerId);
+			}
+			
+			private function resultHandler(event:ResultEvent):void {
+            	var message:RemotingMessage = event.token.message as RemotingMessage;
+            	switch(message.operation)
+				{	
+					case "getInchargeDetailsList":
+							inchargeDG.dataProvider = event.result as ArrayCollection;
+	 						break;
+	 						
+					case "getInchargeDetails":
+							var object:Object = event.result as Object;
+							nameTxt.text = object.name;
+							emailIdTxt.text = object.emailId;
+							phoneNoTxt.text = object.phoneNo;
+							break;
+							
+					case "saveOrUpdateInchargeDetails":
+							var status:Boolean = event.result as Boolean;
+							if(status == true){
+								Alert.show("Successfully added.");
+								inchargeViewStackId.selectedIndex = 0;
+								remoteObject.getInchargeDetailsList(customerId);
+							}else{
+								Alert.show("Failed to add.");
+							}		
+						break;	
+					default:
+							//Alert.show("Not able to read operation from Java program : "+message.operation);
+						  	break; 		
+				}
+            }
+            
+            // Handle a message fault.
+            private function faultHandler(event:FaultEvent):void {    
+            	var message:RemotingMessage = event.token.message as RemotingMessage;        	
+                Alert.show("Plaese Check Your Configuration Settings.........."+message); 
+            }
+			
+		   private function titleWindowClose(evt:CloseEvent):void {
+	            PopUpManager.removePopUp(this);
+	       } 
+	       
+	       private function addInchargePage():void {
+	       		incId = 0;
+		 		inchargeViewStackId.selectedIndex = 1; 
+		 		nameTxt.text="";
+		 		emailIdTxt.text="";
+		 		phoneNoTxt.text="";
+		  }	  
+		  		  
+		   private function assignIncharge():void {
+		   
+		 		if(inchargeDG.selectedItem !=null && inchargeDG.selectedItem.incId != null 
+		 				&& inchargeDG.selectedItem.incId !=""){
+		 			assignInchargeDetailsDTO = new InchargeDetailsDTO();
+		 			assignInchargeDetailsDTO.name = inchargeDG.selectedItem.name;
+		 			assignInchargeDetailsDTO.emailId = inchargeDG.selectedItem.emailId;
+		 			assignInchargeDetailsDTO.phoneNo = inchargeDG.selectedItem.phoneNo;
+	 				assignInchargeDetailsDTO.incId = inchargeDG.selectedItem.incId;
+	 				this.dispatchEvent(new Event("AssignIncharge"));
+	 				PopUpManager.removePopUp(this);
+		 		}else{
+		 			Alert.show("Please select the In-charge.");
+		 		}	 		
+		  } 	
+		   		  
+		   private function saveOrUpdateIncharge():void {
+		 		var inchargeDetailsDTO:InchargeDetailsDTO = new InchargeDetailsDTO();
+		 		inchargeDetailsDTO.name = nameTxt.text;
+		 		inchargeDetailsDTO.emailId = emailIdTxt.text;
+		 		inchargeDetailsDTO.phoneNo = phoneNoTxt.text;
+		 		if(incId !=0){
+		 			inchargeDetailsDTO.incId = incId;
+		 		}
+		 		remoteObject.saveOrUpdateInchargeDetails(inchargeDetailsDTO,customerId);
+		  }
+		  
+		  private var incId:int = 0;
+		  private function editInchargePage():void {
+	  		if(inchargeDG.selectedItem !=null && 
+	  				inchargeDG.selectedItem.incId != null && inchargeDG.selectedItem.incId != ""){
+	  			inchargeViewStackId.selectedChild = inchargeAddId; 		 			
+	  			incId = Number(inchargeDG.selectedItem.incId.toString());
+	  			remoteObject.getInchargeDetails(Number(inchargeDG.selectedItem.incId.toString()));	
+	  		}else{
+	  			Alert.show("Please select the record.");
+	  		}
+		  }
+		  
+		 private function cancel():void{
+		 	inchargeViewStackId.selectedIndex = 0;
+		 }
+	
+	]]>
+	</mx:Script>
+	<mx:VBox height="100%" width="100%">
+		<mx:ViewStack id="inchargeViewStackId" width="100%" height="100%">
+			<mx:Canvas id="inchargeDisplayId" width="100%" height="100%">
+				<mx:VBox width="100%" height="100%">
+					<mx:ApplicationControlBar height="10%" width="100%">
+						<mx:HBox width="50%" height="100%">
+							<mx:Button label="Add" click="addInchargePage()"/>				
+							<mx:Button label="Edit" click="editInchargePage()"/>
+						</mx:HBox>
+						<mx:HBox width="50%" height="100%">
+							<mx:Button label="Apply" click="assignIncharge()"/>				
+						</mx:HBox>
+					</mx:ApplicationControlBar>
+					<mx:DataGrid id="inchargeDG" width="100%" height="100%">
+						<mx:columns>
+							<mx:DataGridColumn dataField="name" headerText="Name"/>      
+							<mx:DataGridColumn dataField="emailId" headerText="E-Mail"/>      
+							<mx:DataGridColumn dataField="phoneNo" headerText="Phone No"/>      
+							<mx:DataGridColumn dataField="incId" headerText="INCId" visible="false"/>
+						</mx:columns>   
+					</mx:DataGrid>
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="inchargeAddId" width="100%" height="100%">
+				<mx:VBox width="100%" height="100%">
+					<mx:VBox width="100%" height="5%"> 
+						<mx:ApplicationControlBar width="100%" height="100%">
+							<mx:LinkButton label="Update" click="saveOrUpdateIncharge()" color="#FFFFFF"/>
+				 			<mx:LinkButton label="Cancel" click="cancel()" color="#FFFFFF"/>
+				 		</mx:ApplicationControlBar>
+				 	</mx:VBox>
+					<mx:VBox width="100%" height="95%">
+						<mx:Form width="100%" height="100%">
+							<mx:FormItem  label="Name" width="100%" color="#FFFFFF" fontWeight="bold">
+		 						<mx:TextInput id="nameTxt" width="50%" text="" restrict="a-zA-Z" color="#000000"/>
+		 					</mx:FormItem> 				
+		 					<mx:FormItem  label="Email" width="100%" color="#FFFFFF" fontWeight="bold">
+		 						<mx:TextInput id="emailIdTxt" width="50%" text="" color="#000000"/>
+		 					</mx:FormItem> 					
+		 					<mx:FormItem  label="Phone No" width="100%" color="#FFFFFF" fontWeight="bold">
+		 						<mx:TextInput id="phoneNoTxt" width="50%" text="" restrict="0-9/+" color="#000000"/>
+		 					</mx:FormItem> 					
+		 				</mx:Form>
+					</mx:VBox>
+				</mx:VBox>
+			</mx:Canvas>
+		</mx:ViewStack>
+	</mx:VBox>
+</mx:TitleWindow>

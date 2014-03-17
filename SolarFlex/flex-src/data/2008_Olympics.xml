@@ -1,0 +1,37 @@
+
+		<country name="Sunday">
+            <medal category="Solar" count="51"/> 
+            <medal category="Utility" count="28"/>
+            <medal category="Inverder" count="21"/>
+        </country>
+        <country name="Saturday">
+            <medal category="Solar" count="51"/> 
+            <medal category="Utility" count="28"/>
+            <medal category="Inverder" count="21"/>
+        </country>
+        <country name="Friday"> 
+            <medal category="Solar" count="51"/> 
+            <medal category="Utility" count="28"/>
+            <medal category="Inverder" count="21"/>
+        </country>
+        <country name="Thursday">
+            <medal category="Solar" count="51"/> 
+            <medal category="Utility" count="28"/>
+            <medal category="Inverder" count="21"/>
+        </country>
+        <country name="Wednesday">
+            <medal category="Solar" count="51"/> 
+            <medal category="Utility" count="28"/>
+            <medal category="Inverder" count="21"/>
+        </country>
+        <country name="Tuesday">
+            <medal category="Solar" count="51"/> 
+            <medal category="Utility" count="28"/>
+            <medal category="Inverder" count="21"/>
+        </country>
+        <country name="Monday">
+            <medal category="Solar" count="51"/> 
+            <medal category="Utility" count="28"/>
+            <medal category="Inverder" count="21"/>
+        </country>
+        
