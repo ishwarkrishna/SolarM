@@ -1,0 +1,72 @@
+<HIGHCHART  width='100%' height='70%'>
+  <CHART type='line' subType='MasterDetail' zoomType='x'/>
+  <TITLE text=' ' /> 
+  <SUBTITLE text=' ' /> 
+  <PLOT_OPTIONS >
+  	<AREA lineWidth='1' shadow='false'>
+  		<FILL_COLOR linearGradient='[0, 0, 0, 300]'>
+  			<STOPS_LIST>
+  				<STOPS>[0, '#4572A7']</STOPS>
+  				<STOPS>[1, 'rgba(0,0,0,0)']</STOPS>
+  			</STOPS_LIST>
+  		</FILL_COLOR>
+  	</AREA>
+  </PLOT_OPTIONS>
+  <SERIES_LIST allowPointSelect='true' >
+        <SERIES name='Flowrate' type='area' alias='data_timestamp,flowrate' />
+  </SERIES_LIST>
+  <X_AXIS type='datetime' endOnTick='true' showLastTickLabel='false' >
+    <PLOT_BANDS_LIST  >
+  	  <PLOT_BANDS id='mask-before' from='Date.UTC(1998,0,1)' to='Date.UTC(1998,7,1)' defaultMax='Date.UTC(1998,11,31)' color='rgba(0, 0, 0, 0.2)' />
+    </PLOT_BANDS_LIST>  
+   </X_AXIS> 
+  <Y_AXIS >
+     <LABELS enabled='true'/>
+     <TITLE text=' '/>
+  </Y_AXIS> 
+  <TOOLTIP enabled='true'/>  
+  <LEGEND enabled='false'/>
+  
+  <DETAIL_CHART>
+    <CHART type='line' zoomType='x'/>
+    <TITLE text='Flowrate vs Velocity' /> 
+    <SUBTITLE text='Select an area by dragging across the lower chart' /> 
+    <PLOT_OPTIONS >
+    	<LINE enableMouseTracking='true'>
+    		<DATA_LABELS enabled='false'/>
+    	</LINE> 
+    </PLOT_OPTIONS>
+    <X_AXIS type='datetime'  maxZoom='0.1'>
+       <LABELS enabled='true'/>
+  	   <TITLE text=' '/>
+    </X_AXIS>
+    <Y_AXIS_LIST>	
+    <Y_AXIS alias='data_timestamp,flowrate' gridLineWidth='0'>
+        <LABELS>
+            <STYLE  color='#4572A7' />
+        </LABELS>
+        <TITLE text='Flowrate'>
+          <STYLE  color='#4572A7' />
+        </TITLE>
+    </Y_AXIS>
+     <Y_AXIS alias='data_timestamp,velocity' gridLineWidth='0' opposite='true'>
+        <LABELS>
+            <STYLE  color='#AA4643' />
+        </LABELS>
+        <TITLE text='Velocity'>
+          <STYLE  color='#AA4643' />
+        </TITLE>
+    </Y_AXIS>
+    </Y_AXIS_LIST>
+    <LEGEND enabled='true'/>
+    <TOOLTIP enabled='true'/>
+    <SERIES_LIST allowPointSelect='true'   >
+	<SERIES name='Flowrate' color='#4572A7' type='spline' alias='data_timestamp,flowrate' dashStyle='shortdot'>
+	   <MARKER enabled="false"/>
+	</SERIES>
+	<SERIES name='Velocity' color='#AA4643' type='spline' alias='data_timestamp,velocity' yAxis='1'>
+	   <MARKER enabled="false"/>
+	</SERIES>
+      </SERIES_LIST>	   
+  </DETAIL_CHART>
+</HIGHCHART>

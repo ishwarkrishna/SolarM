@@ -1,0 +1,49 @@
+<HIGHCHART  width='80%' height='80%'>
+  <CHART zoomType='xy' />
+  <TITLE text='Solar Energy, Voltage and Current' /> 
+  <SUBTITLE text='Detail for today' /> 
+  <X_AXIS   alias='hour' /> 
+  <Y_AXIS_LIST>
+    <Y_AXIS alias='hour,solar_e' >
+        <LABELS>
+            <STYLE  color='#89A54E' />
+        </LABELS>
+        <TITLE text='Energy (kWh)'>
+          <STYLE  color='#89A54E' />
+        </TITLE>
+    </Y_AXIS>
+    <Y_AXIS alias='hour,solar_v' gridLineWidth='0' opposite='true' >
+        <LABELS>
+            <STYLE  color='#4572A7' />
+        </LABELS>
+        <TITLE text='Voltage'>
+          <STYLE  color='#4572A7' />
+        </TITLE>
+    </Y_AXIS>
+     <Y_AXIS alias='hour,solar_c' gridLineWidth='0' opposite='true'>
+        <LABELS>
+            <STYLE  color='#AA4643' />
+        </LABELS>
+        <TITLE text='Current'>
+          <STYLE  color='#AA4643' />
+        </TITLE>
+    </Y_AXIS>
+  </Y_AXIS_LIST>
+  <LEGEND layout='vertical'
+         align='left'
+         verticalAlign='top'
+         x='120'
+         y='80'
+         floating='true'
+         borderWidth='1'
+         backgroundColor='#FFFFFF'
+         shadow='true'/>        
+  <SERIES_LIST allowPointSelect='true'>
+	<SERIES name='Energy (kWh)' color='#89A54E' type='column'  alias='hour,solar_e' />
+	<SERIES name='Voltage' color='#4572A7' type='spline' alias='hour,solar_v' dashStyle='shortdot' yAxis='1'>
+		   <MARKER enabled="true"/>
+	</SERIES>
+	<SERIES name='Current' color='#AA4643' type='spline' alias='hour,solar_c' yAxis='2' />
+
+  </SERIES_LIST>
+</HIGHCHART>

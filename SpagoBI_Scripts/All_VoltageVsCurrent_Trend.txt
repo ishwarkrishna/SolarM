@@ -1,0 +1,44 @@
+<HIGHCHART  width='95%' height='95%'>
+  <CHART zoomType='xy' />
+  <TITLE text='Voltage Vs Current' /> 
+  <X_AXIS   alias='hour' /> 
+  <Y_AXIS_LIST>
+    <Y_AXIS alias='hour,solar_v,load_v,utilit_v' >
+        <LABELS>
+            <STYLE  color='#89A54E' />
+        </LABELS>
+        <TITLE text='Voltage'>
+          <STYLE  color='#89A54E' />
+        </TITLE>
+    </Y_AXIS>
+
+    <Y_AXIS alias='hour,solar_c,load_c,utilit_c' gridLineWidth='0' opposite='true' >
+        <LABELS>
+            <STYLE  color='#4572A7' />
+        </LABELS>
+        <TITLE text='Current'>
+          <STYLE  color='#4572A7' />
+        </TITLE>
+    </Y_AXIS>
+
+  </Y_AXIS_LIST>
+  <LEGEND layout='vertical'
+         align='left'
+         verticalAlign='top'
+         x='120'
+         y='80'
+         floating='true'
+         borderWidth='1'
+         backgroundColor='#FFFFFF'
+         shadow='true'/>        
+  <SERIES_LIST allowPointSelect='true'>
+	<SERIES name='Solar Voltage' color='#89A54E' type='spline' alias='hour,solar_v'  />
+	<SERIES name='Load Voltage' color='#89A54E' type='spline' alias='hour,load_v'  />
+	<SERIES name='Utility Voltage' color='#89A54E' type='spline' alias='hour,utilit_v'  />
+
+	<SERIES name='Solar Current' color='#4572A7' type='spline' alias='hour,solar_c'  dashStyle='shortdot' yAxis='1'  />
+	<SERIES name='Load Current' color='#4572A7' type='spline' alias='hour,load_c'  dashStyle='shortdot' yAxis='1' />
+	<SERIES name='Utility Current' color='#4572A7' type='spline' alias='hour,utilit_c'  dashStyle='shortdot' yAxis='1'  />
+
+  </SERIES_LIST>
+</HIGHCHART>

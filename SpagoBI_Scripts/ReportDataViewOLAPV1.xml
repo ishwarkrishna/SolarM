@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<SCHEMA name="machine">
+
+<Dimension name="Time Period">
+	<Hierarchy hasAll="true" 
+		allMemberName="Y-Q-M-W-D-H"
+		primaryKey="${hierarchy.primaryKey}" >
+		<Table name="report_data_view"/>
+			<Level name="YEAR" column="year" uniqueMembers="ture"/>
+			<Level name="QUARTER" column="quarter" uniqueMembers="ture"/>
+			<Level name="MONTH" column="month" uniqueMembers="ture"/>
+			<Level name="WEEK" column="week" uniqueMembers="ture"/>
+			<Level name="DATE" column="date" uniqueMembers="ture"/>
+			<Level name="HOUR" column="hour" uniqueMembers="ture"/>
+	</Hierarchy>
+</Dimension> 
+
+<Dimension name="Site Name">
+	<Hierarchy hasAll="true" 
+		allMemberName="All Site"
+		primaryKey="${hierarchy.primaryKey}" >
+		<Table name="report_data_view"/>
+			<Level name="NAME" column="name" uniqueMembers="ture"/>
+	</Hierarchy>
+</Dimension> 
+
+
+<Cube name="Report dataV1">
+	<Table name="report_data_view"/>
+		<DimensionUsage name="Time Period" source="Time Period" foreignKey="imei_no"/>
+		<DimensionUsage name="Site Name" source="Site Name" foreignKey="imei_no"/>
+		<Measure name="Solar(kwh)" column="REPORT_DATA1" aggregator="sum" formatString="#,###"/>
+		<Measure name="Load(kwh)" column="REPORT_DATA2" aggregator="sum" formatString="#,###"/>
+		<Measure name="Utility(kwh)" column="REPORT_DATA3" aggregator="sum" formatString="#,###"/>
+		<Measure name="Avg Solar(V)" column="SOLAR_V" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Load(V)" column="LOAD_V" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Utility(V)" column="UTILIT_V" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Battery(V)" column="BATTERY_V" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Solar(I)" column="SOLAR_C" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Load(I)" column="LOAD_C" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Utility(I)" column="UTILIT_C" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Solar(W)" column="SOLAR_P" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Load(W)" column="LOAD_P" aggregator="avg" formatString="#,###"/>
+		<Measure name="Avg Utility(W)" column="UTILIT_P" aggregator="avg" formatString="#,###"/>
+</Cube> 
+</SCHEMA>

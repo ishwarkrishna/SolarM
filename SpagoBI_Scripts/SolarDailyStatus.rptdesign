@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.2.1.v201209101448 Build &lt;4.2.1.v20120912-1721></property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/first_report.gif</property>
+    <property name="cheatSheet">org.eclipse.birt.report.designer.ui.cheatsheet.firstreport</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <property name="imageDPI">96</property>
+    <template-parameter-definitions>
+        <template-parameter-definition name="NewTemplateParameterDefinition" id="28">
+            <property name="allowedType">Table</property>
+            <text-property name="description">Customer Listing</text-property>
+            <default>
+                <table id="29">
+                    <property name="width">100%</property>
+                    <property name="pageBreakInterval">50</property>
+                    <column id="49"/>
+                    <column id="50"/>
+                    <column id="51"/>
+                    <column id="52"/>
+                    <header>
+                        <row id="30">
+                            <cell id="31">
+                                <label id="32">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Contact</text-property>
+                                </label>
+                            </cell>
+                            <cell id="33">
+                                <label id="34">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">First</text-property>
+                                </label>
+                            </cell>
+                            <cell id="35">
+                                <label id="36">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Last</text-property>
+                                </label>
+                            </cell>
+                            <cell id="37">
+                                <label id="38">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Phone</text-property>
+                                </label>
+                            </cell>
+                        </row>
+                    </header>
+                    <detail>
+                        <row id="39">
+                            <cell id="40"/>
+                            <cell id="41"/>
+                            <cell id="42"/>
+                            <cell id="43"/>
+                        </row>
+                    </detail>
+                    <footer>
+                        <row id="44">
+                            <cell id="45"/>
+                            <cell id="46"/>
+                            <cell id="47"/>
+                            <cell id="48"/>
+                        </row>
+                    </footer>
+                </table>
+            </default>
+        </template-parameter-definition>
+        <template-parameter-definition name="NewTemplateParameterDefinition1" id="78">
+            <property name="allowedType">Table</property>
+            <text-property name="description">Customer Listing Table</text-property>
+            <default>
+                <table id="79">
+                    <property name="width">100%</property>
+                    <property name="refTemplateParameter">NewTemplateParameterDefinition</property>
+                    <property name="pageBreakInterval">50</property>
+                    <column id="99"/>
+                    <column id="100"/>
+                    <column id="101"/>
+                    <column id="102"/>
+                    <header>
+                        <row id="80">
+                            <cell id="81">
+                                <label id="82">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Contact</text-property>
+                                </label>
+                            </cell>
+                            <cell id="83">
+                                <label id="84">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">First</text-property>
+                                </label>
+                            </cell>
+                            <cell id="85">
+                                <label id="86">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Last</text-property>
+                                </label>
+                            </cell>
+                            <cell id="87">
+                                <label id="88">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Phone</text-property>
+                                </label>
+                            </cell>
+                        </row>
+                    </header>
+                    <detail>
+                        <row id="89">
+                            <cell id="90"/>
+                            <cell id="91"/>
+                            <cell id="92"/>
+                            <cell id="93"/>
+                        </row>
+                    </detail>
+                    <footer>
+                        <row id="94">
+                            <cell id="95"/>
+                            <cell id="96"/>
+                            <cell id="97"/>
+                            <cell id="98"/>
+                        </row>
+                    </footer>
+                </table>
+            </default>
+        </template-parameter-definition>
+        <template-parameter-definition name="NewTemplateParameterDefinition2" id="132">
+            <property name="allowedType">Table</property>
+            <text-property name="description">Customer Listing Table</text-property>
+            <default>
+                <table id="133">
+                    <property name="width">100%</property>
+                    <property name="refTemplateParameter">NewTemplateParameterDefinition1</property>
+                    <property name="pageBreakInterval">50</property>
+                    <column id="157"/>
+                    <column id="158"/>
+                    <column id="159"/>
+                    <column id="160"/>
+                    <header>
+                        <row id="134">
+                            <cell id="135">
+                                <label id="136">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Contact</text-property>
+                                </label>
+                            </cell>
+                            <cell id="137">
+                                <label id="138">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">First</text-property>
+                                </label>
+                            </cell>
+                            <cell id="139">
+                                <label id="140">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Last</text-property>
+                                </label>
+                            </cell>
+                            <cell id="141">
+                                <label id="142">
+                                    <property name="fontFamily">sans-serif</property>
+                                    <property name="fontWeight">bold</property>
+                                    <text-property name="text">Phone</text-property>
+                                </label>
+                            </cell>
+                        </row>
+                    </header>
+                    <detail>
+                        <row id="143">
+                            <cell id="144">
+                                <data id="145"/>
+                            </cell>
+                            <cell id="146">
+                                <data id="147"/>
+                            </cell>
+                            <cell id="148">
+                                <data id="149"/>
+                            </cell>
+                            <cell id="150">
+                                <data id="151"/>
+                            </cell>
+                        </row>
+                    </detail>
+                    <footer>
+                        <row id="152">
+                            <cell id="153"/>
+                            <cell id="154"/>
+                            <cell id="155"/>
+                            <cell id="156"/>
+                        </row>
+                    </footer>
+                </table>
+            </default>
+        </template-parameter-definition>
+    </template-parameter-definitions>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc" name="PumpDataSource" id="7">
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>disabledMetadataBidiFormatStr</name>
+                </ex-property>
+                <ex-property>
+                    <name>disabledContentBidiFormatStr</name>
+                </ex-property>
+                <ex-property>
+                    <name>contentBidiFormatStr</name>
+                    <value>ILYNN</value>
+                </ex-property>
+                <ex-property>
+                    <name>metadataBidiFormatStr</name>
+                    <value>ILYNN</value>
+                </ex-property>
+            </list-property>
+            <property name="odaDriverClass">com.mysql.jdbc.Driver</property>
+            <property name="odaURL">jdbc:mysql://localhost/machine</property>
+            <property name="odaUser">root</property>
+            <encrypted-property name="odaPassword" encryptionID="base64">cm9vdA==</encrypted-property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="DailyStatus" id="370">
+            <property name="nullsOrdering">nulls lowest</property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">customer</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">customer</text-property>
+                    <text-property name="heading">customer</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">site</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">site</text-property>
+                    <text-property name="heading">site</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">generation</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">generation</text-property>
+                    <text-property name="heading">generation</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">mSolarV</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">mSolarV</text-property>
+                    <text-property name="heading">mSolarV</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">mSolarC</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">mSolarC</text-property>
+                    <text-property name="heading">mSolarC</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">mSolarP</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">mSolarP</text-property>
+                    <text-property name="heading">mSolarP</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters"/>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">customer</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">site</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">generation</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">mSolarV</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">mSolarC</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">mSolarP</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">PumpDataSource</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">customer</property>
+                    <property name="nativeName">customer</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">site</property>
+                    <property name="nativeName">site</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">generation</property>
+                    <property name="nativeName">generation</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">mSolarV</property>
+                    <property name="nativeName">mSolarV</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">mSolarC</property>
+                    <property name="nativeName">mSolarC</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">mSolarP</property>
+                    <property name="nativeName">mSolarP</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[SELECT cd.name as customer,md.name site,sum(report_data1) as generation,max(max_solar_v) as mSolarV,max(max_solar_c) as mSolarC,max(max_solar_p) as mSolarP FROM machine.report_data rd, machine_details md,customer_details cd where rd.imei_no=md.imei_no and md.customer_id=cd.customer_id and date=subdate(curdate(),1) group by md.imei_no;]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>customer</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>100</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>customer</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>customer</design:label>
+            <design:formattingHints>
+              <design:displaySize>100</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>site</design:name>
+              <design:position>2</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>100</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>site</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>site</design:label>
+            <design:formattingHints>
+              <design:displaySize>100</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>generation</design:name>
+              <design:position>3</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>23</design:precision>
+            <design:scale>31</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>generation</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>generation</design:label>
+            <design:formattingHints>
+              <design:displaySize>23</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>aSolarV</design:name>
+              <design:position>4</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>26</design:precision>
+            <design:scale>31</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>aSolarV</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>aSolarV</design:label>
+            <design:formattingHints>
+              <design:displaySize>26</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>aSolarC</design:name>
+              <design:position>5</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>26</design:precision>
+            <design:scale>31</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>aSolarC</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>aSolarC</design:label>
+            <design:formattingHints>
+              <design:displaySize>26</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>aSolarP</design:name>
+              <design:position>6</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>26</design:precision>
+            <design:scale>31</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>aSolarP</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>aSolarP</design:label>
+            <design:formattingHints>
+              <design:displaySize>26</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>mSolarV</design:name>
+              <design:position>7</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>22</design:precision>
+            <design:scale>31</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>mSolarV</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>mSolarV</design:label>
+            <design:formattingHints>
+              <design:displaySize>22</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>mSolarC</design:name>
+              <design:position>8</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>22</design:precision>
+            <design:scale>31</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>mSolarC</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>mSolarC</design:label>
+            <design:formattingHints>
+              <design:displaySize>22</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>mSolarP</design:name>
+              <design:position>9</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>22</design:precision>
+            <design:scale>31</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>mSolarP</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>mSolarP</design:label>
+            <design:formattingHints>
+              <design:displaySize>22</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="110">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab-cell" id="246">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab" id="247">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <page-footer>
+                <text id="3">
+                    <property name="contentType">html</property>
+                    <text-property name="content"><![CDATA[<value-of>new Date()</value-of>]]></text-property>
+                </text>
+            </page-footer>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <label id="245">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">x-large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <text-property name="text">Daily Solar Status</text-property>
+        </label>
+        <table id="163">
+            <property name="borderBottomColor">#000000</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">medium</property>
+            <property name="borderLeftColor">#000000</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">medium</property>
+            <property name="borderRightColor">#000000</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">medium</property>
+            <property name="borderTopColor">#000000</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">medium</property>
+            <property name="width">100%</property>
+            <property name="dataSet">DailyStatus</property>
+            <property name="refTemplateParameter">NewTemplateParameterDefinition2</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">customer</property>
+                    <text-property name="displayName">customer</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["customer"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">site</property>
+                    <text-property name="displayName">site</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["site"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">generation</property>
+                    <text-property name="displayName">generation</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["generation"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">mSolarV</property>
+                    <text-property name="displayName">mSolarV</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["mSolarV"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">mSolarC</property>
+                    <text-property name="displayName">mSolarC</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["mSolarC"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">mSolarP</property>
+                    <text-property name="displayName">mSolarP</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["mSolarP"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+            </list-property>
+            <property name="pageBreakInterval">50</property>
+            <column id="187"/>
+            <column id="188"/>
+            <column id="189"/>
+            <column id="190"/>
+            <column id="379">
+                <property name="repeat">1</property>
+            </column>
+            <column id="385">
+                <property name="repeat">1</property>
+            </column>
+            <header>
+                <row id="391">
+                    <cell id="392">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="166">
+                            <property name="fontFamily">sans-serif</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Customer</text-property>
+                        </label>
+                    </cell>
+                    <cell id="393">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="168">
+                            <property name="fontFamily">sans-serif</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Site</text-property>
+                        </label>
+                    </cell>
+                    <cell id="394">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="170">
+                            <property name="fontFamily">sans-serif</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Kwh</text-property>
+                        </label>
+                    </cell>
+                    <cell id="395">
+                        <property name="colSpan">3</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="398">
+                            <property name="fontFamily">sans-serif</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">dotted</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <text-property name="text">Peak</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="164">
+                    <cell id="171">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="172">
+                            <property name="fontFamily">sans-serif</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">dotted</property>
+                            <property name="borderRightWidth">thin</property>
+                            <text-property name="text">Power</text-property>
+                        </label>
+                    </cell>
+                    <cell id="380">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="381">
+                            <property name="fontFamily">sans-serif</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">dotted</property>
+                            <property name="borderRightWidth">thin</property>
+                            <text-property name="text">Voltage</text-property>
+                        </label>
+                    </cell>
+                    <cell id="386">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="387">
+                            <property name="fontFamily">sans-serif</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Current</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="173">
+                    <cell id="174">
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="371">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">dotted</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="resultSetColumn">customer</property>
+                        </data>
+                    </cell>
+                    <cell id="176">
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="372">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">dotted</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="resultSetColumn">site</property>
+                        </data>
+                    </cell>
+                    <cell id="178">
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="374">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">dotted</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">generation</property>
+                        </data>
+                    </cell>
+                    <cell id="180">
+                        <data id="399">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">dotted</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">dotted</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">mSolarP</property>
+                        </data>
+                    </cell>
+                    <cell id="382">
+                        <data id="383">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">dotted</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">dotted</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">mSolarV</property>
+                        </data>
+                    </cell>
+                    <cell id="388">
+                        <data id="400">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">dotted</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">mSolarC</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="182">
+                    <cell id="183">
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="184">
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="185">
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="186"/>
+                    <cell id="384"/>
+                    <cell id="390"/>
+                </row>
+            </footer>
+        </table>
+    </body>
+</report>
