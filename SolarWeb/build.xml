@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<project name="Machine" basedir="." default="deploy">
+<echo>### Build Process ###</echo>
+	<property file="build.properties"/>
+
+    <path id="master-classpath">
+       <fileset dir="${Applicaion.lib.dir}" erroronmissingdir="false">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${build.dir}"/>
+    </path>
+
+    <target name="build" description="Compile main source tree java files">
+	<echo>...Compiling Java files from src folder... </echo>
+        <mkdir dir="${build.dir}"/>
+        <javac destdir="${build.dir}" debug="true"
+               deprecation="false" optimize="false" failonerror="true">
+            <src path="${src.dir}"/>
+            <classpath refid="master-classpath"/>
+        </javac>
+	    <copy  todir="${build.dir}">
+		    <fileset dir="${src.dir}" >
+	          <exclude name="**/*.java"/>
+		      <exclude name="**/*.class"/>
+	        </fileset>
+		</copy>
+	<mkdir dir="${applib.dir}"/>
+ 	<copy  todir="${applib.dir}">
+ 		<fileset dir="${Applicaion.lib.dir}" >
+          <include name="**/*.*"/>
+	      <exclude name="**/*servlet-api.jar"/>
+	      <exclude name="**/*javax.servlet.jar"/>
+	      <exclude name="**/*javax.servlet.jsp.jar"/>
+        </fileset>
+	</copy>
+
+	</target>
+
+    <target name="createWar" depends="clean,build" description="Deploy application as a WAR file">
+	<echo>...Creating WAR file ... </echo>
+		<tstamp>
+			<format property="TODAY" pattern="dd-MMM-yyyy HH:mm:ss" />
+        </tstamp>	
+	    <mkdir dir="${temp.deploy}"/>
+    	<war destfile="${temp.deploy}/${project.name}.war"
+             webxml="${web.dir}/WEB-INF/web.xml">
+            <fileset dir="${web.dir}">
+                <include name="**/*.*"/>
+            </fileset>
+            <fileset dir="${flex.dir}" erroronmissingdir="false">
+				<include name="**/*.*" />
+			</fileset>
+			<manifest>
+                	 <attribute name="master-classpath" value="${master-classpath}" />
+                	 <attribute name="Project" value="${Project}" />
+					 <attribute name="Built-On-OS" value="${os.name}" /> 						 
+                	 <attribute name="Build-Date" value="${TODAY}" />
+			</manifest>				
+        </war>
+    </target>
+
+    <target name="createJar" depends="clean,build" description="Deploy application as a jar file">
+		<echo>...Creating JAR file ... </echo>
+		<mkdir dir="${temp.deploy}"/>
+        <jar destfile="${temp.deploy}/${project.name}.jar" basedir="${build.dir}" includes="${manifest.file}" />
+    </target>
+    
+	<target name="deploy" depends="createWar"  description="Deploy war/jar files to server deployment folder">
+
+	</target>
+
+	<target name="clean"  description="Destroys all generated files and dirs.">
+		<echo>...Cleaning build and deploy folder... </echo>
+		<delete dir="${build.dir}"/>
+		<delete dir="${applib.dir}"/>
+		<delete dir="${temp.deploy}"/>
+	</target>
+
+</project>
