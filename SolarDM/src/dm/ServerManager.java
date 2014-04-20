@@ -20,9 +20,11 @@ import org.jboss.netty.channel.ChannelPipeline;
 import protocol.SolarFrameDecoder;
 import protocol.SolarFrameDecoder1;
 import protocol.LevelFrameDecoder;
+import protocol.SolarFrameDecoder2;
 import protocol.SolarProtocolDecoder;
 import protocol.SolarProtocolDecoder1;
 import protocol.LevelProtocolDecoder;
+import protocol.SolarProtocolDecoder2;
 import protocol.UPSFrameDecoder;
 import protocol.UPSProtocolDecoder;
 import util.Log;
@@ -70,7 +72,6 @@ public class ServerManager {
 	     */
 	    public void init(String[] arguments)
 	            throws IOException, ClassNotFoundException, SQLException {
-
 	        // Load properties
 	        properties = new Properties();
         	FileInputStream fileInput = null;
@@ -85,6 +86,7 @@ public class ServerManager {
 	        initSolarServer("solar");
 	        initSolarServer1("solar1");
 	        initLevelServer("level");
+	        initSolarServer2("solar2");
 	    }
 
 	    /**
@@ -213,6 +215,18 @@ public class ServerManager {
 	                protected void addSpecificHandlers(ChannelPipeline pipeline) {
 	                    pipeline.addLast("frameDecoder", new LevelFrameDecoder());	                    	                   
 	                    pipeline.addLast("objectDecoder", new LevelProtocolDecoder(ServerManager.this));
+	                }
+	            });
+	        }
+	    }
+	    
+	    private void initSolarServer2(String protocol) throws SQLException {
+	    	 if (isProtocolEnabled(properties, protocol)) {
+	        	 serverList.add(new DMServer(this, new ServerBootstrap(), protocol) {
+	                @Override
+	                protected void addSpecificHandlers(ChannelPipeline pipeline) {
+	                    pipeline.addLast("frameDecoder", new SolarFrameDecoder2());	                    	                   
+	                    pipeline.addLast("objectDecoder", new SolarProtocolDecoder2(ServerManager.this));
 	                }
 	            });
 	        }

@@ -1,10 +1,14 @@
 package util;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -268,10 +272,12 @@ public class ChannelBufferTools {
         packetDataMap.put("packets", dataPacket.toString());     
         packetDataMap.put(Constants.TIMESTAMP, System.currentTimeMillis()+"");    	
         packetDataMap.put(Constants.DATA1, ((Double.parseDouble(Helper.hexToDecimal(dataPacket.substring(53, 57))))/10)+"");
-        packetDataMap.put(Constants.DATA2, Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(1, 2));
-        packetDataMap.put(Constants.DATA3, Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(2, 3));
-        packetDataMap.put(Constants.DATA4, Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(3, 4));
+        packetDataMap.put(Constants.DATA2, Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(15, 16));
+        packetDataMap.put(Constants.DATA3, Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(14, 15));
+        packetDataMap.put(Constants.DATA4, Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(12, 13));
         packetDataMap.put(Constants.DATA5, Helper.hexToDecimal(dataPacket.substring(71, 75))+"");
+        packetDataMap.put(Constants.DATA6, dataPacket.substring(45, 47).substring(0, 1));
+        packetDataMap.put(Constants.DATA7, dataPacket.substring(45, 47).substring(1, 2));
         
 
     	//Log.fineAndSysOut("START OF STRING           "+ChannelBufferTools.readHexString(buf, 1));
@@ -283,6 +289,11 @@ public class ChannelBufferTools {
     	Log.fineAndSysOut("Data Length          "+dataPacket.substring(39, 43));
     	Log.fineAndSysOut("Software Version     "+dataPacket.substring(43, 45));
     	Log.fineAndSysOut("STATUS BIT           "+dataPacket.substring(45, 47));
+
+    	Log.fineAndSysOut("STATUS BIT 1          "+dataPacket.substring(45, 47).substring(0, 1));
+    	Log.fineAndSysOut("STATUS BIT 2          "+dataPacket.substring(45, 47).substring(1, 2));
+
+    	
     	Log.fineAndSysOut("Slave ID             "+dataPacket.substring(47, 49));
     	Log.fineAndSysOut("Function Code        "+dataPacket.substring(49, 51));
     	Log.fineAndSysOut("Byte Count           "+dataPacket.substring(51, 53));
@@ -292,6 +303,11 @@ public class ChannelBufferTools {
     	
     	Log.fineAndSysOut("Temperature          "+((Double.parseDouble(Helper.hexToDecimal(dataPacket.substring(53, 57))))/10)+"");
     	Log.fineAndSysOut("Door open status     "+Helper.convertHexToBin(dataPacket.substring(57, 61)));
+    	
+    	Log.fineAndSysOut("Door open status 1    "+Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(15, 16));
+    	Log.fineAndSysOut("Door open status 2    "+Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(14, 15));
+    	Log.fineAndSysOut("Door open status 3    "+Helper.convertHexToBin(dataPacket.substring(57, 61)).substring(12, 13));
+    	
     	Log.fineAndSysOut("CRC low              "+dataPacket.substring(61, 63));
     	Log.fineAndSysOut("CRC High             "+dataPacket.substring(63, 65));
     	
@@ -311,6 +327,106 @@ public class ChannelBufferTools {
     }
 
     
+    
+    /**
+     * Return Protocol HashTable
+     * @throws ParseException 
+     */
+    public static Hashtable<String, String> readProtocol2(ChannelBuffer buf) throws ParseException {
+    	Hashtable<String, String> packetDataMap = new Hashtable<String, String>();
+    	StringBuffer dataPacket =  new StringBuffer();
+    	
+    	try {
+	    	for (int i = 0; i <=  buf.readableBytes(); i ++) {
+	            byte b = buf.getByte(i);
+	            buf.toString().length();
+	            dataPacket.append((char) b);
+	    	}
+	    	String dataArray[] = dataPacket.toString().split(",");
+			Calendar time = Calendar.getInstance();
+		    time.clear();
+		    time.set((2000 + Integer.valueOf(dataArray[7])),(Integer.valueOf(dataArray[6])-1),Integer.valueOf(dataArray[5]),
+		     		Integer.valueOf(dataArray[2]),Integer.valueOf(dataArray[3]),Integer.valueOf(dataArray[4]));
+		      
+			Log.fineAndSysOut("Panel 1 voltage : "+Helper.getFormattedDoubleValue(dataArray[8]));
+			Log.fineAndSysOut("Panel 2 voltage : "+Helper.getFormattedDoubleValue(dataArray[9]));
+			Log.fineAndSysOut("Panel 3 voltage : "+Helper.getFormattedDoubleValue(dataArray[10]));
+			Log.fineAndSysOut("Battery Voltage : "+Helper.getFormattedDoubleValue(dataArray[11]));
+			Log.fineAndSysOut("Utility R Phase Voltage : "+Helper.getFormattedDoubleValue(dataArray[12]));
+			Log.fineAndSysOut("Utility Y Phase Voltage : "+Helper.getFormattedDoubleValue(dataArray[13]));
+			Log.fineAndSysOut("Utility B Phase Voltage : "+Helper.getFormattedDoubleValue(dataArray[14]));
+			Log.fineAndSysOut("Inverter R Phase Voltage : "+Helper.getFormattedDoubleValue(dataArray[15]));
+			Log.fineAndSysOut("Inverter Y Phase Voltage : "+Helper.getFormattedDoubleValue(dataArray[16]));
+			Log.fineAndSysOut("Inverter B Phase Voltage : "+Helper.getFormattedDoubleValue(dataArray[17]));
+			Log.fineAndSysOut("Panel 1 Current : "+Helper.getFormattedDoubleValue(dataArray[18]));
+			Log.fineAndSysOut("Panel 2 Current : "+Helper.getFormattedDoubleValue(dataArray[19]));
+			Log.fineAndSysOut("Panel 3 Current : "+Helper.getFormattedDoubleValue(dataArray[20]));
+			Log.fineAndSysOut("Utility R Phase Current : "+Helper.getFormattedDoubleValue(dataArray[21]));
+			Log.fineAndSysOut("Utility Y Phase Current : "+Helper.getFormattedDoubleValue(dataArray[22]));
+			Log.fineAndSysOut("Utility B Phase Current :"+Helper.getFormattedDoubleValue(dataArray[23]));
+			Log.fineAndSysOut("Inverter R Phase Current : "+Helper.getFormattedDoubleValue(dataArray[24]));
+			Log.fineAndSysOut("Inverter Y Phase Current : "+Helper.getFormattedDoubleValue(dataArray[25]));
+			Log.fineAndSysOut("Inverter B Phase Current : "+Helper.getFormattedDoubleValue(dataArray[26]));
+			Log.fineAndSysOut("Panel 1 Power in KW : "+Helper.getFormattedDoubleValue(dataArray[27]));
+			Log.fineAndSysOut("Panel 1 Power in KW : "+Helper.getFormattedDoubleValue(dataArray[28]));
+			Log.fineAndSysOut("Panel 1 Power in KW : "+Helper.getFormattedDoubleValue(dataArray[29]));
+			Log.fineAndSysOut("Utility Power in KW : "+Helper.getFormattedDoubleValue(dataArray[30]));
+			Log.fineAndSysOut("Inverter Power in KW : "+Helper.getFormattedDoubleValue(dataArray[31]));
+			Log.fineAndSysOut("Utility PowerFactor : "+Helper.getFormattedDoubleValue(dataArray[32]));
+			Log.fineAndSysOut("Inverter Powerfactor : "+Helper.getFormattedDoubleValue(dataArray[33]));
+			Log.fineAndSysOut("Utility Frequency : "+Helper.getFormattedDoubleValue(dataArray[34]));
+			Log.fineAndSysOut("Inverter Frequency : "+Helper.getFormattedDoubleValue(dataArray[35]));
+			Log.fineAndSysOut("Panel 1  wh : "+Helper.getFormattedDoubleValue(dataArray[36]));
+			Log.fineAndSysOut("Panel 2  wh : "+Helper.getFormattedDoubleValue(dataArray[37]));
+			Log.fineAndSysOut("Panel 3  wh : "+Helper.getFormattedDoubleValue(dataArray[38]));
+			Log.fineAndSysOut("Utility  wh : "+Helper.getFormattedDoubleValue(dataArray[39]));
+			Log.fineAndSysOut("Inverter wh : "+Helper.getFormattedDoubleValue(dataArray[40]));
+		
+			 packetDataMap.put(Constants.IMEI_NO, dataArray[1]);
+		     packetDataMap.put("packets", dataPacket.toString());     
+		     packetDataMap.put(Constants.TIMESTAMP, time.getTimeInMillis()+""); 
+		     packetDataMap.put(Constants.DATA1, Helper.getFormattedDoubleValue(dataArray[8])+"");
+		     packetDataMap.put(Constants.DATA2, Helper.getFormattedDoubleValue(dataArray[9])+"");
+		     packetDataMap.put(Constants.DATA3, Helper.getFormattedDoubleValue(dataArray[10])+"");
+		     packetDataMap.put(Constants.DATA4, Helper.getFormattedDoubleValue(dataArray[11])+"");
+		     packetDataMap.put(Constants.DATA5, Helper.getFormattedDoubleValue(dataArray[12])+"");
+		     packetDataMap.put(Constants.DATA6, Helper.getFormattedDoubleValue(dataArray[13])+"");
+		     packetDataMap.put(Constants.DATA7, Helper.getFormattedDoubleValue(dataArray[14])+"");
+		     packetDataMap.put(Constants.DATA8, Helper.getFormattedDoubleValue(dataArray[15])+"");
+		     packetDataMap.put(Constants.DATA9, Helper.getFormattedDoubleValue(dataArray[16])+"");
+		     packetDataMap.put(Constants.DATA10, Helper.getFormattedDoubleValue(dataArray[17])+"");
+		     packetDataMap.put(Constants.DATA11, Helper.getFormattedDoubleValue(dataArray[18])+"");
+		     packetDataMap.put(Constants.DATA12, Helper.getFormattedDoubleValue(dataArray[19])+"");
+		     packetDataMap.put(Constants.DATA13, Helper.getFormattedDoubleValue(dataArray[20])+"");
+		     packetDataMap.put(Constants.DATA14, Helper.getFormattedDoubleValue(dataArray[21])+"");
+		     packetDataMap.put(Constants.DATA15, Helper.getFormattedDoubleValue(dataArray[22])+"");
+		     packetDataMap.put(Constants.DATA16, Helper.getFormattedDoubleValue(dataArray[23])+"");
+		     packetDataMap.put(Constants.DATA17, Helper.getFormattedDoubleValue(dataArray[24])+"");
+		     packetDataMap.put(Constants.DATA18, Helper.getFormattedDoubleValue(dataArray[25])+"");
+		     packetDataMap.put(Constants.DATA19, Helper.getFormattedDoubleValue(dataArray[26])+"");
+		     packetDataMap.put(Constants.DATA20, Helper.getFormattedDoubleValue(dataArray[27])+"");
+		     packetDataMap.put(Constants.DATA21, Helper.getFormattedDoubleValue(dataArray[28])+"");
+		     packetDataMap.put(Constants.DATA22, Helper.getFormattedDoubleValue(dataArray[29])+"");
+		     packetDataMap.put(Constants.DATA23, Helper.getFormattedDoubleValue(dataArray[30])+"");
+		     packetDataMap.put(Constants.DATA24, Helper.getFormattedDoubleValue(dataArray[31])+"");
+		     packetDataMap.put(Constants.DATA25, Helper.getFormattedDoubleValue(dataArray[32])+"");
+		     packetDataMap.put(Constants.DATA26, Helper.getFormattedDoubleValue(dataArray[33])+"");
+		     packetDataMap.put(Constants.DATA27, Helper.getFormattedDoubleValue(dataArray[34])+"");
+		     packetDataMap.put(Constants.DATA28, Helper.getFormattedDoubleValue(dataArray[35])+"");
+		     packetDataMap.put(Constants.DATA29, Helper.getFormattedDoubleValue(dataArray[36])+"");
+		     packetDataMap.put(Constants.DATA30, Helper.getFormattedDoubleValue(dataArray[37])+"");
+		     packetDataMap.put(Constants.DATA31, Helper.getFormattedDoubleValue(dataArray[38])+"");
+		     packetDataMap.put(Constants.DATA32, Helper.getFormattedDoubleValue(dataArray[39])+"");
+		     packetDataMap.put(Constants.DATA33, Helper.getFormattedDoubleValue(dataArray[40])+"");
+
+    	} catch(Exception e){
+    		System.out.println("Error in parsing "+e.toString());
+    	}
+
+	     
+       return packetDataMap;
+    }
+
     
     
     /**
@@ -466,6 +582,8 @@ public class ChannelBufferTools {
         historyDetails.setData3(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA3)));
         historyDetails.setData4(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA4)));
         historyDetails.setData5(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA5)));
+        historyDetails.setData6(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA6)));
+        historyDetails.setData7(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA7)));
               
         
         HistoryDetailsToday historyDetailsToday = new HistoryDetailsToday();
@@ -476,10 +594,98 @@ public class ChannelBufferTools {
         historyDetailsToday.setData3(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA3)));
         historyDetailsToday.setData4(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA4)));
         historyDetailsToday.setData5(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA5)));
-        
+        historyDetailsToday.setData6(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA6)));
+        historyDetailsToday.setData7(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA7)));
         
         session.save(historyDetails);
         session.save(historyDetailsToday);        
         return true;
     }	
+
+    /**
+     * Protocol3 solar phase 3 -UpdateHistory
+     */
+    public static boolean updateHistoryForProtocol3(Session session, Hashtable<String, String> packetDataHashtable,
+    		MachineDetails machineDetails) throws Exception {
+    	HistoryDetails historyDetails = new HistoryDetails();
+        historyDetails.setMachineDetails(machineDetails);
+        historyDetails.setDataTimestamp(new Timestamp(Long.valueOf(packetDataHashtable.get(Constants.TIMESTAMP))));        
+        historyDetails.setData1(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA1)));
+        historyDetails.setData2(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA2)));
+        historyDetails.setData3(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA3)));
+        historyDetails.setData4(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA4)));
+        historyDetails.setData5(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA5)));
+        historyDetails.setData6(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA6)));
+        historyDetails.setData7(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA7)));
+        historyDetails.setData8(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA8)));
+        historyDetails.setData9(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA9)));        
+        historyDetails.setData10(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA10)));
+        historyDetails.setData11(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA11)));
+        historyDetails.setData12(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA12)));
+        historyDetails.setData13(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA13)));
+        historyDetails.setData14(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA14)));        
+        historyDetails.setData15(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA15)));
+        historyDetails.setData16(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA16)));
+        historyDetails.setData17(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA17)));
+        historyDetails.setData18(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA18)));
+        historyDetails.setData19(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA19)));
+        historyDetails.setData20(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA20)));
+        historyDetails.setData21(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA21)));
+        historyDetails.setData22(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA22)));
+        historyDetails.setData23(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA23)));
+        historyDetails.setData24(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA24)));
+        historyDetails.setData25(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA25)));
+        historyDetails.setData26(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA26)));
+        historyDetails.setData27(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA27)));
+        historyDetails.setData28(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA28)));
+        historyDetails.setData29(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA29)));
+        historyDetails.setData30(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA30)));
+        historyDetails.setData31(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA31)));
+        historyDetails.setData32(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA32)));
+        historyDetails.setData33(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA33)));
+        
+        
+        HistoryDetailsToday historyDetailsToday = new HistoryDetailsToday();
+        historyDetailsToday.setMachineDetails(machineDetails);
+        historyDetailsToday.setDataTimestamp(new Timestamp(Long.valueOf(packetDataHashtable.get(Constants.TIMESTAMP))));        
+        historyDetailsToday.setData1(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA1)));
+        historyDetailsToday.setData2(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA2)));
+        historyDetailsToday.setData3(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA3)));
+        historyDetailsToday.setData4(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA4)));
+        historyDetailsToday.setData5(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA5)));
+        historyDetailsToday.setData6(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA6)));
+        historyDetailsToday.setData7(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA7)));
+        historyDetailsToday.setData8(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA8)));
+        historyDetailsToday.setData9(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA9)));        
+        historyDetailsToday.setData10(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA10)));
+        historyDetailsToday.setData11(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA11)));
+        historyDetailsToday.setData12(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA12)));
+        historyDetailsToday.setData13(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA13)));
+        historyDetailsToday.setData14(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA14)));        
+        historyDetailsToday.setData15(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA15)));
+        historyDetailsToday.setData16(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA16)));
+        historyDetailsToday.setData17(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA17)));
+        historyDetailsToday.setData18(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA18)));
+        historyDetailsToday.setData19(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA19)));
+        historyDetailsToday.setData20(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA20)));
+        historyDetailsToday.setData21(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA21)));
+        historyDetailsToday.setData22(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA22)));
+        historyDetailsToday.setData23(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA23)));
+        historyDetailsToday.setData24(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA24)));
+        historyDetailsToday.setData25(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA25)));
+        historyDetailsToday.setData26(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA26)));
+        historyDetailsToday.setData27(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA27)));
+        historyDetailsToday.setData28(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA28)));
+        historyDetailsToday.setData29(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA29)));
+        historyDetailsToday.setData30(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA30)));
+        historyDetailsToday.setData31(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA31)));
+        historyDetailsToday.setData32(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA32)));
+        historyDetailsToday.setData33(Helper.getFormattedDoubleValue(packetDataHashtable.get(Constants.DATA33)));
+        
+        session.save(historyDetails);
+        session.save(historyDetailsToday);        
+        return true;
+    }	
+    
+
 }
